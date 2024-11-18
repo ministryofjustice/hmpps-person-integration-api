@@ -28,7 +28,7 @@ class ExampleResource(private val exampleApiService: ExampleApiService) {
   @Operation(
     summary = "Retrieve today's date and time",
     description = "This is an example endpoint that calls a service to return the current date and time. Requires role ROLE_TEMPLATE_KOTLIN__UI",
-    security = [SecurityRequirement(name = "template-kotlin-ui-role")],
+    security = [SecurityRequirement(name = "person-integration-api-ui-role")],
     responses = [
       ApiResponse(responseCode = "200", description = "today's date and time"),
       ApiResponse(
@@ -53,7 +53,7 @@ class ExampleResource(private val exampleApiService: ExampleApiService) {
       It will return a 404 response as the /example-external-api endpoint hasn't been implemented, so we use wiremock
       in integration tests to simulate other responses.
       Requires role ROLE_TEMPLATE_KOTLIN__UI""",
-    security = [SecurityRequirement(name = "template-kotlin-ui-role")],
+    security = [SecurityRequirement(name = "person-integration-api-ui-role")],
     responses = [
       ApiResponse(responseCode = "200", description = "a message with a parameter"),
       ApiResponse(
