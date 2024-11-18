@@ -75,7 +75,7 @@ class OpenApiDocsTest : IntegrationTestBase() {
   }
 
   @ParameterizedTest
-  @CsvSource(value = ["template-kotlin-ui-role, ROLE_TEMPLATE_KOTLIN__UI"])
+  @CsvSource(value = ["person-integration-api-ui-role, ROLE_TEMPLATE_KOTLIN__UI"])
   fun `the security scheme is setup for bearer tokens`(key: String, role: String) {
     webTestClient.get()
       .uri("/v3/api-docs")
