@@ -82,13 +82,19 @@ sed -i -z -E \
 mv "src/main/$BASE/$PACKAGE_NAME/HmppsTemplateKotlin.kt" "src/main/$BASE/$PACKAGE_NAME/$CLASS_NAME.kt"
 mv "src/main/$BASE/$PACKAGE_NAME/config/HmppsTemplateKotlinExceptionHandler.kt" "src/main/$BASE/$PACKAGE_NAME/config/${CLASS_NAME}ExceptionHandler.kt"
 
+# TEMPORARILY REMOVED - THIS WILL NEED TO BE DONE MANUALLY FOR GHA PROJECTS
 # change cron job to be random time otherwise we hit rate limiting with veracode
 RANDOM_HOUR=$((RANDOM % (9 - 3 + 1) + 3))
 RANDOM_MINUTE=$(($RANDOM%60))
 RANDOM_MINUTE2=$(($RANDOM%60))
-sed -i -z -E \
-  -e "s/SLACK_RELEASES_CHANNEL/$SLACK_RELEASES_CHANNEL/" \
-  .circleci/config.yml
+
+if [ -f .circleci/config.yml ]; then
+  sed -i -z -E \
+    -e "s/SLACK_RELEASES_CHANNEL/$SLACK_RELEASES_CHANNEL/" \
+    .circleci/config.yml
+else
+  echo "File .circleci/config.yml does not exist. Skipping CircleCI notifications configuration as this is a GHA project."
+fi
 
 echo "NEEDS TO BE SET MANUALLY"
 echo "========================"
