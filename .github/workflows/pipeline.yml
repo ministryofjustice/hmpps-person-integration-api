@@ -12,11 +12,11 @@ on:
         type: choice
         required: true
         options:
-          - development
+          - dev
           - preprod
           - staging
           - production
-        default: 'development'
+        default: 'dev'
       docker_registry:
         description: Docker registry
         required: true
@@ -59,7 +59,7 @@ jobs:
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/test_helm_lint.yml@v1 # WORKFLOW VERSION
     secrets: inherit
     with:
-      environment: ${{ inputs.environment || 'development' }}
+      environment: ${{ inputs.environment || 'dev' }}
   kotlin_validate:
     name: Validate the kotlin
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/kotlin_validate.yml@v1 # WORKFLOW_VERSION
