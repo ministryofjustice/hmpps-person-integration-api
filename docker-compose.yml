@@ -3,6 +3,9 @@ services:
   hmpps-person-integration-api:
     build:
       context: .
+    depends_on:
+      - hmpps-auth
+      - prison-api
     networks:
       - hmpps
     container_name: hmpps-person-integration-api
@@ -30,6 +33,20 @@ services:
       - SERVER_PORT=8080
       - SPRING_PROFILES_ACTIVE=dev
       - APPLICATION_AUTHENTICATION_UI_ALLOWLIST=0.0.0.0/0
+
+  prison-api:
+    image: quay.io/hmpps/prison-api:latest
+    container_name: prison-api
+    networks:
+      - hmpps
+    ports:
+      - '8082:8080'
+    healthcheck:
+      test: [ 'CMD', 'curl', '-f', 'http://localhost:8080/health' ]
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=nomis-hsqldb
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=https://sign-in-dev.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json
 
 networks:
   hmpps:
