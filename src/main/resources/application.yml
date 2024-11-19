@@ -1,5 +1,5 @@
 info.app:
-  name: HMPPS Peron Integration API
+  name: HMPPS Person Integration API
   version: 1.0
 
 spring:
