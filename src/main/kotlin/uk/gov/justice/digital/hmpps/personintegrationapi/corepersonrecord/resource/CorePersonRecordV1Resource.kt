@@ -46,7 +46,7 @@ class CorePersonRecordV1Resource(
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "Performs partial updates on the core person record by prisoner number",
-    description = "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_WRITE_ROLE}`",
+    description = "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}`",
     responses = [
       ApiResponse(
         responseCode = "204",
@@ -64,7 +64,7 @@ class CorePersonRecordV1Resource(
       ),
       ApiResponse(
         responseCode = "403",
-        description = "Missing required role. Requires ${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_WRITE_ROLE}",
+        description = "Missing required role. Requires ${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}",
         content = [
           Content(
             mediaType = MediaType.APPLICATION_JSON_VALUE,
@@ -84,7 +84,7 @@ class CorePersonRecordV1Resource(
       ),
     ],
   )
-  @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_WRITE_ROLE}')")
+  @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun patchByPrisonerNumber(
     @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
     @RequestBody(required = true) @Valid corePersonRecordUpdateRequest: CorePersonRecordV1UpdateRequestDto,
@@ -110,7 +110,7 @@ class CorePersonRecordV1Resource(
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "Add or updates the profile image on the core person record by prisoner number",
-    description = "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_WRITE_ROLE}`",
+    description = "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}`",
     responses = [
       ApiResponse(
         responseCode = "200",
@@ -128,7 +128,7 @@ class CorePersonRecordV1Resource(
       ),
       ApiResponse(
         responseCode = "403",
-        description = "Missing required role. Requires ${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_WRITE_ROLE}.",
+        description = "Missing required role. Requires ${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}.",
         content = [
           Content(
             mediaType = MediaType.APPLICATION_JSON_VALUE,
@@ -148,7 +148,7 @@ class CorePersonRecordV1Resource(
       ),
     ],
   )
-  @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_WRITE_ROLE}')")
+  @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun putProfileImageByPrisonerNumber(
     @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
     @RequestPart(name = "imageFile", required = true) profileImage: MultipartFile,
@@ -170,7 +170,7 @@ class CorePersonRecordV1Resource(
     summary = "Get all reference data codes for the given domain",
     description = "Returns the list of reference data codes within the given domain. " +
       "This endpoint only returns active reference data codes. " +
-      "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}`",
+      "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}` or `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}`",
     responses = [
       ApiResponse(
         responseCode = "200",
@@ -189,7 +189,7 @@ class CorePersonRecordV1Resource(
       ),
     ],
   )
-  @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}')")
+  @PreAuthorize("hasAnyRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}', '${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun getReferenceDataCodesByDomain(
     @PathVariable @Schema(
       description = "The reference data domain",

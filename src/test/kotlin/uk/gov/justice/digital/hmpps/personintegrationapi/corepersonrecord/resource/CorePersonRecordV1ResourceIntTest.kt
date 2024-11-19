@@ -54,7 +54,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
       fun `can patch core person record by prisoner number`() {
         webTestClient.patch().uri("/v1/core-person-record?prisonerNumber=$PRISONER_NUMBER")
           .contentType(MediaType.APPLICATION_JSON)
-          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_WRITE_ROLE)))
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
           .bodyValue(VALID_PATCH_REQUEST_BODY)
           .exchange()
           .expectStatus().isNoContent
@@ -69,7 +69,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
         webTestClient.patch()
           .uri("/v1/core-person-record?prisonerNumber=$PRISONER_NUMBER_NOT_FOUND")
           .contentType(MediaType.APPLICATION_JSON)
-          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_WRITE_ROLE)))
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
           .bodyValue(VALID_PATCH_REQUEST_BODY)
           .exchange()
           .expectStatus().isNotFound
@@ -114,7 +114,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
         val response = webTestClient.put()
           .uri("/v1/core-person-record/profile-image?prisonerNumber=$PRISONER_NUMBER")
           .contentType(MediaType.MULTIPART_FORM_DATA)
-          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_WRITE_ROLE)))
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
           .body(BodyInserters.fromMultipartData(MULTIPART_BUILDER.build()))
           .exchange()
           .expectStatus().isOk

@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
-import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -43,8 +42,7 @@ class PersonProtectedCharacteristicsV1Resource {
   @PutMapping("/religion")
   @ResponseStatus(HttpStatus.OK)
   @Operation(
-    description = "Requires role `${PersonProtectedCharacteristicsRoleConstants.PROTECTED_CHARACTERISTICS_WRITE_ROLE}`",
-    security = [SecurityRequirement(name = PersonProtectedCharacteristicsRoleConstants.PROTECTED_CHARACTERISTICS_WRITE_ROLE)],
+    description = "Requires role `${PersonProtectedCharacteristicsRoleConstants.PROTECTED_CHARACTERISTICS_READ_WRITE_ROLE}`",
     responses = [
       ApiResponse(
         responseCode = "200",
@@ -62,7 +60,7 @@ class PersonProtectedCharacteristicsV1Resource {
       ),
       ApiResponse(
         responseCode = "403",
-        description = "Missing required role. Requires ${PersonProtectedCharacteristicsRoleConstants.PROTECTED_CHARACTERISTICS_WRITE_ROLE}",
+        description = "Missing required role. Requires ${PersonProtectedCharacteristicsRoleConstants.PROTECTED_CHARACTERISTICS_READ_WRITE_ROLE}",
         content = [
           Content(
             mediaType = MediaType.APPLICATION_JSON_VALUE,
@@ -82,7 +80,7 @@ class PersonProtectedCharacteristicsV1Resource {
       ),
     ],
   )
-  @PreAuthorize("hasRole('${PersonProtectedCharacteristicsRoleConstants.PROTECTED_CHARACTERISTICS_WRITE_ROLE}')")
+  @PreAuthorize("hasRole('${PersonProtectedCharacteristicsRoleConstants.PROTECTED_CHARACTERISTICS_READ_WRITE_ROLE}')")
   fun putReligionByPrisonerNumber(
     @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
     @RequestBody(required = true) @Valid religionV1RequestDto: ReligionV1RequestDto,
@@ -101,8 +99,7 @@ class PersonProtectedCharacteristicsV1Resource {
     summary = "Get all reference data codes for the given domain",
     description = "Returns the list of reference data codes within the given domain. " +
       "This endpoint only returns active reference data codes. " +
-      "Requires role `${PersonProtectedCharacteristicsRoleConstants.PROTECTED_CHARACTERISTICS_READ_ROLE}`",
-    security = [SecurityRequirement(name = PersonProtectedCharacteristicsRoleConstants.PROTECTED_CHARACTERISTICS_READ_ROLE)],
+      "Requires role `${PersonProtectedCharacteristicsRoleConstants.PROTECTED_CHARACTERISTICS_READ_ROLE}` or `${PersonProtectedCharacteristicsRoleConstants.PROTECTED_CHARACTERISTICS_READ_WRITE_ROLE}`",
     responses = [
       ApiResponse(
         responseCode = "200",
@@ -121,7 +118,7 @@ class PersonProtectedCharacteristicsV1Resource {
       ),
     ],
   )
-  @PreAuthorize("hasRole('${PersonProtectedCharacteristicsRoleConstants.PROTECTED_CHARACTERISTICS_READ_ROLE}')")
+  @PreAuthorize("hasAnyRole('${PersonProtectedCharacteristicsRoleConstants.PROTECTED_CHARACTERISTICS_READ_ROLE}', '${PersonProtectedCharacteristicsRoleConstants.PROTECTED_CHARACTERISTICS_READ_WRITE_ROLE}')")
   fun getReferenceDataCodesByDomain(
     @PathVariable @Schema(
       description = "The reference data domain",

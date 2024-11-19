@@ -51,7 +51,7 @@ class PersonProtectedCharacteristicsV1ResourceIntTest : IntegrationTestBase() {
         val response = webTestClient.put()
           .uri("v1/person-protected-characteristics/religion?prisonerNumber=$PRISONER_NUMBER")
           .contentType(MediaType.APPLICATION_JSON)
-          .headers(setAuthorisation(roles = listOf(PersonProtectedCharacteristicsRoleConstants.PROTECTED_CHARACTERISTICS_WRITE_ROLE)))
+          .headers(setAuthorisation(roles = listOf(PersonProtectedCharacteristicsRoleConstants.PROTECTED_CHARACTERISTICS_READ_WRITE_ROLE)))
           .bodyValue(TEST_RELIGION_REQUEST_DTO)
           .exchange()
           .expectStatus().isOk
