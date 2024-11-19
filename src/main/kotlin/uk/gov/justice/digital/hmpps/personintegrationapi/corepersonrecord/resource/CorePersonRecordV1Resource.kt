@@ -28,7 +28,6 @@ import org.springframework.web.multipart.MultipartFile
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.annotation.ValidPrisonerNumber
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePersonRecordRoleConstants
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.FieldUpdateResponseDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.CorePersonRecordV1UpdateRequestDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.service.CorePersonRecordService
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
