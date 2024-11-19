@@ -37,7 +37,7 @@ class OpenApiConfiguration(
       ),
     )
     .info(
-      Info().title("Core Person Proxy Prototype").version(version)
+      Info().title("HMPPS Person Integration API").version(version)
         .contact(Contact().name("HMPPS Digital Studio").email("feedback@digital.justice.gov.uk")),
     )
     .components(
