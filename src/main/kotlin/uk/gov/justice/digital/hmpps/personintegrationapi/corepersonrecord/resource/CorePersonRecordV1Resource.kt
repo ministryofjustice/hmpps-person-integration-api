@@ -88,12 +88,14 @@ class CorePersonRecordV1Resource(
   fun patchByPrisonerNumber(
     @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
     @RequestBody(required = true) @Valid corePersonRecordUpdateRequest: CorePersonRecordV1UpdateRequestDto,
-  ) {
+  ): ResponseEntity<Void> {
     corePersonRecordService.updateCorePersonRecordField(
       prisonerNumber,
       corePersonRecordUpdateRequest.fieldName,
       corePersonRecordUpdateRequest.fieldValue,
     )
+
+    return ResponseEntity.noContent().build()
   }
 
   @PutMapping(

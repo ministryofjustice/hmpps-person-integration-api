@@ -3,10 +3,8 @@ package uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.resou
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePersonRecordRoleConstants
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.enumeration.CorePersonRecordField
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER_NOT_FOUND
@@ -16,7 +14,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
 
   @DisplayName("PATCH v1/core-person-record")
   @Nested
-  inner class PatchReligionByPrisonerNumberTest {
+  inner class PatchCorePersonRecordByPrisonerNumberTest {
 
     @Nested
     inner class Security {
@@ -51,18 +49,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_WRITE_ROLE)))
           .bodyValue(VALID_PATCH_REQUEST_BODY)
           .exchange()
-          .expectStatus().isOk
-          .expectBody().json(
-            // language=json
-            """
-                {
-                  "status": "${HttpStatus.OK.reasonPhrase}",
-                  "message": "${CorePersonRecordField.BIRTHPLACE.name} for prisoner $PRISONER_NUMBER successfully updated.",
-                  "fieldName": "${CorePersonRecordField.BIRTHPLACE.name}",
-                  "fieldValue": "London"
-                }
-            """.trimIndent(),
-          )
+          .expectStatus().isNoContent
       }
     }
 
@@ -71,7 +58,8 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
 
       @Test
       fun `handles a 404 not found response from downstream api`() {
-        webTestClient.patch().uri("/v1/core-person-record?prisonerNumber=$PRISONER_NUMBER_NOT_FOUND")
+        webTestClient.patch()
+          .uri("/v1/core-person-record?prisonerNumber=$PRISONER_NUMBER_NOT_FOUND")
           .contentType(MediaType.APPLICATION_JSON)
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_WRITE_ROLE)))
           .bodyValue(VALID_PATCH_REQUEST_BODY)
