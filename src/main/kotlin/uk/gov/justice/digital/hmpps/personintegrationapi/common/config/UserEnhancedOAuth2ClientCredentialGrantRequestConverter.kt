@@ -8,9 +8,13 @@ import org.springframework.util.MultiValueMap
 import java.util.*
 
 @SuppressWarnings("unchecked")
-class UserEnhancedOAuth2ClientCredentialGrantRequestConverter : OAuth2ClientCredentialsGrantRequestEntityConverter() {
+class UserEnhancedOAuth2ClientCredentialGrantRequestConverter :
+  OAuth2ClientCredentialsGrantRequestEntityConverter() {
 
-  fun enhanceWithUsername(grantRequest: OAuth2ClientCredentialsGrantRequest?, username: String?): RequestEntity<Any> {
+  fun enhanceWithUsername(
+    grantRequest: OAuth2ClientCredentialsGrantRequest?,
+    username: String?,
+  ): RequestEntity<Any> {
     val request = super.convert(grantRequest)
     val headers = request.headers
     val body = Objects.requireNonNull(request).body

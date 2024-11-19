@@ -28,9 +28,12 @@ class OpenApiConfiguration(
     .servers(
       listOf(
         Server().url("http://localhost:8080").description("Local"),
-        Server().url("https://person-integration-api-dev.hmpps.service.justice.gov.uk").description("Development"),
-        Server().url("https://person-integration-api-preprod.hmpps.service.justice.gov.uk").description("Pre-Production"),
-        Server().url("https://person-integration-api.hmpps.service.justice.gov.uk").description("Production"),
+        Server().url("https://person-integration-api-dev.hmpps.service.justice.gov.uk")
+          .description("Development"),
+        Server().url("https://person-integration-api-preprod.hmpps.service.justice.gov.uk")
+          .description("Pre-Production"),
+        Server().url("https://person-integration-api.hmpps.service.justice.gov.uk")
+          .description("Production"),
       ),
     )
     .info(

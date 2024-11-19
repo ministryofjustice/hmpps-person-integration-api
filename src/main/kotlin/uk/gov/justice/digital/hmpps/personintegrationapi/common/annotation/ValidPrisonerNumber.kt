@@ -17,7 +17,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.Constants
   AnnotationTarget.FIELD,
   AnnotationTarget.VALUE_PARAMETER,
 )
-@kotlin.annotation.Retention(
+@Retention(
   AnnotationRetention.RUNTIME,
 )
 annotation class ValidPrisonerNumber

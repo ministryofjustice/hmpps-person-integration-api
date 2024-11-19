@@ -10,7 +10,10 @@ data class ReferenceDataDomainDto(
   @Schema(description = "Short code for the reference data domain", example = "COUNTRY")
   val code: String,
 
-  @Schema(description = "Description of the reference data domain", example = "Countries reference data")
+  @Schema(
+    description = "Description of the reference data domain",
+    example = "Countries reference data",
+  )
   val description: String,
 
   @Schema(

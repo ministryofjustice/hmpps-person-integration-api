@@ -151,7 +151,7 @@ class CorePersonRecordV1Resource(
   @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_WRITE_ROLE}')")
   fun putProfileImageByPrisonerNumber(
     @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
-    @RequestPart(name = "Image file", required = true) profileImage: MultipartFile,
+    @RequestPart(name = "imageFile", required = true) profileImage: MultipartFile,
   ): ResponseEntity<InputStreamResource> {
     val inputStreamResource = InputStreamResource(profileImage.inputStream)
     return ok().contentType(

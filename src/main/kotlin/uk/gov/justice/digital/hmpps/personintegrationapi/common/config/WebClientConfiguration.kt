@@ -15,7 +15,6 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentia
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction
 import org.springframework.web.context.annotation.RequestScope
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.support.WebClientAdapter
 import org.springframework.web.service.invoker.HttpServiceProxyFactory
@@ -32,7 +31,8 @@ class WebClientConfiguration(
   @Value("\${api.timeout:90s}") val timeout: Duration,
 ) {
   @Bean
-  fun authHealthWebClient(builder: WebClient.Builder): WebClient = builder.healthWebClient(authBaseUri, healthTimeout)
+  fun authHealthWebClient(builder: WebClient.Builder): WebClient =
+    builder.healthWebClient(authBaseUri, healthTimeout)
 
   @Bean
   fun prisonApiHealthWebClient(builder: WebClient.Builder): WebClient =
@@ -49,14 +49,14 @@ class WebClientConfiguration(
       builder,
       prisonApiBaseUri,
       "prison-api",
-      null,
     )
   }
 
   @Bean
   @DependsOn("prisonApiWebClient")
   fun prisonApiClient(prisonApiWebClient: WebClient): PrisonApiClient {
-    val factory = HttpServiceProxyFactory.builderFor(WebClientAdapter.create(prisonApiWebClient)).build()
+    val factory =
+      HttpServiceProxyFactory.builderFor(WebClientAdapter.create(prisonApiWebClient)).build()
     val client = factory.createClient(PrisonApiClient::class.java)
     return client
   }
@@ -74,7 +74,9 @@ class WebClientConfiguration(
 
     val authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
       .clientCredentials { clientCredentialsGrantBuilder: OAuth2AuthorizedClientProviderBuilder.ClientCredentialsGrantBuilder ->
-        clientCredentialsGrantBuilder.accessTokenResponseClient(defaultClientCredentialsTokenResponseClient)
+        clientCredentialsGrantBuilder.accessTokenResponseClient(
+          defaultClientCredentialsTokenResponseClient,
+        )
       }
       .build()
 
@@ -87,17 +89,10 @@ class WebClientConfiguration(
     builder: WebClient.Builder,
     rootUri: String,
     registrationId: String,
-    filterFunctions: List<ExchangeFilterFunction>?,
   ): WebClient {
     val oauth2Client = ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager)
     oauth2Client.setDefaultClientRegistrationId(registrationId)
 
-    val standardBuild = builder.baseUrl(rootUri).apply(oauth2Client.oauth2Configuration())
-
-    if (filterFunctions.isNullOrEmpty()) {
-      return standardBuild.build()
-    }
-
-    return standardBuild.filters { it.addAll(0, filterFunctions.toList()) }.build()
+    return builder.baseUrl(rootUri).apply(oauth2Client.oauth2Configuration()).build()
   }
 }

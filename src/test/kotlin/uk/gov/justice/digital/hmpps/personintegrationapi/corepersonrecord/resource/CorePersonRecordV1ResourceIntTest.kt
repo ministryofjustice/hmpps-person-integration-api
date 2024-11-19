@@ -1,9 +1,17 @@
 package uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.resource
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.core.io.ByteArrayResource
+import org.springframework.core.io.InputStreamResource
 import org.springframework.http.MediaType
+import org.springframework.http.client.MultipartBodyBuilder
+import org.springframework.mock.web.MockMultipartFile
+import org.springframework.web.multipart.MultipartFile
+import org.springframework.web.reactive.function.BodyInserters
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePersonRecordRoleConstants
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER
@@ -72,11 +80,92 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
 
   @DisplayName("PUT v1/core-person-record/profile-image")
   @Nested
-  inner class PutProfileImageByPrisonerNumberTest
+  inner class PutProfileImageByPrisonerNumberTest {
+    @Nested
+    inner class Security {
+
+      @Test
+      fun `access forbidden when no authority`() {
+        webTestClient.put()
+          .uri("/v1/core-person-record/profile-image?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.MULTIPART_FORM_DATA)
+          .body(BodyInserters.fromMultipartData(MULTIPART_BUILDER.build()))
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `access forbidden with wrong role`() {
+        webTestClient.put()
+          .uri("/v1/core-person-record/profile-image?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.MULTIPART_FORM_DATA)
+          .headers(setAuthorisation(roles = listOf("ROLE_IS_WRONG")))
+          .body(BodyInserters.fromMultipartData(MULTIPART_BUILDER.build()))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+    }
+
+    @Nested
+    inner class HappyPath {
+
+      @Test
+      fun `can update core person record profile image by prisoner number`() {
+        val response = webTestClient.put()
+          .uri("/v1/core-person-record/profile-image?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.MULTIPART_FORM_DATA)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_WRITE_ROLE)))
+          .body(BodyInserters.fromMultipartData(MULTIPART_BUILDER.build()))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody(InputStreamResource::class.java)
+          .returnResult().responseBody
+
+        assertThat(response?.filename).isEqualTo(MULTIPART_FILE.originalFilename)
+        assertThat(response?.contentAsByteArray).isEqualTo(MULTIPART_FILE.bytes)
+      }
+    }
+  }
 
   @DisplayName("GET v1/core-person-record/reference-data/domain/{domain}/codes")
   @Nested
-  inner class GetReferenceDataCodesByDomain
+  inner class GetReferenceDataCodesByDomain {
+
+    @Nested
+    inner class Security {
+      @Test
+      fun `access forbidden when no authority`() {
+        webTestClient.get().uri("/v1/core-person-record/reference-data/domain/$TEST_DOMAIN/codes")
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `access forbidden with wrong role`() {
+        webTestClient.get().uri("/v1/core-person-record/reference-data/domain/$TEST_DOMAIN/codes")
+          .headers(setAuthorisation(roles = listOf("ROLE_IS_WRONG")))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+    }
+
+    @Nested
+    inner class HappyPath {
+
+      @Test
+      fun `can update core person record profile image by prisoner number`() {
+        val response =
+          webTestClient.get().uri("/v1/core-person-record/reference-data/domain/$TEST_DOMAIN/codes")
+            .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE)))
+            .exchange()
+            .expectStatus().isOk
+            .expectBodyList(ReferenceDataCodeDto::class.java)
+            .returnResult().responseBody
+
+        assertThat(response).isEqualTo(emptyList<ReferenceDataCodeDto>())
+      }
+    }
+  }
 
   private companion object {
 
@@ -88,5 +177,20 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
           "fieldValue": "London"
         }
       """.trimIndent()
+
+    val MULTIPART_FILE: MultipartFile = MockMultipartFile(
+      "file",
+      "filename.jpg",
+      MediaType.IMAGE_JPEG_VALUE,
+      "I AM A JPEG, HONEST...".toByteArray(),
+    )
+
+    const val TEST_DOMAIN = "COUNTRY"
+
+    val MULTIPART_BUILDER =
+      MultipartBodyBuilder().apply {
+        part("imageFile", ByteArrayResource(MULTIPART_FILE.bytes))
+          .header("Content-Disposition", "form-data; name=imageFile; filename=filename.jpg")
+      }
   }
 }
