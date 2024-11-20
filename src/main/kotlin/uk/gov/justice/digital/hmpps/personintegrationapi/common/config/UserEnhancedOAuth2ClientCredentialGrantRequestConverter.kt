@@ -5,7 +5,7 @@ import org.springframework.http.RequestEntity
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequestEntityConverter
 import org.springframework.util.MultiValueMap
-import java.util.*
+import java.util.Objects
 
 @SuppressWarnings("unchecked")
 class UserEnhancedOAuth2ClientCredentialGrantRequestConverter :
