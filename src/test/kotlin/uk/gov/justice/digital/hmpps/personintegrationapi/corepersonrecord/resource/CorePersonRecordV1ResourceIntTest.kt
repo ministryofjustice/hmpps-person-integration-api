@@ -5,7 +5,6 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.core.io.ByteArrayResource
-import org.springframework.core.io.InputStreamResource
 import org.springframework.http.MediaType
 import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.mock.web.MockMultipartFile
@@ -111,18 +110,13 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
 
       @Test
       fun `can update core person record profile image by prisoner number`() {
-        val response = webTestClient.put()
+        webTestClient.put()
           .uri("/v1/core-person-record/profile-image?prisonerNumber=$PRISONER_NUMBER")
           .contentType(MediaType.MULTIPART_FORM_DATA)
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
           .body(BodyInserters.fromMultipartData(MULTIPART_BUILDER.build()))
           .exchange()
-          .expectStatus().isOk
-          .expectBody(InputStreamResource::class.java)
-          .returnResult().responseBody
-
-        assertThat(response?.filename).isEqualTo(MULTIPART_FILE.originalFilename)
-        assertThat(response?.contentAsByteArray).isEqualTo(MULTIPART_FILE.bytes)
+          .expectStatus().isNoContent
       }
     }
   }
