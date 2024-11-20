@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.DependsOn
+import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService
@@ -18,6 +19,7 @@ import org.springframework.web.context.annotation.RequestScope
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.support.WebClientAdapter
 import org.springframework.web.service.invoker.HttpServiceProxyFactory
+import reactor.netty.http.client.HttpClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.config.UserEnhancedOAuth2ClientCredentialGrantRequestConverter
 import uk.gov.justice.hmpps.kotlin.auth.healthWebClient
@@ -26,17 +28,19 @@ import java.time.Duration
 @Configuration
 class WebClientConfiguration(
   @Value("\${hmpps-auth.url}") private val authBaseUri: String,
+  @Value("\${hmpps-auth.health.timeout:20s}") private val authHealthTimeout: Duration,
+
   @Value("\${prison-api.base_url}") private val prisonApiBaseUri: String,
-  @Value("\${api.timeout:20s}") val healthTimeout: Duration,
-  @Value("\${api.timeout:90s}") val timeout: Duration,
+  @Value("\${prison-api.health_timeout:20s}") private val prisonApiHealthTimeout: Duration,
+  @Value("\${prison-api.timeout:30s}") private val prisonApiTimeout: Duration,
 ) {
   @Bean
   fun authHealthWebClient(builder: WebClient.Builder): WebClient =
-    builder.healthWebClient(authBaseUri, healthTimeout)
+    builder.healthWebClient(authBaseUri, authHealthTimeout)
 
   @Bean
   fun prisonApiHealthWebClient(builder: WebClient.Builder): WebClient =
-    builder.healthWebClient(prisonApiBaseUri, healthTimeout)
+    builder.healthWebClient(prisonApiBaseUri, prisonApiHealthTimeout)
 
   @Bean
   @RequestScope
@@ -49,6 +53,7 @@ class WebClientConfiguration(
       builder,
       prisonApiBaseUri,
       "prison-api",
+      prisonApiTimeout,
     )
   }
 
@@ -58,6 +63,7 @@ class WebClientConfiguration(
     val factory =
       HttpServiceProxyFactory.builderFor(WebClientAdapter.create(prisonApiWebClient)).build()
     val client = factory.createClient(PrisonApiClient::class.java)
+
     return client
   }
 
@@ -89,10 +95,15 @@ class WebClientConfiguration(
     builder: WebClient.Builder,
     rootUri: String,
     registrationId: String,
+    timout: Duration,
   ): WebClient {
     val oauth2Client = ServletOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager)
     oauth2Client.setDefaultClientRegistrationId(registrationId)
 
-    return builder.baseUrl(rootUri).apply(oauth2Client.oauth2Configuration()).build()
+    return builder
+      .baseUrl(rootUri)
+      .clientConnector(ReactorClientHttpConnector(HttpClient.create().responseTimeout(timout)))
+      .apply(oauth2Client.oauth2Configuration())
+      .build()
   }
 }
