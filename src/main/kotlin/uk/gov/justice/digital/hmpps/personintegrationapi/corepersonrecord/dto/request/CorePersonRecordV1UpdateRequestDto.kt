@@ -14,7 +14,7 @@ data class CorePersonRecordV1UpdateRequestDto(
   val fieldName: CorePersonRecordField,
 
   @Schema(
-    description = "The field to be updated",
+    description = "The new value for the field",
     example = "London",
     required = true,
     nullable = false,
