@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.templatepackagename.integration
+package uk.gov.justice.digital.hmpps.personintegrationapi.integration
 
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -7,13 +7,13 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDO
 import org.springframework.http.HttpHeaders
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
-import uk.gov.justice.digital.hmpps.templatepackagename.integration.wiremock.ExampleApiExtension
-import uk.gov.justice.digital.hmpps.templatepackagename.integration.wiremock.ExampleApiExtension.Companion.exampleApi
-import uk.gov.justice.digital.hmpps.templatepackagename.integration.wiremock.HmppsAuthApiExtension
-import uk.gov.justice.digital.hmpps.templatepackagename.integration.wiremock.HmppsAuthApiExtension.Companion.hmppsAuth
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.HmppsAuthApiExtension
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.HmppsAuthApiExtension.Companion.hmppsAuth
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PrisonApiExtension
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PrisonApiExtension.Companion.prisonApi
 import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
 
-@ExtendWith(HmppsAuthApiExtension::class, ExampleApiExtension::class)
+@ExtendWith(HmppsAuthApiExtension::class, PrisonApiExtension::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
 abstract class IntegrationTestBase {
@@ -32,6 +32,6 @@ abstract class IntegrationTestBase {
 
   protected fun stubPingWithResponse(status: Int) {
     hmppsAuth.stubHealthPing(status)
-    exampleApi.stubHealthPing(status)
+    prisonApi.stubHealthPing(status)
   }
 }

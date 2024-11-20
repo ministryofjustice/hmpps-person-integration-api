@@ -12,7 +12,8 @@
     </encoder>
   </appender>
 
-  <logger name="uk.gov.justice.digital.hmpps.templatepackagename.HmppsTemplateKotlinKt" additivity="false" level="DEBUG">
+  <logger name="uk.gov.justice.digital.hmpps.package uk.gov.justice.digital.hmpps.personintegrationapi
+.HmppsPersonIntegrationApi" additivity="false" level="DEBUG">
     <appender-ref ref="consoleAppender"/>
   </logger>
 

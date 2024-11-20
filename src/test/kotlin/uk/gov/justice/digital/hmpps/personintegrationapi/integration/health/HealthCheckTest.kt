@@ -1,7 +1,7 @@
-package uk.gov.justice.digital.hmpps.templatepackagename.integration.health
+package uk.gov.justice.digital.hmpps.personintegrationapi.integration.health
 
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.templatepackagename.integration.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.IntegrationTestBase
 
 class HealthCheckTest : IntegrationTestBase() {
 
@@ -30,7 +30,7 @@ class HealthCheckTest : IntegrationTestBase() {
       .expectBody()
       .jsonPath("status").isEqualTo("DOWN")
       .jsonPath("components.hmppsAuth.status").isEqualTo("DOWN")
-      .jsonPath("components.exampleApi.status").isEqualTo("DOWN")
+      .jsonPath("components.prisonApi.status").isEqualTo("DOWN")
   }
 
   @Test

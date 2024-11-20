@@ -1,8 +1,10 @@
-version: "3"
 services:
   hmpps-person-integration-api:
     build:
       context: .
+    depends_on:
+      - hmpps-auth
+      - prison-api
     networks:
       - hmpps
     container_name: hmpps-person-integration-api
@@ -13,8 +15,7 @@ services:
     environment:
       - SERVER_PORT=8080
       - HMPPS_AUTH_URL=http://hmpps-auth:8080/auth
-      # TODO: Remove this URL and replace with outgoing service URLs
-      - EXAMPLE_URL=http://hmpps-person-integration-api:8080
+      - PRISON_API_BASE_URL=http://prison-api:8080
       - SPRING_PROFILES_ACTIVE=dev
 
   hmpps-auth:
@@ -30,6 +31,20 @@ services:
       - SERVER_PORT=8080
       - SPRING_PROFILES_ACTIVE=dev
       - APPLICATION_AUTHENTICATION_UI_ALLOWLIST=0.0.0.0/0
+
+  prison-api:
+    image: quay.io/hmpps/prison-api:latest
+    container_name: prison-api
+    networks:
+      - hmpps
+    ports:
+      - '8082:8080'
+    healthcheck:
+      test: [ 'CMD', 'curl', '-f', 'http://localhost:8080/health' ]
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=nomis-hsqldb
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://hmpps-auth:8080/auth/.well-known/jwks.json
 
 networks:
   hmpps:

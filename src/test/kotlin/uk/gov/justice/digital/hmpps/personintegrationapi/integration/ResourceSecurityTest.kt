@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.templatepackagename.integration
+package uk.gov.justice.digital.hmpps.personintegrationapi.integration
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -15,6 +15,8 @@ class ResourceSecurityTest : IntegrationTestBase() {
 
   private val unprotectedDefaultMethods = setOf(
     "GET /v3/api-docs.yaml",
+    "GET /v3/api-docs.yaml/{group}",
+    "GET /v3/api-docs/{group}",
     "GET /swagger-ui.html",
     "GET /v3/api-docs",
     "GET /v3/api-docs/swagger-config",

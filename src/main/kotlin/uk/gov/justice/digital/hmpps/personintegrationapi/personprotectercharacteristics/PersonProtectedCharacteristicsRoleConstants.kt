@@ -1,0 +1,6 @@
+package uk.gov.justice.digital.hmpps.personintegrationapi.personprotectercharacteristics
+
+object PersonProtectedCharacteristicsRoleConstants {
+  const val PROTECTED_CHARACTERISTICS_READ_ROLE = "ROLE_CORE_PERSON_API__PROTECTED_CHARACTERISTICS_DATA__RO"
+  const val PROTECTED_CHARACTERISTICS_READ_WRITE_ROLE = "ROLE_CORE_PERSON_API__PROTECTED_CHARACTERISTICS_DATA__RW"
+}
