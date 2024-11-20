@@ -52,7 +52,7 @@ class WebClientConfiguration(
       authorizedClientManagerUserEnhanced(clientRegistrationRepository),
       builder,
       prisonApiBaseUri,
-      "prison-api",
+      "hmpps-person-integration-api",
       prisonApiTimeout,
     )
   }
