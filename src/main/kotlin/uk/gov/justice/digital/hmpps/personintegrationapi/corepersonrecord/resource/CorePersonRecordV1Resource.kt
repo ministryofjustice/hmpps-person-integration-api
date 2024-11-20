@@ -7,12 +7,10 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import org.springframework.core.io.InputStreamResource
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.http.ResponseEntity.ok
+import org.springframework.http.ResponseEntity.noContent
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -43,7 +41,7 @@ class CorePersonRecordV1Resource(
 ) {
 
   @PatchMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
-  @ResponseStatus(HttpStatus.OK)
+  @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(
     summary = "Performs partial updates on the core person record by prisoner number",
     description = "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}`",
@@ -94,8 +92,7 @@ class CorePersonRecordV1Resource(
       corePersonRecordUpdateRequest.fieldName,
       corePersonRecordUpdateRequest.fieldValue,
     )
-
-    return ResponseEntity.noContent().build()
+    return noContent().build()
   }
 
   @PutMapping(
@@ -107,13 +104,13 @@ class CorePersonRecordV1Resource(
       MediaType.IMAGE_JPEG_VALUE,
     ],
   )
-  @ResponseStatus(HttpStatus.OK)
+  @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(
     summary = "Add or updates the profile image on the core person record by prisoner number",
     description = "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}`",
     responses = [
       ApiResponse(
-        responseCode = "200",
+        responseCode = "204",
         description = "The image file has been uploaded successfully.",
       ),
       ApiResponse(
@@ -152,16 +149,8 @@ class CorePersonRecordV1Resource(
   fun putProfileImageByPrisonerNumber(
     @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
     @RequestPart(name = "imageFile", required = true) profileImage: MultipartFile,
-  ): ResponseEntity<InputStreamResource> {
-    val inputStreamResource = InputStreamResource(profileImage.inputStream)
-    return ok().contentType(
-      MediaType.parseMediaType(
-        profileImage.contentType ?: MediaType.APPLICATION_OCTET_STREAM_VALUE,
-      ),
-    ).contentLength(profileImage.size).header(
-      HttpHeaders.CONTENT_DISPOSITION,
-      "attachment; filename=\"${profileImage.originalFilename}\"",
-    ).body(inputStreamResource)
+  ): ResponseEntity<Void> {
+    return noContent().build()
   }
 
   @GetMapping("reference-data/domain/{domain}/codes")
