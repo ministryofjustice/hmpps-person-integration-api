@@ -3,4 +3,5 @@ package uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.enume
 enum class CorePersonRecordField {
   COUNTRY_OF_BIRTH,
   BIRTHPLACE,
+  DATE_OF_BIRTH,
 }
