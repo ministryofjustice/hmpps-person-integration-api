@@ -15,9 +15,9 @@ import java.time.LocalDate
   visible = true,
 )
 @JsonSubTypes(
-  JsonSubTypes.Type(value = BirthplaceUpdateDto::class),
-  JsonSubTypes.Type(value = CountryOfBirthUpdateDto::class),
-  JsonSubTypes.Type(value = DateOfBirthUpdateDto::class),
+  JsonSubTypes.Type(name = "BIRTHPLACE", value = BirthplaceUpdateDto::class),
+  JsonSubTypes.Type(name = "COUNTRY_OF_BIRTH", value = CountryOfBirthUpdateDto::class),
+  JsonSubTypes.Type(name = "DATE_OF_BIRTH", value = DateOfBirthUpdateDto::class),
 )
 @Schema(description = "Core Person Record V1 update request base")
 sealed class CorePersonRecordV1UpdateRequestDto {
