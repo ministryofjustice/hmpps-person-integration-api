@@ -20,7 +20,7 @@ import java.time.LocalDate
 )
 @Schema(description = "Core Person Record V1 update request base")
 sealed class CorePersonRecordV1UpdateRequestDto {
-  open val fieldName: Any? = null
+  abstract val fieldName: String
   abstract val value: Any?
 
   companion object {
