@@ -1,4 +1,4 @@
-[< Previous](0001-structure-packages-by-api-version.md),
+[< Previous](0000-separate-domain-specific-code-by-package.md),
 [Contents](README.md),
 [Next >](0002-include-username-in-client-credential-token.md)
 
