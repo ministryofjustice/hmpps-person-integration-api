@@ -166,9 +166,9 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
     val VALID_PATCH_REQUEST_BODY =
       // language=json
       """
-        { 
+        {
           "fieldName": "BIRTHPLACE",
-          "fieldValue": "London"
+          "value": "London"
         }
       """.trimIndent()
 

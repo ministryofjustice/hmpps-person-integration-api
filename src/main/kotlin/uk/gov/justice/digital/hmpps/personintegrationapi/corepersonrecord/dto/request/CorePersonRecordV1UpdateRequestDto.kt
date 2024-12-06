@@ -1,23 +1,95 @@
 package uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request
 
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import io.swagger.v3.oas.annotations.media.Schema
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.enumeration.CorePersonRecordField
+import jakarta.validation.constraints.NotNull
+import org.springframework.format.annotation.DateTimeFormat
+import java.time.LocalDate
 
-@Schema(description = "Core Person Record V1 update request")
-data class CorePersonRecordV1UpdateRequestDto(
-  @Schema(
-    description = "The field to be updated",
-    example = "BIRTHPLACE",
-    required = true,
-    nullable = false,
-  )
-  val fieldName: CorePersonRecordField,
+@JsonTypeInfo(
+  use = JsonTypeInfo.Id.NAME,
+  include = JsonTypeInfo.As.EXISTING_PROPERTY,
+  property = "fieldName",
+  visible = true,
+)
+@JsonSubTypes(
+  JsonSubTypes.Type(name = CorePersonRecordV1UpdateRequestDto.BIRTHPLACE, value = BirthplaceUpdateDto::class),
+  JsonSubTypes.Type(name = CorePersonRecordV1UpdateRequestDto.COUNTRY_OF_BIRTH, value = CountryOfBirthUpdateDto::class),
+  JsonSubTypes.Type(name = CorePersonRecordV1UpdateRequestDto.DATE_OF_BIRTH, value = DateOfBirthUpdateDto::class),
+)
+@Schema(description = "Core Person Record V1 update request base")
+sealed class CorePersonRecordV1UpdateRequestDto {
+  abstract val fieldName: String
+  abstract val value: Any?
 
+  companion object {
+    const val BIRTHPLACE = "BIRTHPLACE"
+    const val COUNTRY_OF_BIRTH = "COUNTRY_OF_BIRTH"
+    const val DATE_OF_BIRTH = "DATE_OF_BIRTH"
+  }
+}
+
+@Schema(description = "Core Person Record V1 birthplace update request")
+data class BirthplaceUpdateDto(
   @Schema(
-    description = "The new value for the field",
+    description = "The new value for the Birthplace",
     example = "London",
     required = true,
     nullable = false,
   )
-  val fieldValue: String,
-)
+  @field:NotNull()
+  override val value: String,
+) : CorePersonRecordV1UpdateRequestDto() {
+  @Schema(
+    type = "String",
+    description = "The field to be updated",
+    allowableValues = [BIRTHPLACE],
+    required = true,
+    nullable = false,
+  )
+  override val fieldName: String = BIRTHPLACE
+}
+
+@Schema(description = "Core Person Record V1 date of birth update request")
+data class DateOfBirthUpdateDto(
+  @Schema(
+    description = "The new value for the date of birth field",
+    example = "01/01/2000",
+    required = true,
+    nullable = false,
+  )
+  @field:NotNull()
+  @field:DateTimeFormat(pattern = "dd/mm/yyyy")
+  override val value: LocalDate,
+) : CorePersonRecordV1UpdateRequestDto() {
+  @Schema(
+    type = "String",
+    description = "The field to be updated",
+    allowableValues = [DATE_OF_BIRTH],
+    required = true,
+    nullable = false,
+  )
+  override val fieldName: String = DATE_OF_BIRTH
+}
+
+@Schema(description = "Core Person Record V1 country of birth update request")
+data class CountryOfBirthUpdateDto(
+  @Schema(
+    description = "The new value for the country of brith field",
+    example = "UK",
+    required = true,
+    nullable = false,
+  )
+  @field:NotNull()
+  override val value: String,
+) : CorePersonRecordV1UpdateRequestDto() {
+  @Schema(
+    type = "String",
+    description = "The field to be updated",
+    allowableValues = [COUNTRY_OF_BIRTH],
+    required = true,
+    nullable = false,
+  )
+  override val fieldName: String = COUNTRY_OF_BIRTH
+}

@@ -1,6 +1,6 @@
-[< Previous](0002-include-username-in-client-credential-token.md),
+[< Previous](0001-structure-packages-by-api-version.md),
 [Contents](README.md),
-[Next >](9999-end.md)
+[Next >](0003-limit-v1-patch-endpoints-to-one-field-per-request.md)
 
 
 

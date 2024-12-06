@@ -14,8 +14,10 @@ import org.mockito.kotlin.whenever
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.dto.UpdateBirthPlace
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.enumeration.CorePersonRecordField
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.BirthplaceUpdateDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.DateOfBirthUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.UnknownCorePersonFieldException
+import java.time.LocalDate
 
 @ExtendWith(MockitoExtension::class)
 class CorePersonRecordServiceTest {
@@ -40,13 +42,13 @@ class CorePersonRecordServiceTest {
   inner class UpdateCorePersonRecordField {
     @Test
     fun `can update the birthplace field`() {
-      underTest.updateCorePersonRecordField(PRISONER_NUMBER, CorePersonRecordField.BIRTHPLACE, TEST_BIRTHPLACE_VALUE)
+      underTest.updateCorePersonRecordField(PRISONER_NUMBER, BirthplaceUpdateDto(TEST_BIRTHPLACE_VALUE))
     }
 
     @Test
     fun `throws an exception if the field type is not supported`() {
       assertThrows<UnknownCorePersonFieldException> {
-        underTest.updateCorePersonRecordField(PRISONER_NUMBER, CorePersonRecordField.COUNTRY_OF_BIRTH, "")
+        underTest.updateCorePersonRecordField(PRISONER_NUMBER, DateOfBirthUpdateDto(LocalDate.now()))
       }
     }
   }
