@@ -50,11 +50,21 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
     inner class HappyPath {
 
       @Test
-      fun `can patch core person record by prisoner number`() {
+      fun `can patch core person record birthplace by prisoner number`() {
         webTestClient.patch().uri("/v1/core-person-record?prisonerNumber=$PRISONER_NUMBER")
           .contentType(MediaType.APPLICATION_JSON)
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
-          .bodyValue(VALID_PATCH_REQUEST_BODY)
+          .bodyValue(BIRTHPLACE_PATCH_REQUEST_BODY)
+          .exchange()
+          .expectStatus().isNoContent
+      }
+
+      @Test
+      fun `patch core person record birthplace accepts null value`() {
+        webTestClient.patch().uri("/v1/core-person-record?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(NULL_BIRTHPLACE_PATCH_REQUEST_BODY)
           .exchange()
           .expectStatus().isNoContent
       }
@@ -163,7 +173,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
 
   private companion object {
 
-    val VALID_PATCH_REQUEST_BODY =
+    val BIRTHPLACE_PATCH_REQUEST_BODY =
       // language=json
       """
         {
@@ -171,6 +181,17 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
           "value": "London"
         }
       """.trimIndent()
+
+    val NULL_BIRTHPLACE_PATCH_REQUEST_BODY =
+      // language=json
+      """
+        {
+          "fieldName": "BIRTHPLACE",
+          "value": null 
+        }
+      """.trimIndent()
+
+    val VALID_PATCH_REQUEST_BODY = BIRTHPLACE_PATCH_REQUEST_BODY
 
     val MULTIPART_FILE: MultipartFile = MockMultipartFile(
       "file",

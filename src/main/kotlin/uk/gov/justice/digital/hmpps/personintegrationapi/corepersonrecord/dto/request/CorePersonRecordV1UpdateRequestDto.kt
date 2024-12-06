@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import io.swagger.v3.oas.annotations.media.Schema
-import jakarta.validation.constraints.NotNull
 import org.springframework.format.annotation.DateTimeFormat
 import java.time.LocalDate
 
@@ -33,13 +32,12 @@ sealed class CorePersonRecordV1UpdateRequestDto {
 @Schema(description = "Core Person Record V1 birthplace update request")
 data class BirthplaceUpdateDto(
   @Schema(
-    description = "The new value for the Birthplace",
+    description = "The new value for the birthplace",
     example = "London",
     required = true,
-    nullable = false,
+    nullable = true,
   )
-  @field:NotNull()
-  override val value: String,
+  override val value: String?,
 ) : CorePersonRecordV1UpdateRequestDto() {
   @Schema(
     type = "String",
@@ -57,11 +55,10 @@ data class DateOfBirthUpdateDto(
     description = "The new value for the date of birth field",
     example = "01/01/2000",
     required = true,
-    nullable = false,
+    nullable = true,
   )
-  @field:NotNull()
   @field:DateTimeFormat(pattern = "dd/mm/yyyy")
-  override val value: LocalDate,
+  override val value: LocalDate?,
 ) : CorePersonRecordV1UpdateRequestDto() {
   @Schema(
     type = "String",
@@ -79,10 +76,9 @@ data class CountryOfBirthUpdateDto(
     description = "The new value for the country of brith field",
     example = "UK",
     required = true,
-    nullable = false,
+    nullable = true,
   )
-  @field:NotNull()
-  override val value: String,
+  override val value: String?,
 ) : CorePersonRecordV1UpdateRequestDto() {
   @Schema(
     type = "String",
