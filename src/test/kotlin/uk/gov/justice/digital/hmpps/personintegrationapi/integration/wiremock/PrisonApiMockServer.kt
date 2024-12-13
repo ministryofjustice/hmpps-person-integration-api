@@ -33,31 +33,36 @@ class PrisonApiMockServer : WireMockServer(8082) {
     )
   }
 
-  fun stubUpdateBirthPlaceForWorkingName(prisonerNumber: String = PRISONER_NUMBER) {
-    stubFor(
-      put(urlPathMatching("/api/offenders/$prisonerNumber/birth-place")).willReturn(
-        aResponse().withHeader("Content-Type", "application/json")
-          .withStatus(HttpStatus.NO_CONTENT.value()),
-      ),
+  fun stubUpdateBirthPlaceForWorkingName() {
+    val endpoint = "birth-place"
+    stubOffenderEndpoint(endpoint, HttpStatus.NO_CONTENT, PRISONER_NUMBER)
+    stubOffenderEndpoint(endpoint, HttpStatus.INTERNAL_SERVER_ERROR, PRISONER_NUMBER_THROW_EXCEPTION)
+    stubOffenderEndpoint(
+      endpoint,
+      HttpStatus.NOT_FOUND,
+      PRISONER_NUMBER_NOT_FOUND,
+      PRISON_API_NOT_FOUND_RESPONSE.trimIndent(),
     )
   }
 
-  fun stubUpdateBirthPlaceForWorkingNameException(prisonerNumber: String = PRISONER_NUMBER_THROW_EXCEPTION) {
-    stubFor(
-      put(urlPathMatching("/api/offenders/$prisonerNumber/birth-place")).willReturn(
-        aResponse().withHeader("Content-Type", "application/json")
-          .withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value()),
-      ),
+  fun stubUpdateNationalityForWorkingName() {
+    val endpoint = "nationality"
+    stubOffenderEndpoint(endpoint, HttpStatus.NO_CONTENT, PRISONER_NUMBER)
+    stubOffenderEndpoint(endpoint, HttpStatus.INTERNAL_SERVER_ERROR, PRISONER_NUMBER_THROW_EXCEPTION)
+    stubOffenderEndpoint(
+      endpoint,
+      HttpStatus.NOT_FOUND,
+      PRISONER_NUMBER_NOT_FOUND,
+      PRISON_API_NOT_FOUND_RESPONSE.trimIndent(),
     )
   }
 
-  fun stubUpdateBirthPlaceForWorkingNameNotFound(prisonerNumber: String = PRISONER_NUMBER_NOT_FOUND) {
+  private fun stubOffenderEndpoint(endpoint: String, status: HttpStatus, prisonerNumber: String, body: String? = null) {
     stubFor(
-      put(urlPathMatching("/api/offenders/$prisonerNumber/birth-place")).willReturn(
+      put(urlPathMatching("/api/offenders/$prisonerNumber/$endpoint")).willReturn(
         aResponse().withHeader("Content-Type", "application/json")
-          .withStatus(HttpStatus.NOT_FOUND.value()).withBody(
-            PRISON_API_NOT_FOUND_RESPONSE.trimIndent(),
-          ),
+          .withStatus(status.value())
+          .withBody(body),
       ),
     )
   }
@@ -73,8 +78,7 @@ class PrisonApiExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallba
   override fun beforeEach(context: ExtensionContext) {
     prisonApi.resetAll()
     prisonApi.stubUpdateBirthPlaceForWorkingName()
-    prisonApi.stubUpdateBirthPlaceForWorkingNameException()
-    prisonApi.stubUpdateBirthPlaceForWorkingNameNotFound()
+    prisonApi.stubUpdateNationalityForWorkingName()
   }
 
   override fun afterAll(context: ExtensionContext): Unit = prisonApi.stop()
