@@ -68,6 +68,26 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
           .exchange()
           .expectStatus().isNoContent
       }
+
+      @Test
+      fun `can patch core person record nationality by prisoner number`() {
+        webTestClient.patch().uri("/v1/core-person-record?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(NATIONALITY_PATCH_REQUEST_BODY)
+          .exchange()
+          .expectStatus().isNoContent
+      }
+
+      @Test
+      fun `patch core person record nationality accepts null value`() {
+        webTestClient.patch().uri("/v1/core-person-record?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(NULL_NATIONALITY_PATCH_REQUEST_BODY)
+          .exchange()
+          .expectStatus().isNoContent
+      }
     }
 
     @Nested
@@ -187,6 +207,24 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
       """
         {
           "fieldName": "BIRTHPLACE",
+          "value": null 
+        }
+      """.trimIndent()
+
+    val NATIONALITY_PATCH_REQUEST_BODY =
+      // language=json
+      """
+        {
+          "fieldName": "NATIONALITY",
+          "value": "BRIT"
+        }
+      """.trimIndent()
+
+    val NULL_NATIONALITY_PATCH_REQUEST_BODY =
+      // language=json
+      """
+        {
+          "fieldName": "NATIONALITY",
           "value": null 
         }
       """.trimIndent()

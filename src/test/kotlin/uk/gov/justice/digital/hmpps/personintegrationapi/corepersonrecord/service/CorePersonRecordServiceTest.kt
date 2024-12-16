@@ -14,8 +14,10 @@ import org.mockito.kotlin.whenever
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.dto.UpdateBirthPlace
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.dto.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.BirthplaceUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.DateOfBirthUpdateDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.NationalityUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.UnknownCorePersonFieldException
 import java.time.LocalDate
 
@@ -35,7 +37,10 @@ class CorePersonRecordServiceTest {
 
   @BeforeEach
   fun beforeEach() {
-    whenever(prisonApiClient.updateBirthPlaceForWorkingName(PRISONER_NUMBER, TEST_BIRTHPLACE_BODY)).thenReturn(ResponseEntity.noContent().build())
+    whenever(prisonApiClient.updateBirthPlaceForWorkingName(PRISONER_NUMBER, TEST_BIRTHPLACE_BODY))
+      .thenReturn(ResponseEntity.noContent().build())
+    whenever(prisonApiClient.updateNationalityForWorkingName(PRISONER_NUMBER, TEST_NATIONALITY_BODY))
+      .thenReturn(ResponseEntity.noContent().build())
   }
 
   @Nested
@@ -43,6 +48,11 @@ class CorePersonRecordServiceTest {
     @Test
     fun `can update the birthplace field`() {
       underTest.updateCorePersonRecordField(PRISONER_NUMBER, BirthplaceUpdateDto(TEST_BIRTHPLACE_VALUE))
+    }
+
+    @Test
+    fun `can update the nationality field`() {
+      underTest.updateCorePersonRecordField(PRISONER_NUMBER, NationalityUpdateDto(TEST_NATIONALITY_VALUE))
     }
 
     @Test
@@ -56,6 +66,8 @@ class CorePersonRecordServiceTest {
   private companion object {
     const val PRISONER_NUMBER = "A1234AA"
     const val TEST_BIRTHPLACE_VALUE = "London"
+    const val TEST_NATIONALITY_VALUE = "BRIT"
     val TEST_BIRTHPLACE_BODY = UpdateBirthPlace("London")
+    val TEST_NATIONALITY_BODY = UpdateNationality("BRIT")
   }
 }
