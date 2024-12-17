@@ -168,6 +168,16 @@ class CorePersonRecordV1Resource(
         content = [Content(schema = Schema(implementation = ErrorResponse::class))],
       ),
       ApiResponse(
+        responseCode = "403",
+        description = "Missing required role. Requires ${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE} or ${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}.",
+        content = [
+          Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
         responseCode = "404",
         description = "Not found, the reference data domain was not found",
         content = [Content(schema = Schema(implementation = ErrorResponse::class))],
@@ -180,5 +190,5 @@ class CorePersonRecordV1Resource(
       description = "The reference data domain",
       example = "COUNTRY",
     ) domain: String,
-  ): Collection<ReferenceDataCodeDto> = listOf()
+  ): ResponseEntity<List<ReferenceDataCodeDto>> = corePersonRecordService.getReferenceDataCodes(domain)
 }

@@ -22,6 +22,26 @@ internal const val PRISON_API_NOT_FOUND_RESPONSE = """
                 "developerMessage": "Prisoner not found"
               }
             """
+internal const val PRISON_API_REFERENCE_CODES = """
+              [
+                {
+                  "domain": "TEST",
+                  "code": "ONE",
+                  "description": "Code One",
+                  "activeFlag": "Y",
+                  "listSeq": 99,
+                  "subCodes": []
+                },
+                {
+                  "domain": "TEST",
+                  "code": "TWO",
+                  "description": "Code Two",
+                  "activeFlag": "Y",
+                  "listSeq": 99,
+                  "subCodes": []
+                }
+              ]
+            """
 
 class PrisonApiMockServer : WireMockServer(8082) {
   fun stubHealthPing(status: Int) {
@@ -57,6 +77,16 @@ class PrisonApiMockServer : WireMockServer(8082) {
     )
   }
 
+  fun stubReferenceDataCodes(domain: String = "TEST", body: String = PRISON_API_REFERENCE_CODES) {
+    stubFor(
+      get(urlPathMatching("/api/reference-domains/domains/$domain/all-codes")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.OK.value())
+          .withBody(body),
+      ),
+    )
+  }
+
   private fun stubOffenderEndpoint(endpoint: String, status: HttpStatus, prisonerNumber: String, body: String? = null) {
     stubFor(
       put(urlPathMatching("/api/offenders/$prisonerNumber/$endpoint")).willReturn(
@@ -79,6 +109,7 @@ class PrisonApiExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallba
     prisonApi.resetAll()
     prisonApi.stubUpdateBirthPlaceForWorkingName()
     prisonApi.stubUpdateNationalityForWorkingName()
+    prisonApi.stubReferenceDataCodes()
   }
 
   override fun afterAll(context: ExtensionContext): Unit = prisonApi.stop()

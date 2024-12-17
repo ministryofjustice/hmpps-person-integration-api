@@ -21,6 +21,7 @@ import org.springframework.web.reactive.function.client.support.WebClientAdapter
 import org.springframework.web.service.invoker.HttpServiceProxyFactory
 import reactor.netty.http.client.HttpClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.ReferenceDataClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.config.UserEnhancedOAuth2ClientCredentialGrantRequestConverter
 import uk.gov.justice.hmpps.kotlin.auth.healthWebClient
 import java.time.Duration
@@ -63,6 +64,16 @@ class WebClientConfiguration(
     val factory =
       HttpServiceProxyFactory.builderFor(WebClientAdapter.create(prisonApiWebClient)).build()
     val client = factory.createClient(PrisonApiClient::class.java)
+
+    return client
+  }
+
+  @Bean
+  @DependsOn("prisonApiWebClient")
+  fun referenceDataClient(prisonApiWebClient: WebClient): ReferenceDataClient {
+    val factory =
+      HttpServiceProxyFactory.builderFor(WebClientAdapter.create(prisonApiWebClient)).build()
+    val client = factory.createClient(ReferenceDataClient::class.java)
 
     return client
   }

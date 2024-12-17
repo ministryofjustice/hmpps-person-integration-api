@@ -177,16 +177,22 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
     inner class HappyPath {
 
       @Test
-      fun `can update core person record profile image by prisoner number`() {
+      fun `can get reference data codes by domain`() {
+        val domain = "TEST"
         val response =
-          webTestClient.get().uri("/v1/core-person-record/reference-data/domain/$TEST_DOMAIN/codes")
+          webTestClient.get().uri("/v1/core-person-record/reference-data/domain/$domain/codes")
             .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE)))
             .exchange()
             .expectStatus().isOk
             .expectBodyList(ReferenceDataCodeDto::class.java)
             .returnResult().responseBody
 
-        assertThat(response).isEqualTo(emptyList<ReferenceDataCodeDto>())
+        assertThat(response).isEqualTo(
+          listOf(
+            ReferenceDataCodeDto("TEST_ONE", "ONE", "Code One", 99, true),
+            ReferenceDataCodeDto("TEST_TWO", "TWO", "Code Two", 99, true),
+          ),
+        )
       }
     }
   }
