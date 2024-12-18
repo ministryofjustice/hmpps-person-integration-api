@@ -7,7 +7,7 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentia
 import org.springframework.util.MultiValueMap
 import java.util.Objects
 
-@SuppressWarnings("unchecked")
+@Suppress("UNCHECKED_CAST")
 class UserEnhancedOAuth2ClientCredentialGrantRequestConverter :
   OAuth2ClientCredentialsGrantRequestEntityConverter() {
 
