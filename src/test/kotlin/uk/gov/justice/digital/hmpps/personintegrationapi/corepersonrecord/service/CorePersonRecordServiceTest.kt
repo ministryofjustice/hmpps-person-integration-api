@@ -18,11 +18,13 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.ReferenceDataClient
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.dto.UpdateBirthCountry
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.ReferenceDataCode
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.BirthplaceUpdateDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.CountryOfBirthUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.DateOfBirthUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.NationalityUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.UnknownCorePersonFieldException
@@ -51,6 +53,8 @@ class CorePersonRecordServiceTest {
     fun beforeEach() {
       whenever(prisonApiClient.updateBirthPlaceForWorkingName(PRISONER_NUMBER, TEST_BIRTHPLACE_BODY))
         .thenReturn(ResponseEntity.noContent().build())
+      whenever(prisonApiClient.updateBirthCountryForWorkingName(PRISONER_NUMBER, TEST_COUNTRY_OF_BIRTH_BODY))
+        .thenReturn(ResponseEntity.noContent().build())
       whenever(prisonApiClient.updateNationalityForWorkingName(PRISONER_NUMBER, TEST_NATIONALITY_BODY))
         .thenReturn(ResponseEntity.noContent().build())
     }
@@ -58,6 +62,11 @@ class CorePersonRecordServiceTest {
     @Test
     fun `can update the birthplace field`() {
       underTest.updateCorePersonRecordField(PRISONER_NUMBER, BirthplaceUpdateDto(TEST_BIRTHPLACE_VALUE))
+    }
+
+    @Test
+    fun `can update the country of birth field`() {
+      underTest.updateCorePersonRecordField(PRISONER_NUMBER, CountryOfBirthUpdateDto(TEST_COUNTRY_OF_BIRTH_VALUE))
     }
 
     @Test
@@ -113,8 +122,10 @@ class CorePersonRecordServiceTest {
   private companion object {
     const val PRISONER_NUMBER = "A1234AA"
     const val TEST_BIRTHPLACE_VALUE = "London"
+    const val TEST_COUNTRY_OF_BIRTH_VALUE = "ENG"
     const val TEST_NATIONALITY_VALUE = "BRIT"
     val TEST_BIRTHPLACE_BODY = UpdateBirthPlace("London")
+    val TEST_COUNTRY_OF_BIRTH_BODY = UpdateBirthCountry("ENG")
     val TEST_NATIONALITY_BODY = UpdateNationality("BRIT")
   }
 }

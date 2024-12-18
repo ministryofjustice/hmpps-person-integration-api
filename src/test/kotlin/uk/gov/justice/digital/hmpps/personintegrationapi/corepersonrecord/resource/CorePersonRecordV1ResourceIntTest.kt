@@ -51,40 +51,39 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
 
       @Test
       fun `can patch core person record birthplace by prisoner number`() {
-        webTestClient.patch().uri("/v1/core-person-record?prisonerNumber=$PRISONER_NUMBER")
-          .contentType(MediaType.APPLICATION_JSON)
-          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
-          .bodyValue(BIRTHPLACE_PATCH_REQUEST_BODY)
-          .exchange()
-          .expectStatus().isNoContent
+        expectSuccessfulRequestWith(BIRTHPLACE_PATCH_REQUEST_BODY)
       }
 
       @Test
       fun `patch core person record birthplace accepts null value`() {
-        webTestClient.patch().uri("/v1/core-person-record?prisonerNumber=$PRISONER_NUMBER")
-          .contentType(MediaType.APPLICATION_JSON)
-          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
-          .bodyValue(NULL_BIRTHPLACE_PATCH_REQUEST_BODY)
-          .exchange()
-          .expectStatus().isNoContent
+        expectSuccessfulRequestWith(NULL_BIRTHPLACE_PATCH_REQUEST_BODY)
+      }
+
+      @Test
+      fun `can patch core person record country of birth by prisoner number`() {
+        expectSuccessfulRequestWith(COUNTRY_OF_BIRTH_PATCH_REQUEST_BODY)
+      }
+
+      @Test
+      fun `patch core person record country of birth accepts null value`() {
+        expectSuccessfulRequestWith(NULL_COUNTRY_OF_BIRTH_PATCH_REQUEST_BODY)
       }
 
       @Test
       fun `can patch core person record nationality by prisoner number`() {
-        webTestClient.patch().uri("/v1/core-person-record?prisonerNumber=$PRISONER_NUMBER")
-          .contentType(MediaType.APPLICATION_JSON)
-          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
-          .bodyValue(NATIONALITY_PATCH_REQUEST_BODY)
-          .exchange()
-          .expectStatus().isNoContent
+        expectSuccessfulRequestWith(NATIONALITY_PATCH_REQUEST_BODY)
       }
 
       @Test
       fun `patch core person record nationality accepts null value`() {
+        expectSuccessfulRequestWith(NULL_NATIONALITY_PATCH_REQUEST_BODY)
+      }
+
+      private fun expectSuccessfulRequestWith(body: Any) {
         webTestClient.patch().uri("/v1/core-person-record?prisonerNumber=$PRISONER_NUMBER")
           .contentType(MediaType.APPLICATION_JSON)
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
-          .bodyValue(NULL_NATIONALITY_PATCH_REQUEST_BODY)
+          .bodyValue(body)
           .exchange()
           .expectStatus().isNoContent
       }
@@ -209,6 +208,24 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
       """.trimIndent()
 
     val NULL_BIRTHPLACE_PATCH_REQUEST_BODY =
+      // language=json
+      """
+        {
+          "fieldName": "BIRTHPLACE",
+          "value": null 
+        }
+      """.trimIndent()
+
+    val COUNTRY_OF_BIRTH_PATCH_REQUEST_BODY =
+      // language=json
+      """
+        {
+          "fieldName": "COUNTRY_OF_BIRTH",
+          "value": "London"
+        }
+      """.trimIndent()
+
+    val NULL_COUNTRY_OF_BIRTH_PATCH_REQUEST_BODY =
       // language=json
       """
         {
