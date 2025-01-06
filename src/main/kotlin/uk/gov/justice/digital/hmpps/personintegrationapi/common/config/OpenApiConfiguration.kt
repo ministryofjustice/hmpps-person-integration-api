@@ -72,10 +72,8 @@ class OpenApiConfiguration(
   }
 
   @Bean
-  fun v1Api(): GroupedOpenApi {
-    return GroupedOpenApi.builder()
-      .group("v1")
-      .pathsToMatch("/v1/**")
-      .build()
-  }
+  fun v1Api(): GroupedOpenApi = GroupedOpenApi.builder()
+    .group("v1")
+    .pathsToMatch("/v1/**")
+    .build()
 }

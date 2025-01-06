@@ -8,8 +8,7 @@ import org.springframework.util.MultiValueMap
 import java.util.Objects
 
 @Suppress("UNCHECKED_CAST")
-class UserEnhancedOAuth2ClientCredentialGrantRequestConverter :
-  OAuth2ClientCredentialsGrantRequestEntityConverter() {
+class UserEnhancedOAuth2ClientCredentialGrantRequestConverter : OAuth2ClientCredentialsGrantRequestEntityConverter() {
 
   fun enhanceWithUsername(
     grantRequest: OAuth2ClientCredentialsGrantRequest?,

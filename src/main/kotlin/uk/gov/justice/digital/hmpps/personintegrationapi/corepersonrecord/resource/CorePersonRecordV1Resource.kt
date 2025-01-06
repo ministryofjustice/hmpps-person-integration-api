@@ -145,9 +145,7 @@ class CorePersonRecordV1Resource(
   fun putProfileImageByPrisonerNumber(
     @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
     @RequestPart(name = "imageFile", required = true) profileImage: MultipartFile,
-  ): ResponseEntity<Void> {
-    return noContent().build()
-  }
+  ): ResponseEntity<Void> = noContent().build()
 
   @GetMapping("reference-data/domain/{domain}/codes")
   @ResponseStatus(HttpStatus.OK)

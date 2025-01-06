@@ -36,27 +36,23 @@ class WebClientConfiguration(
   @Value("\${prison-api.timeout:30s}") private val prisonApiTimeout: Duration,
 ) {
   @Bean
-  fun authHealthWebClient(builder: WebClient.Builder): WebClient =
-    builder.healthWebClient(authBaseUri, authHealthTimeout)
+  fun authHealthWebClient(builder: WebClient.Builder): WebClient = builder.healthWebClient(authBaseUri, authHealthTimeout)
 
   @Bean
-  fun prisonApiHealthWebClient(builder: WebClient.Builder): WebClient =
-    builder.healthWebClient(prisonApiBaseUri, prisonApiHealthTimeout)
+  fun prisonApiHealthWebClient(builder: WebClient.Builder): WebClient = builder.healthWebClient(prisonApiBaseUri, prisonApiHealthTimeout)
 
   @Bean
   @RequestScope
   fun prisonApiWebClient(
     clientRegistrationRepository: ClientRegistrationRepository,
     builder: WebClient.Builder,
-  ): WebClient {
-    return getOAuthWebClient(
-      authorizedClientManagerUserEnhanced(clientRegistrationRepository),
-      builder,
-      prisonApiBaseUri,
-      "hmpps-person-integration-api",
-      prisonApiTimeout,
-    )
-  }
+  ): WebClient = getOAuthWebClient(
+    authorizedClientManagerUserEnhanced(clientRegistrationRepository),
+    builder,
+    prisonApiBaseUri,
+    "hmpps-person-integration-api",
+    prisonApiTimeout,
+  )
 
   @Bean
   @DependsOn("prisonApiWebClient")
