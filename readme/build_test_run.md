@@ -3,6 +3,8 @@
 
 ## Building
 
+To use the same version of Java locally as is used in CI and production, follow [these notes](sdkman.md).
+
 To build the project without tests run:
 
 ```

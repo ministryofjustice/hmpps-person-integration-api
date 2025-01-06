@@ -46,69 +46,64 @@ class HmppsPersonIntegrationApiExceptionHandler {
   }
 
   @ExceptionHandler(HttpMessageNotReadableException::class)
-  fun handleValidationException(ex: HttpMessageNotReadableException): ResponseEntity<ErrorResponse> =
-    ResponseEntity
-      .status(BAD_REQUEST)
-      .body(
-        ErrorResponse(
-          status = BAD_REQUEST,
-          userMessage = "Unable to read the request",
-          developerMessage = ex.message,
-        ),
-      ).also { log.info(ex.message) }
+  fun handleValidationException(ex: HttpMessageNotReadableException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(BAD_REQUEST)
+    .body(
+      ErrorResponse(
+        status = BAD_REQUEST,
+        userMessage = "Unable to read the request",
+        developerMessage = ex.message,
+      ),
+    ).also { log.info(ex.message) }
 
   @ExceptionHandler(HandlerMethodValidationException::class)
-  fun handleHandlerMethodValidationException(e: HandlerMethodValidationException): ResponseEntity<ErrorResponse> =
-    e.allErrors.map { it.toString() }.distinct().sorted().joinToString("\n")
-      .let { validationErrors ->
-        ResponseEntity
-          .status(BAD_REQUEST)
-          .body(
-            ErrorResponse(
-              status = BAD_REQUEST,
-              userMessage = "Validation failure(s): ${
-                e.allErrors.map { it.defaultMessage }.distinct().sorted().joinToString("\n")
-              }",
-              developerMessage = "${e.message} $validationErrors",
-            ),
-          ).also { log.info("Validation exception: $validationErrors\n {}", e.message) }
-      }
+  fun handleHandlerMethodValidationException(e: HandlerMethodValidationException): ResponseEntity<ErrorResponse> = e.allErrors.map { it.toString() }.distinct().sorted().joinToString("\n")
+    .let { validationErrors ->
+      ResponseEntity
+        .status(BAD_REQUEST)
+        .body(
+          ErrorResponse(
+            status = BAD_REQUEST,
+            userMessage = "Validation failure(s): ${
+              e.allErrors.map { it.defaultMessage }.distinct().sorted().joinToString("\n")
+            }",
+            developerMessage = "${e.message} $validationErrors",
+          ),
+        ).also { log.info("Validation exception: $validationErrors\n {}", e.message) }
+    }
 
   @ExceptionHandler(ValidationException::class)
-  fun handleValidationException(e: ValidationException): ResponseEntity<ErrorResponse> =
-    ResponseEntity
-      .status(BAD_REQUEST)
-      .body(
-        ErrorResponse(
-          status = BAD_REQUEST,
-          userMessage = "Validation failure: ${e.message}",
-          developerMessage = e.message,
-        ),
-      ).also { log.info("Validation exception: {}", e.message) }
+  fun handleValidationException(e: ValidationException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(BAD_REQUEST)
+    .body(
+      ErrorResponse(
+        status = BAD_REQUEST,
+        userMessage = "Validation failure: ${e.message}",
+        developerMessage = e.message,
+      ),
+    ).also { log.info("Validation exception: {}", e.message) }
 
   @ExceptionHandler(NoResourceFoundException::class)
-  fun handleNoResourceFoundException(e: NoResourceFoundException): ResponseEntity<ErrorResponse> =
-    ResponseEntity
-      .status(NOT_FOUND)
-      .body(
-        ErrorResponse(
-          status = NOT_FOUND,
-          userMessage = "No resource found failure: ${e.message}",
-          developerMessage = e.message,
-        ),
-      ).also { log.info("No resource found exception: {}", e.message) }
+  fun handleNoResourceFoundException(e: NoResourceFoundException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(NOT_FOUND)
+    .body(
+      ErrorResponse(
+        status = NOT_FOUND,
+        userMessage = "No resource found failure: ${e.message}",
+        developerMessage = e.message,
+      ),
+    ).also { log.info("No resource found exception: {}", e.message) }
 
   @ExceptionHandler(AccessDeniedException::class)
-  fun handleAccessDeniedException(e: AccessDeniedException): ResponseEntity<ErrorResponse> =
-    ResponseEntity
-      .status(FORBIDDEN)
-      .body(
-        ErrorResponse(
-          status = FORBIDDEN,
-          userMessage = "Forbidden: ${e.message}",
-          developerMessage = e.message,
-        ),
-      ).also { log.debug("Forbidden (403) returned: {}", e.message) }
+  fun handleAccessDeniedException(e: AccessDeniedException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(FORBIDDEN)
+    .body(
+      ErrorResponse(
+        status = FORBIDDEN,
+        userMessage = "Forbidden: ${e.message}",
+        developerMessage = e.message,
+      ),
+    ).also { log.debug("Forbidden (403) returned: {}", e.message) }
 
   @ExceptionHandler(Exception::class)
   fun handleException(e: Exception): ResponseEntity<ErrorResponse> = ResponseEntity

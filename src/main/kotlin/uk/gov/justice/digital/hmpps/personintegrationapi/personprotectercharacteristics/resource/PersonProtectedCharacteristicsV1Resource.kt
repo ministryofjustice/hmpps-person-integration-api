@@ -84,14 +84,12 @@ class PersonProtectedCharacteristicsV1Resource {
   fun putReligionByPrisonerNumber(
     @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
     @RequestBody(required = true) @Valid religionV1RequestDto: ReligionV1RequestDto,
-  ): ResponseEntity<PersonReligionInformationV1ResponseDto> {
-    return ok().body(
-      PersonReligionInformationV1ResponseDto(
-        currentReligion = ReligionDto(),
-        religionHistory = emptySet(),
-      ),
-    )
-  }
+  ): ResponseEntity<PersonReligionInformationV1ResponseDto> = ok().body(
+    PersonReligionInformationV1ResponseDto(
+      currentReligion = ReligionDto(),
+      religionHistory = emptySet(),
+    ),
+  )
 
   @GetMapping("reference-data/domain/{domain}/codes")
   @ResponseStatus(HttpStatus.OK)
