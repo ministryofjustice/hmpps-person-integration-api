@@ -1,6 +1,6 @@
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.1.2"
-  kotlin("plugin.spring") version "2.1.0"
+  kotlin("plugin.spring") version "2.0.21"
 }
 
 configurations {
@@ -21,10 +21,6 @@ dependencies {
 
 kotlin {
   jvmToolchain(21)
-}
-
-ktlint {
-  version.set("1.5.0")
 }
 
 tasks {
