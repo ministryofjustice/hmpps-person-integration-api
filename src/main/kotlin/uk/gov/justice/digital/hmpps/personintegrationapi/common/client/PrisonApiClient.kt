@@ -10,6 +10,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.dto.Updat
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecordPrisonDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateReligion
 
 @HttpExchange("/api/offenders")
 interface PrisonApiClient {
@@ -35,4 +36,10 @@ interface PrisonApiClient {
   fun getMilitaryRecords(
     @PathVariable offenderNo: String,
   ): ResponseEntity<MilitaryRecordPrisonDto>
+
+  @PutExchange("/{offenderNo}/religion")
+  fun updateReligionForWorkingName(
+    @PathVariable offenderNo: String,
+    @RequestBody updateNationality: UpdateReligion,
+  ): ResponseEntity<Void>
 }

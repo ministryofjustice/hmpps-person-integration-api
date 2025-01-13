@@ -8,9 +8,9 @@ import org.springframework.http.MediaType
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER
-import uk.gov.justice.digital.hmpps.personintegrationapi.personprotectedcharacteristics.dto.v1.common.ReligionDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER_NOT_FOUND
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISON_API_NOT_FOUND_RESPONSE
 import uk.gov.justice.digital.hmpps.personintegrationapi.personprotectedcharacteristics.dto.v1.request.ReligionV1RequestDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.personprotectedcharacteristics.dto.v1.response.PersonReligionInformationV1ResponseDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.personprotectercharacteristics.PersonProtectedCharacteristicsRoleConstants
 import java.time.LocalDate
 
@@ -48,17 +48,29 @@ class PersonProtectedCharacteristicsV1ResourceIntTest : IntegrationTestBase() {
 
       @Test
       fun `can update a persons religion by prisoner number`() {
-        val response = webTestClient.put()
+        webTestClient.put()
           .uri("v1/person-protected-characteristics/religion?prisonerNumber=$PRISONER_NUMBER")
           .contentType(MediaType.APPLICATION_JSON)
           .headers(setAuthorisation(roles = listOf(PersonProtectedCharacteristicsRoleConstants.PROTECTED_CHARACTERISTICS_READ_WRITE_ROLE)))
           .bodyValue(TEST_RELIGION_REQUEST_DTO)
           .exchange()
-          .expectStatus().isOk
-          .expectBody(PersonReligionInformationV1ResponseDto::class.java)
-          .returnResult().responseBody
+          .expectStatus().isNoContent
+      }
+    }
 
-        assertThat(response).isEqualTo(EXPECTED_RELIGION_UPDATE_RESPONSE)
+    @Nested
+    inner class NotFound {
+
+      @Test
+      fun `handles a 404 not found response from downstream api`() {
+        webTestClient.put()
+          .uri("v1/person-protected-characteristics/religion?prisonerNumber=$PRISONER_NUMBER_NOT_FOUND")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(PersonProtectedCharacteristicsRoleConstants.PROTECTED_CHARACTERISTICS_READ_WRITE_ROLE)))
+          .bodyValue(TEST_RELIGION_REQUEST_DTO)
+          .exchange()
+          .expectStatus().isNotFound
+          .expectBody().json(PRISON_API_NOT_FOUND_RESPONSE.trimIndent())
       }
     }
   }
@@ -112,11 +124,6 @@ class PersonProtectedCharacteristicsV1ResourceIntTest : IntegrationTestBase() {
         LocalDate.of(2024, 1, 1),
         false,
       )
-
-    val EXPECTED_RELIGION_UPDATE_RESPONSE = PersonReligionInformationV1ResponseDto(
-      currentReligion = ReligionDto(),
-      religionHistory = emptySet(),
-    )
 
     const val TEST_DOMAIN = "RELIGION"
   }
