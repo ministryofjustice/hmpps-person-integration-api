@@ -56,6 +56,17 @@ class PersonProtectedCharacteristicsV1ResourceIntTest : IntegrationTestBase() {
           .exchange()
           .expectStatus().isNoContent
       }
+
+      @Test
+      fun `can update a persons religion by prisoner number - minimal request example`() {
+        webTestClient.put()
+          .uri("v1/person-protected-characteristics/religion?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(PersonProtectedCharacteristicsRoleConstants.PROTECTED_CHARACTERISTICS_READ_WRITE_ROLE)))
+          .bodyValue(MINIMAL_RELIGION_REQUEST_DTO)
+          .exchange()
+          .expectStatus().isNoContent
+      }
     }
 
     @Nested
@@ -122,6 +133,14 @@ class PersonProtectedCharacteristicsV1ResourceIntTest : IntegrationTestBase() {
         "AGNO",
         "Test Change",
         LocalDate.of(2024, 1, 1),
+        false,
+      )
+
+    val MINIMAL_RELIGION_REQUEST_DTO =
+      ReligionV1RequestDto(
+        "AGNO",
+        null,
+        null,
         false,
       )
 

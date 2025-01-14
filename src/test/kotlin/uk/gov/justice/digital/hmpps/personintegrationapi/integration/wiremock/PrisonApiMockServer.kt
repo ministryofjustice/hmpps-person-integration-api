@@ -137,9 +137,9 @@ class PrisonApiMockServer : WireMockServer(8082) {
 
   fun stubUpdateReligionForWorkingName() {
     val endpoint = "religion"
-    stubOffenderEndpoint(endpoint, HttpStatus.NO_CONTENT, PRISONER_NUMBER)
-    stubOffenderEndpoint(endpoint, HttpStatus.INTERNAL_SERVER_ERROR, PRISONER_NUMBER_THROW_EXCEPTION)
-    stubOffenderEndpoint(
+    stubOffenderPutEndpoint(endpoint, HttpStatus.NO_CONTENT, PRISONER_NUMBER)
+    stubOffenderPutEndpoint(endpoint, HttpStatus.INTERNAL_SERVER_ERROR, PRISONER_NUMBER_THROW_EXCEPTION)
+    stubOffenderPutEndpoint(
       endpoint,
       HttpStatus.NOT_FOUND,
       PRISONER_NUMBER_NOT_FOUND,
