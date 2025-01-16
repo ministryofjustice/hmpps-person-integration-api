@@ -42,6 +42,52 @@ internal const val PRISON_API_REFERENCE_CODES = """
                 }
               ]
             """
+internal const val PRISON_API_MILITARY_RECORDS = """
+              {
+                "militaryRecords": [
+                  {
+                    "warZoneCode": "WZ1",
+                    "warZoneDescription": "War Zone One",
+                    "startDate": "2021-01-01",
+                    "endDate": "2021-12-31",
+                    "militaryDischargeCode": "MD1",
+                    "militaryDischargeDescription": "Military Discharge One",
+                    "militaryBranchCode": "MB1",
+                    "militaryBranchDescription": "Military Branch One",
+                    "description": "Description One",
+                    "unitNumber": "Unit Number One",
+                    "enlistmentLocation": "Enlistment Location One",
+                    "dischargeLocation": "Discharge Location One",
+                    "selectiveServicesFlag": true,
+                    "militaryRankCode": "MR1",
+                    "militaryRankDescription": "Military Rank One (Army)",
+                    "serviceNumber": "Service Number One",
+                    "disciplinaryActionCode": "DA1",
+                    "disciplinaryActionDescription": "Disciplinary Action One"
+                  },
+                  {
+                    "warZoneCode": "WZ2",
+                    "warZoneDescription": "War Zone Two",
+                    "startDate": "2022-01-01",
+                    "endDate": "2022-12-31",
+                    "militaryDischargeCode": "MD2",
+                    "militaryDischargeDescription": "Military Discharge Two",
+                    "militaryBranchCode": "MB2",
+                    "militaryBranchDescription": "Military Branch Two",
+                    "description": "Description Two",
+                    "unitNumber": "Unit Number Two",
+                    "enlistmentLocation": "Enlistment Location Two",
+                    "dischargeLocation": "Discharge Location Two",
+                    "selectiveServicesFlag": false,
+                    "militaryRankCode": "MR2",
+                    "militaryRankDescription": "Military Rank Two (Navy)",
+                    "serviceNumber": "Service Number Two",
+                    "disciplinaryActionCode": "DA2",
+                    "disciplinaryActionDescription": "Disciplinary Action Two"
+                  }
+                ]
+              }
+            """
 
 class PrisonApiMockServer : WireMockServer(8082) {
   fun stubHealthPing(status: Int) {
@@ -55,9 +101,9 @@ class PrisonApiMockServer : WireMockServer(8082) {
 
   fun stubUpdateBirthPlaceForWorkingName() {
     val endpoint = "birth-place"
-    stubOffenderEndpoint(endpoint, HttpStatus.NO_CONTENT, PRISONER_NUMBER)
-    stubOffenderEndpoint(endpoint, HttpStatus.INTERNAL_SERVER_ERROR, PRISONER_NUMBER_THROW_EXCEPTION)
-    stubOffenderEndpoint(
+    stubOffenderPutEndpoint(endpoint, HttpStatus.NO_CONTENT, PRISONER_NUMBER)
+    stubOffenderPutEndpoint(endpoint, HttpStatus.INTERNAL_SERVER_ERROR, PRISONER_NUMBER_THROW_EXCEPTION)
+    stubOffenderPutEndpoint(
       endpoint,
       HttpStatus.NOT_FOUND,
       PRISONER_NUMBER_NOT_FOUND,
@@ -67,9 +113,9 @@ class PrisonApiMockServer : WireMockServer(8082) {
 
   fun stubUpdateBirthCountryForWorkingName() {
     val endpoint = "birth-country"
-    stubOffenderEndpoint(endpoint, HttpStatus.NO_CONTENT, PRISONER_NUMBER)
-    stubOffenderEndpoint(endpoint, HttpStatus.INTERNAL_SERVER_ERROR, PRISONER_NUMBER_THROW_EXCEPTION)
-    stubOffenderEndpoint(
+    stubOffenderPutEndpoint(endpoint, HttpStatus.NO_CONTENT, PRISONER_NUMBER)
+    stubOffenderPutEndpoint(endpoint, HttpStatus.INTERNAL_SERVER_ERROR, PRISONER_NUMBER_THROW_EXCEPTION)
+    stubOffenderPutEndpoint(
       endpoint,
       HttpStatus.NOT_FOUND,
       PRISONER_NUMBER_NOT_FOUND,
@@ -79,9 +125,9 @@ class PrisonApiMockServer : WireMockServer(8082) {
 
   fun stubUpdateNationalityForWorkingName() {
     val endpoint = "nationality"
-    stubOffenderEndpoint(endpoint, HttpStatus.NO_CONTENT, PRISONER_NUMBER)
-    stubOffenderEndpoint(endpoint, HttpStatus.INTERNAL_SERVER_ERROR, PRISONER_NUMBER_THROW_EXCEPTION)
-    stubOffenderEndpoint(
+    stubOffenderPutEndpoint(endpoint, HttpStatus.NO_CONTENT, PRISONER_NUMBER)
+    stubOffenderPutEndpoint(endpoint, HttpStatus.INTERNAL_SERVER_ERROR, PRISONER_NUMBER_THROW_EXCEPTION)
+    stubOffenderPutEndpoint(
       endpoint,
       HttpStatus.NOT_FOUND,
       PRISONER_NUMBER_NOT_FOUND,
@@ -99,7 +145,29 @@ class PrisonApiMockServer : WireMockServer(8082) {
     )
   }
 
-  private fun stubOffenderEndpoint(endpoint: String, status: HttpStatus, prisonerNumber: String, body: String? = null) {
+  fun stubGetMilitaryRecords() {
+    val endpoint = "military-records"
+    stubOffenderGetEndpoint(endpoint, HttpStatus.OK, PRISONER_NUMBER, PRISON_API_MILITARY_RECORDS.trimIndent())
+    stubOffenderGetEndpoint(endpoint, HttpStatus.INTERNAL_SERVER_ERROR, PRISONER_NUMBER_THROW_EXCEPTION)
+    stubOffenderGetEndpoint(
+      endpoint,
+      HttpStatus.NOT_FOUND,
+      PRISONER_NUMBER_NOT_FOUND,
+      PRISON_API_NOT_FOUND_RESPONSE.trimIndent(),
+    )
+  }
+
+  private fun stubOffenderGetEndpoint(endpoint: String, status: HttpStatus, prisonerNumber: String, body: String? = null) {
+    stubFor(
+      get(urlPathMatching("/api/offenders/$prisonerNumber/$endpoint")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(status.value())
+          .withBody(body),
+      ),
+    )
+  }
+
+  private fun stubOffenderPutEndpoint(endpoint: String, status: HttpStatus, prisonerNumber: String, body: String? = null) {
     stubFor(
       put(urlPathMatching("/api/offenders/$prisonerNumber/$endpoint")).willReturn(
         aResponse().withHeader("Content-Type", "application/json")
@@ -126,6 +194,7 @@ class PrisonApiExtension :
     prisonApi.stubUpdateBirthCountryForWorkingName()
     prisonApi.stubUpdateNationalityForWorkingName()
     prisonApi.stubReferenceDataCodes()
+    prisonApi.stubGetMilitaryRecords()
   }
 
   override fun afterAll(context: ExtensionContext): Unit = prisonApi.stop()
