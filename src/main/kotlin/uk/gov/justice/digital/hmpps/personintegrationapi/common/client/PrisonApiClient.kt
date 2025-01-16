@@ -9,7 +9,6 @@ import org.springframework.web.service.annotation.PutExchange
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.dto.UpdateBirthCountry
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecord
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecordPrisonDto
 
 @HttpExchange("/api/offenders")

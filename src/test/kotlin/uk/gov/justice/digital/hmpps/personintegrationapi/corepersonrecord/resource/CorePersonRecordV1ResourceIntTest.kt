@@ -253,7 +253,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
               militaryRankDescription = "Military Rank One",
               serviceNumber = "Service Number One",
               disciplinaryActionCode = "DA1",
-              disciplinaryActionDescription = "Disciplinary Action One"
+              disciplinaryActionDescription = "Disciplinary Action One",
             ),
             MilitaryRecordDto(
               warZoneCode = "WZ2",

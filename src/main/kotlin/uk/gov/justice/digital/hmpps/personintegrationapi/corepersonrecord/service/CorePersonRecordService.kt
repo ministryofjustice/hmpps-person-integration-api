@@ -71,7 +71,7 @@ class CorePersonRecordService(
       val mappedResponse = response.body?.militaryRecords?.map {
         it.copy(
           militaryRankDescription = it.militaryRankDescription?.replace(rankSuffixPattern, "")?.trim(),
-          )
+        )
         MilitaryRecordDto(
           warZoneCode = it.warZoneCode,
           warZoneDescription = it.warZoneDescription,

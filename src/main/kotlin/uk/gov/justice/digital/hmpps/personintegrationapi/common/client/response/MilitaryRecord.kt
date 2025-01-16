@@ -3,7 +3,7 @@ package uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response
 import java.time.LocalDate
 
 data class MilitaryRecordPrisonDto(
-  val militaryRecords: List<MilitaryRecord>
+  val militaryRecords: List<MilitaryRecord>,
 )
 
 data class MilitaryRecord(
@@ -24,5 +24,5 @@ data class MilitaryRecord(
   val militaryRankDescription: String?,
   val serviceNumber: String?,
   val disciplinaryActionCode: String?,
-  val disciplinaryActionDescription: String?
+  val disciplinaryActionDescription: String?,
 )

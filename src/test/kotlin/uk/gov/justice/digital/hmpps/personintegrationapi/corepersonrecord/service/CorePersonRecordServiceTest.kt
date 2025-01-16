@@ -145,9 +145,9 @@ class CorePersonRecordServiceTest {
           militaryRankDescription = "Military Rank One (Army)",
           serviceNumber = "Service Number One",
           disciplinaryActionCode = "DA1",
-          disciplinaryActionDescription = "Disciplinary Action One"
-        )
-      )
+          disciplinaryActionDescription = "Disciplinary Action One",
+        ),
+      ),
     )
 
     private val militaryRecords = listOf(
@@ -169,14 +169,14 @@ class CorePersonRecordServiceTest {
         militaryRankDescription = "Military Rank One",
         serviceNumber = "Service Number One",
         disciplinaryActionCode = "DA1",
-        disciplinaryActionDescription = "Disciplinary Action One"
-      )
+        disciplinaryActionDescription = "Disciplinary Action One",
+      ),
     )
 
     @Test
     fun `can retrieve military records`() {
       whenever(prisonApiClient.getMilitaryRecords(prisonerNumber)).thenReturn(
-        ResponseEntity.ok(militaryRecordsPrisonDto)
+        ResponseEntity.ok(militaryRecordsPrisonDto),
       )
 
       val response = underTest.getMilitaryRecords(prisonerNumber)
@@ -188,7 +188,7 @@ class CorePersonRecordServiceTest {
     @ValueSource(ints = [400, 401, 403, 404, 422, 500])
     fun `propagates non-2xx status codes`(status: Int) {
       whenever(prisonApiClient.getMilitaryRecords(prisonerNumber)).thenReturn(
-        ResponseEntity.status(status).build()
+        ResponseEntity.status(status).build(),
       )
 
       val response = underTest.getMilitaryRecords(prisonerNumber)
