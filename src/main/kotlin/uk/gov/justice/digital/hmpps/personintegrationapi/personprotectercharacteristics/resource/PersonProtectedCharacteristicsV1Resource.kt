@@ -10,7 +10,7 @@ import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.http.ResponseEntity.ok
+import org.springframework.http.ResponseEntity.noContent
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -22,10 +22,9 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.annotation.ValidPrisonerNumber
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.personprotectedcharacteristics.dto.v1.common.ReligionDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.personprotectedcharacteristics.dto.v1.request.ReligionV1RequestDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.personprotectedcharacteristics.dto.v1.response.PersonReligionInformationV1ResponseDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.personprotectercharacteristics.PersonProtectedCharacteristicsRoleConstants
+import uk.gov.justice.digital.hmpps.personintegrationapi.personprotectercharacteristics.service.PersonProtectedCharacteristicsService
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
 @RestController
@@ -37,7 +36,9 @@ import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
   value = ["v1/person-protected-characteristics"],
   produces = [MediaType.APPLICATION_JSON_VALUE],
 )
-class PersonProtectedCharacteristicsV1Resource {
+class PersonProtectedCharacteristicsV1Resource(
+  private val personProtectedCharacteristicsService: PersonProtectedCharacteristicsService,
+) {
 
   @PutMapping("/religion")
   @ResponseStatus(HttpStatus.OK)
@@ -45,7 +46,7 @@ class PersonProtectedCharacteristicsV1Resource {
     description = "Requires role `${PersonProtectedCharacteristicsRoleConstants.PROTECTED_CHARACTERISTICS_READ_WRITE_ROLE}`",
     responses = [
       ApiResponse(
-        responseCode = "200",
+        responseCode = "204",
         description = "Religion data successfully added/updated.",
       ),
       ApiResponse(
@@ -84,12 +85,10 @@ class PersonProtectedCharacteristicsV1Resource {
   fun putReligionByPrisonerNumber(
     @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
     @RequestBody(required = true) @Valid religionV1RequestDto: ReligionV1RequestDto,
-  ): ResponseEntity<PersonReligionInformationV1ResponseDto> = ok().body(
-    PersonReligionInformationV1ResponseDto(
-      currentReligion = ReligionDto(),
-      religionHistory = emptySet(),
-    ),
-  )
+  ): ResponseEntity<Void> {
+    personProtectedCharacteristicsService.updateReligion(prisonerNumber, religionV1RequestDto)
+    return noContent().build()
+  }
 
   @GetMapping("reference-data/domain/{domain}/codes")
   @ResponseStatus(HttpStatus.OK)
