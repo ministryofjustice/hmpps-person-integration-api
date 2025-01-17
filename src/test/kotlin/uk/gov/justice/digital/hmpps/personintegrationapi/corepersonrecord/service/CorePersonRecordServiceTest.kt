@@ -21,8 +21,11 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.Reference
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.dto.UpdateBirthCountry
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecord
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecordPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.ReferenceDataCode
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.BirthplaceUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.CountryOfBirthUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.DateOfBirthUpdateDto
@@ -115,6 +118,80 @@ class CorePersonRecordServiceTest {
       )
 
       val response = underTest.getReferenceDataCodes(domain)
+      assertThat(response.statusCode.value()).isEqualTo(status)
+    }
+  }
+
+  @Nested
+  inner class GetMilitaryRecords {
+    private val prisonerNumber = "A1234AA"
+    private val militaryRecordsPrisonDto = MilitaryRecordPrisonDto(
+      militaryRecords = listOf(
+        MilitaryRecord(
+          warZoneCode = "WZ1",
+          warZoneDescription = "War Zone One",
+          startDate = LocalDate.parse("2021-01-01"),
+          endDate = LocalDate.parse("2021-12-31"),
+          militaryDischargeCode = "MD1",
+          militaryDischargeDescription = "Military Discharge One",
+          militaryBranchCode = "MB1",
+          militaryBranchDescription = "Military Branch One",
+          description = "Description One",
+          unitNumber = "Unit Number One",
+          enlistmentLocation = "Enlistment Location One",
+          dischargeLocation = "Discharge Location One",
+          selectiveServicesFlag = true,
+          militaryRankCode = "MR1",
+          militaryRankDescription = "Military Rank One (Army)",
+          serviceNumber = "Service Number One",
+          disciplinaryActionCode = "DA1",
+          disciplinaryActionDescription = "Disciplinary Action One",
+        ),
+      ),
+    )
+
+    private val militaryRecords = listOf(
+      MilitaryRecordDto(
+        warZoneCode = "WZ1",
+        warZoneDescription = "War Zone One",
+        startDate = LocalDate.parse("2021-01-01"),
+        endDate = LocalDate.parse("2021-12-31"),
+        militaryDischargeCode = "MD1",
+        militaryDischargeDescription = "Military Discharge One",
+        militaryBranchCode = "MB1",
+        militaryBranchDescription = "Military Branch One",
+        description = "Description One",
+        unitNumber = "Unit Number One",
+        enlistmentLocation = "Enlistment Location One",
+        dischargeLocation = "Discharge Location One",
+        selectiveServicesFlag = true,
+        militaryRankCode = "MR1",
+        militaryRankDescription = "Military Rank One",
+        serviceNumber = "Service Number One",
+        disciplinaryActionCode = "DA1",
+        disciplinaryActionDescription = "Disciplinary Action One",
+      ),
+    )
+
+    @Test
+    fun `can retrieve military records`() {
+      whenever(prisonApiClient.getMilitaryRecords(prisonerNumber)).thenReturn(
+        ResponseEntity.ok(militaryRecordsPrisonDto),
+      )
+
+      val response = underTest.getMilitaryRecords(prisonerNumber)
+      assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+      assertThat(response.body).isEqualTo(militaryRecords)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(ints = [400, 401, 403, 404, 422, 500])
+    fun `propagates non-2xx status codes`(status: Int) {
+      whenever(prisonApiClient.getMilitaryRecords(prisonerNumber)).thenReturn(
+        ResponseEntity.status(status).build(),
+      )
+
+      val response = underTest.getMilitaryRecords(prisonerNumber)
       assertThat(response.statusCode.value()).isEqualTo(status)
     }
   }

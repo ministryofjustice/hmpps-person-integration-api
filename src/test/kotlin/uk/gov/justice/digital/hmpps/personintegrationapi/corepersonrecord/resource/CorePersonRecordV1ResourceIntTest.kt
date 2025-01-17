@@ -12,10 +12,12 @@ import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePersonRecordRoleConstants
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER_NOT_FOUND
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISON_API_NOT_FOUND_RESPONSE
+import java.time.LocalDate
 
 class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
 
@@ -190,6 +192,89 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
           listOf(
             ReferenceDataCodeDto("TEST_ONE", "ONE", "Code One", 99, true),
             ReferenceDataCodeDto("TEST_TWO", "TWO", "Code Two", 99, true),
+          ),
+        )
+      }
+    }
+  }
+
+  @DisplayName("GET v1/core-person-record/military-records")
+  @Nested
+  inner class GetMilitaryRecords {
+
+    @Nested
+    inner class Security {
+      @Test
+      fun `access forbidden when no authority`() {
+        webTestClient.get().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER")
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `access forbidden with wrong role`() {
+        webTestClient.get().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER")
+          .headers(setAuthorisation(roles = listOf("ROLE_IS_WRONG")))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+    }
+
+    @Nested
+    inner class HappyPath {
+
+      @Test
+      fun `can get military records for prisonerNumber`() {
+        val response =
+          webTestClient.get().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER")
+            .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE)))
+            .exchange()
+            .expectStatus().isOk
+            .expectBodyList(MilitaryRecordDto::class.java)
+            .returnResult().responseBody
+
+        assertThat(response).isEqualTo(
+          listOf(
+            MilitaryRecordDto(
+              warZoneCode = "WZ1",
+              warZoneDescription = "War Zone One",
+              startDate = LocalDate.parse("2021-01-01"),
+              endDate = LocalDate.parse("2021-12-31"),
+              militaryDischargeCode = "MD1",
+              militaryDischargeDescription = "Military Discharge One",
+              militaryBranchCode = "MB1",
+              militaryBranchDescription = "Military Branch One",
+              description = "Description One",
+              unitNumber = "Unit Number One",
+              enlistmentLocation = "Enlistment Location One",
+              dischargeLocation = "Discharge Location One",
+              selectiveServicesFlag = true,
+              militaryRankCode = "MR1",
+              militaryRankDescription = "Military Rank One",
+              serviceNumber = "Service Number One",
+              disciplinaryActionCode = "DA1",
+              disciplinaryActionDescription = "Disciplinary Action One",
+            ),
+            MilitaryRecordDto(
+              warZoneCode = "WZ2",
+              warZoneDescription = "War Zone Two",
+              startDate = LocalDate.parse("2022-01-01"),
+              endDate = LocalDate.parse("2022-12-31"),
+              militaryDischargeCode = "MD2",
+              militaryDischargeDescription = "Military Discharge Two",
+              militaryBranchCode = "MB2",
+              militaryBranchDescription = "Military Branch Two",
+              description = "Description Two",
+              unitNumber = "Unit Number Two",
+              enlistmentLocation = "Enlistment Location Two",
+              dischargeLocation = "Discharge Location Two",
+              selectiveServicesFlag = false,
+              militaryRankCode = "MR2",
+              militaryRankDescription = "Military Rank Two",
+              serviceNumber = "Service Number Two",
+              disciplinaryActionCode = "DA2",
+              disciplinaryActionDescription = "Disciplinary Action Two",
+            ),
           ),
         )
       }
