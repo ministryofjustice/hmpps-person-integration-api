@@ -69,9 +69,6 @@ class CorePersonRecordService(
       val rankSuffixPattern = Regex(rankSuffixList.joinToString("|"), RegexOption.IGNORE_CASE)
 
       val mappedResponse = response.body?.militaryRecords?.map {
-        it.copy(
-          militaryRankDescription = it.militaryRankDescription?.replace(rankSuffixPattern, "")?.trim(),
-        )
         MilitaryRecordDto(
           warZoneCode = it.warZoneCode,
           warZoneDescription = it.warZoneDescription,
