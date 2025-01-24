@@ -17,6 +17,7 @@ import java.time.LocalDate
   JsonSubTypes.Type(name = CorePersonRecordV1UpdateRequestDto.COUNTRY_OF_BIRTH, value = CountryOfBirthUpdateDto::class),
   JsonSubTypes.Type(name = CorePersonRecordV1UpdateRequestDto.DATE_OF_BIRTH, value = DateOfBirthUpdateDto::class),
   JsonSubTypes.Type(name = CorePersonRecordV1UpdateRequestDto.NATIONALITY, value = NationalityUpdateDto::class),
+  JsonSubTypes.Type(name = CorePersonRecordV1UpdateRequestDto.OTHER_NATIONALITIES, value = OtherNationalitiesUpdateDto::class),
 )
 @Schema(description = "Core Person Record V1 update request base")
 sealed class CorePersonRecordV1UpdateRequestDto {
@@ -28,6 +29,7 @@ sealed class CorePersonRecordV1UpdateRequestDto {
     const val COUNTRY_OF_BIRTH = "COUNTRY_OF_BIRTH"
     const val DATE_OF_BIRTH = "DATE_OF_BIRTH"
     const val NATIONALITY = "NATIONALITY"
+    const val OTHER_NATIONALITIES = "OTHER_NATIONALITIES"
   }
 }
 
@@ -109,5 +111,25 @@ data class NationalityUpdateDto(
     required = true,
     nullable = false,
   )
-  override val fieldName: String = COUNTRY_OF_BIRTH
+  override val fieldName: String = NATIONALITY
+}
+
+@Schema(description = "Core Person Record V1 other nationalities update request")
+data class OtherNationalitiesUpdateDto(
+  @Schema(
+    description = "The new value for the other nationalities field",
+    example = "French",
+    required = true,
+    nullable = true,
+  )
+  override val value: String?,
+) : CorePersonRecordV1UpdateRequestDto() {
+  @Schema(
+    type = "String",
+    description = "The field to be updated",
+    allowableValues = [OTHER_NATIONALITIES],
+    required = true,
+    nullable = false,
+  )
+  override val fieldName: String = OTHER_NATIONALITIES
 }

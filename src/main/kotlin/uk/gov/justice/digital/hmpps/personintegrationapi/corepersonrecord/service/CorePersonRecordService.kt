@@ -14,7 +14,6 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.re
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.BirthplaceUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.CorePersonRecordV1UpdateRequestDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.CountryOfBirthUpdateDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.NationalityUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.UnknownCorePersonFieldException
 
 @Service
@@ -33,11 +32,6 @@ class CorePersonRecordService(
       is CountryOfBirthUpdateDto -> prisonApiClient.updateBirthCountryForWorkingName(
         prisonerNumber,
         UpdateBirthCountry(updateRequestDto.value),
-      )
-
-      is NationalityUpdateDto -> prisonApiClient.updateNationalityForWorkingName(
-        prisonerNumber,
-        UpdateNationality(updateRequestDto.value),
       )
 
       else -> throw UnknownCorePersonFieldException("Field '${updateRequestDto.fieldName}' cannot be updated.")
@@ -103,4 +97,6 @@ class CorePersonRecordService(
   fun updateMilitaryRecord(prisonerNumber: String, updateMilitaryRecord: UpdateMilitaryRecord): ResponseEntity<Void> = prisonApiClient.updateMilitaryRecord(prisonerNumber, updateMilitaryRecord)
 
   fun createMilitaryRecord(prisonerNumber: String, createMilitaryRecord: CreateMilitaryRecord): ResponseEntity<Void> = prisonApiClient.createMilitaryRecord(prisonerNumber, createMilitaryRecord)
+
+  fun updateNationality(prisonerNumber: String, updateNationality: UpdateNationality): ResponseEntity<Void> = prisonApiClient.updateNationalityForWorkingName(prisonerNumber, updateNationality)
 }
