@@ -5,9 +5,12 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.service.annotation.GetExchange
 import org.springframework.web.service.annotation.HttpExchange
+import org.springframework.web.service.annotation.PostExchange
 import org.springframework.web.service.annotation.PutExchange
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.dto.UpdateBirthCountry
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateMilitaryRecord
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateMilitaryRecord
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateReligion
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecordPrisonDto
@@ -36,6 +39,18 @@ interface PrisonApiClient {
   fun getMilitaryRecords(
     @PathVariable offenderNo: String,
   ): ResponseEntity<MilitaryRecordPrisonDto>
+
+  @PutExchange("/{offenderNo}/military-records")
+  fun updateMilitaryRecord(
+    @PathVariable offenderNo: String,
+    @RequestBody updateMilitaryRecord: UpdateMilitaryRecord,
+  ): ResponseEntity<Void>
+
+  @PostExchange("/{offenderNo}/military-records")
+  fun createMilitaryRecord(
+    @PathVariable offenderNo: String,
+    @RequestBody createMilitaryRecord: CreateMilitaryRecord,
+  ): ResponseEntity<Void>
 
   @PutExchange("/{offenderNo}/religion")
   fun updateReligionForWorkingName(

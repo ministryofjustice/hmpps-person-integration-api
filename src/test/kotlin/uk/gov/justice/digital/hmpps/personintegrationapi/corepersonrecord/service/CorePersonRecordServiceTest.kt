@@ -19,7 +19,9 @@ import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.ReferenceDataClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.dto.UpdateBirthCountry
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateMilitaryRecord
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateMilitaryRecord
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecord
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecordPrisonDto
@@ -128,6 +130,8 @@ class CorePersonRecordServiceTest {
     private val militaryRecordsPrisonDto = MilitaryRecordPrisonDto(
       militaryRecords = listOf(
         MilitaryRecord(
+          bookingId = -1L,
+          militarySeq = 1,
           warZoneCode = "WZ1",
           warZoneDescription = "War Zone One",
           startDate = LocalDate.parse("2021-01-01"),
@@ -152,6 +156,8 @@ class CorePersonRecordServiceTest {
 
     private val militaryRecords = listOf(
       MilitaryRecordDto(
+        bookingId = -1L,
+        militarySeq = 1,
         warZoneCode = "WZ1",
         warZoneDescription = "War Zone One",
         startDate = LocalDate.parse("2021-01-01"),
@@ -196,6 +202,58 @@ class CorePersonRecordServiceTest {
     }
   }
 
+  @Nested
+  inner class CreateMilitaryRecord {
+    private val prisonerNumber = "A1234AA"
+
+    @Test
+    fun `can create military records`() {
+      whenever(prisonApiClient.createMilitaryRecord(prisonerNumber, CREATE_MILITARY_RECORD)).thenReturn(
+        ResponseEntity.status(HttpStatus.CREATED).build(),
+      )
+
+      val response = underTest.createMilitaryRecord(prisonerNumber, CREATE_MILITARY_RECORD)
+      assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(ints = [400, 401, 403, 404, 422, 500])
+    fun `propagates non-2xx status codes`(status: Int) {
+      whenever(prisonApiClient.createMilitaryRecord(prisonerNumber, CREATE_MILITARY_RECORD)).thenReturn(
+        ResponseEntity.status(status).build(),
+      )
+
+      val response = underTest.createMilitaryRecord(prisonerNumber, CREATE_MILITARY_RECORD)
+      assertThat(response.statusCode.value()).isEqualTo(status)
+    }
+  }
+
+  @Nested
+  inner class UpdateMilitaryRecord {
+    private val prisonerNumber = "A1234AA"
+
+    @Test
+    fun `can update military records`() {
+      whenever(prisonApiClient.updateMilitaryRecord(prisonerNumber, UPDATE_MILITARY_RECORD)).thenReturn(
+        ResponseEntity.noContent().build(),
+      )
+
+      val response = underTest.updateMilitaryRecord(prisonerNumber, UPDATE_MILITARY_RECORD)
+      assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(ints = [400, 401, 403, 404, 422, 500])
+    fun `propagates non-2xx status codes`(status: Int) {
+      whenever(prisonApiClient.updateMilitaryRecord(prisonerNumber, UPDATE_MILITARY_RECORD)).thenReturn(
+        ResponseEntity.status(status).build(),
+      )
+
+      val response = underTest.updateMilitaryRecord(prisonerNumber, UPDATE_MILITARY_RECORD)
+      assertThat(response.statusCode.value()).isEqualTo(status)
+    }
+  }
+
   private companion object {
     const val PRISONER_NUMBER = "A1234AA"
     const val TEST_BIRTHPLACE_VALUE = "London"
@@ -204,5 +262,28 @@ class CorePersonRecordServiceTest {
     val TEST_BIRTHPLACE_BODY = UpdateBirthPlace("London")
     val TEST_COUNTRY_OF_BIRTH_BODY = UpdateBirthCountry("ENG")
     val TEST_NATIONALITY_BODY = UpdateNationality("BRIT")
+
+    val UPDATE_MILITARY_RECORD = UpdateMilitaryRecord(
+      bookingId = -1L,
+      militarySeq = 1,
+      warZoneCode = "AFG",
+      startDate = LocalDate.parse("2021-01-01"),
+      militaryDischargeCode = "HON",
+      militaryBranchCode = "ARM",
+      description = "Description One",
+      unitNumber = "Unit Number One",
+      enlistmentLocation = "Enlistment Location One",
+      dischargeLocation = "Discharge Location One",
+      selectiveServicesFlag = false,
+      militaryRankCode = "CPL_ARM",
+      serviceNumber = "Service Number One",
+      disciplinaryActionCode = "CM",
+    )
+
+    val CREATE_MILITARY_RECORD = CreateMilitaryRecord(
+      startDate = LocalDate.parse("2021-01-01"),
+      militaryBranchCode = "NAV",
+      selectiveServicesFlag = false,
+    )
   }
 }

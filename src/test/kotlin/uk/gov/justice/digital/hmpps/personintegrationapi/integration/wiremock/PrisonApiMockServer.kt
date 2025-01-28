@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
+import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.put
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching
 import org.junit.jupiter.api.extension.AfterAllCallback
@@ -46,6 +47,8 @@ internal const val PRISON_API_MILITARY_RECORDS = """
               {
                 "militaryRecords": [
                   {
+                    "bookingId": -1,
+                    "militarySeq": 1,
                     "warZoneCode": "WZ1",
                     "warZoneDescription": "War Zone One",
                     "startDate": "2021-01-01",
@@ -66,6 +69,8 @@ internal const val PRISON_API_MILITARY_RECORDS = """
                     "disciplinaryActionDescription": "Disciplinary Action One"
                   },
                   {
+                    "bookingId": -1,
+                    "militarySeq": 2,
                     "warZoneCode": "WZ2",
                     "warZoneDescription": "War Zone Two",
                     "startDate": "2022-01-01",
@@ -169,6 +174,30 @@ class PrisonApiMockServer : WireMockServer(8082) {
     )
   }
 
+  fun stubUpdateMilitaryRecord() {
+    val endpoint = "military-records"
+    stubOffenderPutEndpoint(endpoint, HttpStatus.NO_CONTENT, PRISONER_NUMBER)
+    stubOffenderPutEndpoint(endpoint, HttpStatus.INTERNAL_SERVER_ERROR, PRISONER_NUMBER_THROW_EXCEPTION)
+    stubOffenderPutEndpoint(
+      endpoint,
+      HttpStatus.NOT_FOUND,
+      PRISONER_NUMBER_NOT_FOUND,
+      PRISON_API_NOT_FOUND_RESPONSE.trimIndent(),
+    )
+  }
+
+  fun stubCreateMilitaryRecord() {
+    val endpoint = "military-records"
+    stubOffenderPostEndpoint(endpoint, HttpStatus.CREATED, PRISONER_NUMBER)
+    stubOffenderPostEndpoint(endpoint, HttpStatus.INTERNAL_SERVER_ERROR, PRISONER_NUMBER_THROW_EXCEPTION)
+    stubOffenderPostEndpoint(
+      endpoint,
+      HttpStatus.NOT_FOUND,
+      PRISONER_NUMBER_NOT_FOUND,
+      PRISON_API_NOT_FOUND_RESPONSE.trimIndent(),
+    )
+  }
+
   private fun stubOffenderGetEndpoint(endpoint: String, status: HttpStatus, prisonerNumber: String, body: String? = null) {
     stubFor(
       get(urlPathMatching("/api/offenders/$prisonerNumber/$endpoint")).willReturn(
@@ -182,6 +211,16 @@ class PrisonApiMockServer : WireMockServer(8082) {
   private fun stubOffenderPutEndpoint(endpoint: String, status: HttpStatus, prisonerNumber: String, body: String? = null) {
     stubFor(
       put(urlPathMatching("/api/offenders/$prisonerNumber/$endpoint")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(status.value())
+          .withBody(body),
+      ),
+    )
+  }
+
+  private fun stubOffenderPostEndpoint(endpoint: String, status: HttpStatus, prisonerNumber: String, body: String? = null) {
+    stubFor(
+      post(urlPathMatching("/api/offenders/$prisonerNumber/$endpoint")).willReturn(
         aResponse().withHeader("Content-Type", "application/json")
           .withStatus(status.value())
           .withBody(body),
@@ -208,6 +247,8 @@ class PrisonApiExtension :
     prisonApi.stubUpdateReligionForWorkingName()
     prisonApi.stubReferenceDataCodes()
     prisonApi.stubGetMilitaryRecords()
+    prisonApi.stubUpdateMilitaryRecord()
+    prisonApi.stubCreateMilitaryRecord()
   }
 
   override fun afterAll(context: ExtensionContext): Unit = prisonApi.stop()
