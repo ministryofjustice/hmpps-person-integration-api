@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.ReferenceDataClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.dto.UpdateBirthCountry
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateMilitaryRecord
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateMilitaryRecord
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
@@ -70,6 +72,8 @@ class CorePersonRecordService(
 
       val mappedResponse = response.body?.militaryRecords?.map {
         MilitaryRecordDto(
+          bookingId = it.bookingId,
+          militarySeq = it.militarySeq,
           warZoneCode = it.warZoneCode,
           warZoneDescription = it.warZoneDescription,
           startDate = it.startDate,
@@ -95,4 +99,8 @@ class CorePersonRecordService(
       return ResponseEntity.status(response.statusCode).build()
     }
   }
+
+  fun updateMilitaryRecord(prisonerNumber: String, updateMilitaryRecord: UpdateMilitaryRecord): ResponseEntity<Void> = prisonApiClient.updateMilitaryRecord(prisonerNumber, updateMilitaryRecord)
+
+  fun createMilitaryRecord(prisonerNumber: String, createMilitaryRecord: CreateMilitaryRecord): ResponseEntity<Void> = prisonApiClient.createMilitaryRecord(prisonerNumber, createMilitaryRecord)
 }

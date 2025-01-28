@@ -7,6 +7,8 @@ data class MilitaryRecordPrisonDto(
 )
 
 data class MilitaryRecord(
+  val bookingId: Long,
+  val militarySeq: Int,
   val warZoneCode: String?,
   val warZoneDescription: String?,
   val startDate: LocalDate,

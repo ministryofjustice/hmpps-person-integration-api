@@ -1,36 +1,15 @@
-package uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response
+package uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonInclude.Include
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDate
 
-@JsonInclude(Include.NON_NULL)
-@Schema(description = "DTO representing a military record with details about service in the UK Armed Forces.")
-data class MilitaryRecordDto(
-  @Schema(
-    description = "Booking ID of the prisoner.",
-    example = "1234567",
-  )
-  val bookingId: Long,
-
-  @Schema(
-    description = "Sequence number of the military record within the booking.",
-    example = "1",
-  )
-  val militarySeq: Int,
-
+@Schema(description = "Create a military record.")
+class CreateMilitaryRecord(
   @Schema(
     description = "Code identifying the war zone where the service took place.",
     example = "AFG",
   )
   val warZoneCode: String? = null,
-
-  @Schema(
-    description = "Description of the war zone where the service took place.",
-    example = "Afghanistan",
-  )
-  val warZoneDescription: String? = null,
 
   @Schema(
     description = "Start date of the military service.",
@@ -51,22 +30,10 @@ data class MilitaryRecordDto(
   val militaryDischargeCode: String? = null,
 
   @Schema(
-    description = "Description of the discharge status from the UK military forces.",
-    example = "Honourable",
-  )
-  val militaryDischargeDescription: String? = null,
-
-  @Schema(
     description = "Code identifying the branch of the UK military in which the individual served.",
     example = "ARM",
   )
   val militaryBranchCode: String,
-
-  @Schema(
-    description = "Description of the military branch of the UK Armed Forces.",
-    example = "Army",
-  )
-  val militaryBranchDescription: String? = null,
 
   @Schema(
     description = "Additional notes or details about the military service.",
@@ -105,12 +72,6 @@ data class MilitaryRecordDto(
   val militaryRankCode: String? = null,
 
   @Schema(
-    description = "Description of the individual's military rank in the UK forces.",
-    example = "Corporal",
-  )
-  val militaryRankDescription: String? = null,
-
-  @Schema(
     description = "Service number of the individual within the UK military.",
     example = "2345678",
   )
@@ -121,10 +82,4 @@ data class MilitaryRecordDto(
     example = "CM",
   )
   val disciplinaryActionCode: String? = null,
-
-  @Schema(
-    description = "Description of any disciplinary actions taken against the individual during service.",
-    example = "Court Martial",
-  )
-  val disciplinaryActionDescription: String? = null,
 )

@@ -10,6 +10,8 @@ import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.reactive.function.BodyInserters
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateMilitaryRecord
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateMilitaryRecord
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePersonRecordRoleConstants
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
@@ -236,6 +238,8 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
         assertThat(response).isEqualTo(
           listOf(
             MilitaryRecordDto(
+              bookingId = -1L,
+              militarySeq = 1,
               warZoneCode = "WZ1",
               warZoneDescription = "War Zone One",
               startDate = LocalDate.parse("2021-01-01"),
@@ -256,6 +260,8 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
               disciplinaryActionDescription = "Disciplinary Action One",
             ),
             MilitaryRecordDto(
+              bookingId = -1L,
+              militarySeq = 2,
               warZoneCode = "WZ2",
               warZoneDescription = "War Zone Two",
               startDate = LocalDate.parse("2022-01-01"),
@@ -277,6 +283,118 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
             ),
           ),
         )
+      }
+    }
+  }
+
+  @DisplayName("PUT v1/core-person-record/military-records")
+  @Nested
+  inner class UpdateMilitaryRecords {
+
+    @Nested
+    inner class Security {
+      @Test
+      fun `access forbidden when no authority`() {
+        webTestClient.put().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.APPLICATION_JSON)
+          .bodyValue(UPDATE_MILITARY_RECORD)
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `access forbidden with wrong role`() {
+        webTestClient.put().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf("ROLE_IS_WRONG")))
+          .bodyValue(UPDATE_MILITARY_RECORD)
+          .exchange()
+          .expectStatus().isForbidden
+      }
+    }
+
+    @Nested
+    inner class HappyPath {
+
+      @Test
+      fun `update military record`() {
+        webTestClient.put().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(UPDATE_MILITARY_RECORD)
+          .exchange()
+          .expectStatus().isNoContent
+      }
+    }
+
+    @Nested
+    inner class NotFound {
+
+      @Test
+      fun `handles a 404 not found response from downstream api`() {
+        webTestClient.put().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER_NOT_FOUND")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(UPDATE_MILITARY_RECORD)
+          .exchange()
+          .expectStatus().isNotFound
+          .expectBody().json(PRISON_API_NOT_FOUND_RESPONSE.trimIndent())
+      }
+    }
+  }
+
+  @DisplayName("POST v1/core-person-record/military-records")
+  @Nested
+  inner class CreateMilitaryRecords {
+
+    @Nested
+    inner class Security {
+      @Test
+      fun `access forbidden when no authority`() {
+        webTestClient.post().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.APPLICATION_JSON)
+          .bodyValue(CREATE_MILITARY_RECORD)
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `access forbidden with wrong role`() {
+        webTestClient.post().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf("ROLE_IS_WRONG")))
+          .bodyValue(CREATE_MILITARY_RECORD)
+          .exchange()
+          .expectStatus().isForbidden
+      }
+    }
+
+    @Nested
+    inner class HappyPath {
+
+      @Test
+      fun `create military record`() {
+        webTestClient.post().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(CREATE_MILITARY_RECORD)
+          .exchange()
+          .expectStatus().isCreated
+      }
+    }
+
+    @Nested
+    inner class NotFound {
+
+      @Test
+      fun `handles a 404 not found response from downstream api`() {
+        webTestClient.post().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER_NOT_FOUND")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(CREATE_MILITARY_RECORD)
+          .exchange()
+          .expectStatus().isNotFound
+          .expectBody().json(PRISON_API_NOT_FOUND_RESPONSE.trimIndent())
       }
     }
   }
@@ -353,5 +471,28 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
         part("imageFile", ByteArrayResource(MULTIPART_FILE.bytes))
           .header("Content-Disposition", "form-data; name=imageFile; filename=filename.jpg")
       }
+
+    val UPDATE_MILITARY_RECORD = UpdateMilitaryRecord(
+      bookingId = -1L,
+      militarySeq = 1,
+      warZoneCode = "AFG",
+      startDate = LocalDate.parse("2021-01-01"),
+      militaryDischargeCode = "HON",
+      militaryBranchCode = "ARM",
+      description = "Description One",
+      unitNumber = "Unit Number One",
+      enlistmentLocation = "Enlistment Location One",
+      dischargeLocation = "Discharge Location One",
+      selectiveServicesFlag = false,
+      militaryRankCode = "CPL_ARM",
+      serviceNumber = "Service Number One",
+      disciplinaryActionCode = "CM",
+    )
+
+    val CREATE_MILITARY_RECORD = CreateMilitaryRecord(
+      startDate = LocalDate.parse("2021-01-01"),
+      militaryBranchCode = "NAV",
+      selectiveServicesFlag = false,
+    )
   }
 }
