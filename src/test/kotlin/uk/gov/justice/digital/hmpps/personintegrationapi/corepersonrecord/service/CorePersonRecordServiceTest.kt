@@ -31,7 +31,6 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.re
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.BirthplaceUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.CountryOfBirthUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.DateOfBirthUpdateDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.NationalityUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.UnknownCorePersonFieldException
 import java.time.LocalDate
 
@@ -60,8 +59,6 @@ class CorePersonRecordServiceTest {
         .thenReturn(ResponseEntity.noContent().build())
       whenever(prisonApiClient.updateBirthCountryForWorkingName(PRISONER_NUMBER, TEST_COUNTRY_OF_BIRTH_BODY))
         .thenReturn(ResponseEntity.noContent().build())
-      whenever(prisonApiClient.updateNationalityForWorkingName(PRISONER_NUMBER, TEST_NATIONALITY_BODY))
-        .thenReturn(ResponseEntity.noContent().build())
     }
 
     @Test
@@ -72,11 +69,6 @@ class CorePersonRecordServiceTest {
     @Test
     fun `can update the country of birth field`() {
       underTest.updateCorePersonRecordField(PRISONER_NUMBER, CountryOfBirthUpdateDto(TEST_COUNTRY_OF_BIRTH_VALUE))
-    }
-
-    @Test
-    fun `can update the nationality field`() {
-      underTest.updateCorePersonRecordField(PRISONER_NUMBER, NationalityUpdateDto(TEST_NATIONALITY_VALUE))
     }
 
     @Test
@@ -254,14 +246,38 @@ class CorePersonRecordServiceTest {
     }
   }
 
+  @Nested
+  inner class UpdateNationality {
+    private val prisonerNumber = "A1234AA"
+
+    @Test
+    fun `can update the nationality field`() {
+      whenever(prisonApiClient.updateNationalityForWorkingName(PRISONER_NUMBER, UPDATE_NATIONALITY))
+        .thenReturn(ResponseEntity.noContent().build())
+
+      val response = underTest.updateNationality(PRISONER_NUMBER, UPDATE_NATIONALITY)
+      assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(ints = [400, 401, 403, 404, 422, 500])
+    fun `propagates non-2xx status codes`(status: Int) {
+      whenever(prisonApiClient.updateNationalityForWorkingName(prisonerNumber, UPDATE_NATIONALITY)).thenReturn(
+        ResponseEntity.status(status).build(),
+      )
+
+      val response = underTest.updateNationality(prisonerNumber, UPDATE_NATIONALITY)
+      assertThat(response.statusCode.value()).isEqualTo(status)
+    }
+  }
+
   private companion object {
     const val PRISONER_NUMBER = "A1234AA"
     const val TEST_BIRTHPLACE_VALUE = "London"
     const val TEST_COUNTRY_OF_BIRTH_VALUE = "ENG"
-    const val TEST_NATIONALITY_VALUE = "BRIT"
+    const val TEST_OTHER_NATIONALITIES_VALUE = "French"
     val TEST_BIRTHPLACE_BODY = UpdateBirthPlace("London")
     val TEST_COUNTRY_OF_BIRTH_BODY = UpdateBirthCountry("ENG")
-    val TEST_NATIONALITY_BODY = UpdateNationality("BRIT")
 
     val UPDATE_MILITARY_RECORD = UpdateMilitaryRecord(
       bookingId = -1L,
@@ -285,5 +301,7 @@ class CorePersonRecordServiceTest {
       militaryBranchCode = "NAV",
       selectiveServicesFlag = false,
     )
+
+    val UPDATE_NATIONALITY = UpdateNationality("BRIT", "French")
   }
 }

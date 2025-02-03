@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.annotation.ValidPrisonerNumber
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateMilitaryRecord
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateMilitaryRecord
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePersonRecordRoleConstants
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
@@ -330,4 +331,53 @@ class CorePersonRecordV1Resource(
     @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
     @RequestBody(required = true) @Valid createMilitaryRecord: CreateMilitaryRecord,
   ): ResponseEntity<Void> = corePersonRecordService.createMilitaryRecord(prisonerNumber, createMilitaryRecord)
+
+  @PutMapping("/nationality")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(
+    summary = "Update the nationality for a given prisoner number",
+    description = "Updates the nationality and other nationalities info. " +
+      "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}`",
+    responses = [
+      ApiResponse(
+        responseCode = "204",
+        description = "Nationality successfully updated.",
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized to access this endpoint",
+        content = [
+          Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Missing required role. Requires ${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}",
+        content = [
+          Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Record not found",
+        content = [
+          Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
+  fun updateNationality(
+    @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
+    @RequestBody(required = true) @Valid updateNationality: UpdateNationality,
+  ): ResponseEntity<Void> = corePersonRecordService.updateNationality(prisonerNumber, updateNationality)
 }
