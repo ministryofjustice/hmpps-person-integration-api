@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateMilitaryRecord
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateMilitaryRecord
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePersonRecordRoleConstants
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
@@ -71,16 +72,6 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
       @Test
       fun `patch core person record country of birth accepts null value`() {
         expectSuccessfulRequestWith(NULL_COUNTRY_OF_BIRTH_PATCH_REQUEST_BODY)
-      }
-
-      @Test
-      fun `can patch core person record nationality by prisoner number`() {
-        expectSuccessfulRequestWith(NATIONALITY_PATCH_REQUEST_BODY)
-      }
-
-      @Test
-      fun `patch core person record nationality accepts null value`() {
-        expectSuccessfulRequestWith(NULL_NATIONALITY_PATCH_REQUEST_BODY)
       }
 
       private fun expectSuccessfulRequestWith(body: Any) {
@@ -399,6 +390,72 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
     }
   }
 
+  @DisplayName("PUT v1/core-person-record/nationality")
+  @Nested
+  inner class UpdatePrisonerNationality {
+
+    @Nested
+    inner class Security {
+      @Test
+      fun `access forbidden when no authority`() {
+        webTestClient.put().uri("/v1/core-person-record/nationality?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.APPLICATION_JSON)
+          .bodyValue(UPDATE_NATIONALITY)
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `access forbidden with wrong role`() {
+        webTestClient.put().uri("/v1/core-person-record/nationality?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf("ROLE_IS_WRONG")))
+          .bodyValue(UPDATE_NATIONALITY)
+          .exchange()
+          .expectStatus().isForbidden
+      }
+    }
+
+    @Nested
+    inner class HappyPath {
+
+      @Test
+      fun `update nationality`() {
+        webTestClient.put().uri("/v1/core-person-record/nationality?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(CREATE_MILITARY_RECORD)
+          .exchange()
+          .expectStatus().isNoContent
+      }
+
+      @Test
+      fun `update nationality accepts null values`() {
+        webTestClient.put().uri("/v1/core-person-record/nationality?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(UpdateNationality(null, null))
+          .exchange()
+          .expectStatus().isNoContent
+      }
+    }
+
+    @Nested
+    inner class NotFound {
+
+      @Test
+      fun `handles a 404 not found response from downstream api`() {
+        webTestClient.post().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER_NOT_FOUND")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(CREATE_MILITARY_RECORD)
+          .exchange()
+          .expectStatus().isNotFound
+          .expectBody().json(PRISON_API_NOT_FOUND_RESPONSE.trimIndent())
+      }
+    }
+  }
+
   private companion object {
 
     val BIRTHPLACE_PATCH_REQUEST_BODY =
@@ -433,24 +490,6 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
       """
         {
           "fieldName": "BIRTHPLACE",
-          "value": null 
-        }
-      """.trimIndent()
-
-    val NATIONALITY_PATCH_REQUEST_BODY =
-      // language=json
-      """
-        {
-          "fieldName": "NATIONALITY",
-          "value": "BRIT"
-        }
-      """.trimIndent()
-
-    val NULL_NATIONALITY_PATCH_REQUEST_BODY =
-      // language=json
-      """
-        {
-          "fieldName": "NATIONALITY",
           "value": null 
         }
       """.trimIndent()
@@ -494,5 +533,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
       militaryBranchCode = "NAV",
       selectiveServicesFlag = false,
     )
+
+    val UPDATE_NATIONALITY = UpdateNationality("BRIT", "French")
   }
 }
