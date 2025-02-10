@@ -10,8 +10,7 @@ import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.reactive.function.BodyInserters
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateMilitaryRecord
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateMilitaryRecord
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.MilitaryRecordRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePersonRecordRoleConstants
@@ -278,13 +277,13 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
 
   @DisplayName("PUT v1/core-person-record/military-records")
   @Nested
-  inner class UpdateMilitaryRecords {
+  inner class UpdateMilitaryRecord {
 
     @Nested
     inner class Security {
       @Test
       fun `access forbidden when no authority`() {
-        webTestClient.put().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER")
+        webTestClient.put().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER&militarySeq=1")
           .contentType(MediaType.APPLICATION_JSON)
           .bodyValue(UPDATE_MILITARY_RECORD)
           .exchange()
@@ -293,7 +292,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
 
       @Test
       fun `access forbidden with wrong role`() {
-        webTestClient.put().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER")
+        webTestClient.put().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER&militarySeq=1")
           .contentType(MediaType.APPLICATION_JSON)
           .headers(setAuthorisation(roles = listOf("ROLE_IS_WRONG")))
           .bodyValue(UPDATE_MILITARY_RECORD)
@@ -307,7 +306,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
 
       @Test
       fun `update military record`() {
-        webTestClient.put().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER")
+        webTestClient.put().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER&militarySeq=1")
           .contentType(MediaType.APPLICATION_JSON)
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
           .bodyValue(UPDATE_MILITARY_RECORD)
@@ -321,7 +320,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
 
       @Test
       fun `handles a 404 not found response from downstream api`() {
-        webTestClient.put().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER_NOT_FOUND")
+        webTestClient.put().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER_NOT_FOUND&militarySeq=1")
           .contentType(MediaType.APPLICATION_JSON)
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
           .bodyValue(UPDATE_MILITARY_RECORD)
@@ -334,7 +333,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
 
   @DisplayName("POST v1/core-person-record/military-records")
   @Nested
-  inner class CreateMilitaryRecords {
+  inner class CreateMilitaryRecord {
 
     @Nested
     inner class Security {
@@ -509,8 +508,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
           .header("Content-Disposition", "form-data; name=imageFile; filename=filename.jpg")
       }
 
-    val UPDATE_MILITARY_RECORD = UpdateMilitaryRecord(
-      militarySeq = 1,
+    val UPDATE_MILITARY_RECORD = MilitaryRecordRequest(
       warZoneCode = "AFG",
       startDate = LocalDate.parse("2021-01-01"),
       militaryDischargeCode = "HON",
@@ -525,7 +523,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
       disciplinaryActionCode = "CM",
     )
 
-    val CREATE_MILITARY_RECORD = CreateMilitaryRecord(
+    val CREATE_MILITARY_RECORD = MilitaryRecordRequest(
       startDate = LocalDate.parse("2021-01-01"),
       militaryBranchCode = "NAV",
       selectiveServicesFlag = false,

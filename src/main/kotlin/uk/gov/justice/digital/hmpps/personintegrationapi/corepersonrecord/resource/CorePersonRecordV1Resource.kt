@@ -25,8 +25,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.annotation.ValidPrisonerNumber
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateMilitaryRecord
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateMilitaryRecord
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.MilitaryRecordRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePersonRecordRoleConstants
@@ -280,8 +279,9 @@ class CorePersonRecordV1Resource(
   @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun putMilitaryRecord(
     @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
-    @RequestBody(required = true) @Valid updateMilitaryRecord: UpdateMilitaryRecord,
-  ): ResponseEntity<Void> = corePersonRecordService.updateMilitaryRecord(prisonerNumber, updateMilitaryRecord)
+    @RequestParam(required = true) militarySeq: Int,
+    @RequestBody(required = true) @Valid militaryRecordRequest: MilitaryRecordRequest,
+  ): ResponseEntity<Void> = corePersonRecordService.updateMilitaryRecord(prisonerNumber, militarySeq, militaryRecordRequest)
 
   @PostMapping("/military-records")
   @ResponseStatus(HttpStatus.CREATED)
@@ -329,8 +329,8 @@ class CorePersonRecordV1Resource(
   @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun postMilitaryRecord(
     @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
-    @RequestBody(required = true) @Valid createMilitaryRecord: CreateMilitaryRecord,
-  ): ResponseEntity<Void> = corePersonRecordService.createMilitaryRecord(prisonerNumber, createMilitaryRecord)
+    @RequestBody(required = true) @Valid militaryRecordRequest: MilitaryRecordRequest,
+  ): ResponseEntity<Void> = corePersonRecordService.createMilitaryRecord(prisonerNumber, militaryRecordRequest)
 
   @PutMapping("/nationality")
   @ResponseStatus(HttpStatus.NO_CONTENT)

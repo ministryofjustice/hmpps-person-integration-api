@@ -5,9 +5,8 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.ReferenceDataClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.dto.UpdateBirthCountry
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateMilitaryRecord
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.MilitaryRecordRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateMilitaryRecord
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
@@ -95,9 +94,9 @@ class CorePersonRecordService(
     }
   }
 
-  fun updateMilitaryRecord(prisonerNumber: String, updateMilitaryRecord: UpdateMilitaryRecord): ResponseEntity<Void> = prisonApiClient.updateMilitaryRecord(prisonerNumber, updateMilitaryRecord)
+  fun updateMilitaryRecord(prisonerNumber: String, militarySeq: Int, militaryRecordRequest: MilitaryRecordRequest): ResponseEntity<Void> = prisonApiClient.updateMilitaryRecord(prisonerNumber, militarySeq, militaryRecordRequest)
 
-  fun createMilitaryRecord(prisonerNumber: String, createMilitaryRecord: CreateMilitaryRecord): ResponseEntity<Void> = prisonApiClient.createMilitaryRecord(prisonerNumber, createMilitaryRecord)
+  fun createMilitaryRecord(prisonerNumber: String, militaryRecordRequest: MilitaryRecordRequest): ResponseEntity<Void> = prisonApiClient.createMilitaryRecord(prisonerNumber, militaryRecordRequest)
 
   fun updateNationality(prisonerNumber: String, updateNationality: UpdateNationality): ResponseEntity<Void> = prisonApiClient.updateNationalityForWorkingName(prisonerNumber, updateNationality)
 }
