@@ -82,18 +82,19 @@ class CorePersonRecordServiceTest {
   @Nested
   inner class ReferenceData {
     private val domain = "TEST"
+    private val parentDomain = "PARENT"
 
     @Test
     fun `Can retrieve reference data codes`() {
       val referenceCodes = listOf(
         ReferenceDataCode(domain, "CODE1", "Code one", "Y", 1),
         ReferenceDataCode(domain, "CODE2", "Code two", "Y", 2),
-        ReferenceDataCode(domain, "CODE3", "Code three", "F", 3),
+        ReferenceDataCode(domain, "CODE3", "Code three", "F", 3, "P1", parentDomain),
       )
       val expected = listOf(
         ReferenceDataCodeDto("TEST_CODE1", "CODE1", "Code one", 1, true),
         ReferenceDataCodeDto("TEST_CODE2", "CODE2", "Code two", 2, true),
-        ReferenceDataCodeDto("TEST_CODE3", "CODE3", "Code three", 3, false),
+        ReferenceDataCodeDto("TEST_CODE3", "CODE3", "Code three", 3, false, "P1", parentDomain),
       )
       whenever(referenceDataClient.getReferenceDataByDomain(domain)).thenReturn(
         ResponseEntity.ok(referenceCodes),
@@ -148,7 +149,6 @@ class CorePersonRecordServiceTest {
 
     private val militaryRecords = listOf(
       MilitaryRecordDto(
-        bookingId = -1L,
         militarySeq = 1,
         warZoneCode = "WZ1",
         warZoneDescription = "War Zone One",
@@ -280,7 +280,6 @@ class CorePersonRecordServiceTest {
     val TEST_COUNTRY_OF_BIRTH_BODY = UpdateBirthCountry("ENG")
 
     val UPDATE_MILITARY_RECORD = UpdateMilitaryRecord(
-      bookingId = -1L,
       militarySeq = 1,
       warZoneCode = "AFG",
       startDate = LocalDate.parse("2021-01-01"),

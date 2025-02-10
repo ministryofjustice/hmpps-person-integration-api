@@ -205,7 +205,7 @@ class CorePersonRecordV1Resource(
       ApiResponse(
         responseCode = "200",
         description = "Military records found",
-        content = [Content(array = ArraySchema(schema = Schema(implementation = ReferenceDataCodeDto::class)))],
+        content = [Content(array = ArraySchema(schema = Schema(implementation = MilitaryRecordDto::class)))],
       ),
       ApiResponse(
         responseCode = "401",

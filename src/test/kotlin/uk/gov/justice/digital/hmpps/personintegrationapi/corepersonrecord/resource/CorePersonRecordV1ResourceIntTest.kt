@@ -229,7 +229,6 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
         assertThat(response).isEqualTo(
           listOf(
             MilitaryRecordDto(
-              bookingId = -1L,
               militarySeq = 1,
               warZoneCode = "WZ1",
               warZoneDescription = "War Zone One",
@@ -251,7 +250,6 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
               disciplinaryActionDescription = "Disciplinary Action One",
             ),
             MilitaryRecordDto(
-              bookingId = -1L,
               militarySeq = 2,
               warZoneCode = "WZ2",
               warZoneDescription = "War Zone Two",
@@ -512,7 +510,6 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
       }
 
     val UPDATE_MILITARY_RECORD = UpdateMilitaryRecord(
-      bookingId = -1L,
       militarySeq = 1,
       warZoneCode = "AFG",
       startDate = LocalDate.parse("2021-01-01"),

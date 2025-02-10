@@ -49,6 +49,8 @@ class CorePersonRecordService(
           it.description,
           it.listSeq,
           it.activeFlag == "Y",
+          it.parentCode,
+          it.parentDomain,
         )
       }
       return ResponseEntity.ok(mappedResponse)
@@ -66,7 +68,6 @@ class CorePersonRecordService(
 
       val mappedResponse = response.body?.militaryRecords?.map {
         MilitaryRecordDto(
-          bookingId = it.bookingId,
           militarySeq = it.militarySeq,
           warZoneCode = it.warZoneCode,
           warZoneDescription = it.warZoneDescription,

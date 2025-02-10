@@ -6,12 +6,6 @@ import java.time.LocalDate
 @Schema(description = "Create a military record.")
 class UpdateMilitaryRecord(
   @Schema(
-    description = "Booking ID of the prisoner.",
-    example = "1234567",
-  )
-  val bookingId: Long,
-
-  @Schema(
     description = "Sequence number of the military record within the booking.",
     example = "1",
   )

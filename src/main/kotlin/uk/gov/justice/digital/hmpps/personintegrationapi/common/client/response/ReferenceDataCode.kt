@@ -6,4 +6,6 @@ data class ReferenceDataCode(
   val description: String,
   val activeFlag: String,
   val listSeq: Int,
+  val parentCode: String? = null,
+  val parentDomain: String? = null,
 )
