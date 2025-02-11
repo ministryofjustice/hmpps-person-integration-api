@@ -30,4 +30,10 @@ data class ReferenceDataCodeDto(
     example = "true",
   )
   val isActive: Boolean,
+
+  @Schema(description = "Parent code for the reference data code", example = "EU")
+  val parentCode: String? = null,
+
+  @Schema(description = "Parent domain for the reference data code", example = "REGION")
+  val parentDomain: String? = null,
 )

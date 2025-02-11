@@ -19,9 +19,8 @@ import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.ReferenceDataClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.dto.UpdateBirthCountry
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateMilitaryRecord
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.MilitaryRecordRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateMilitaryRecord
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecord
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecordPrisonDto
@@ -82,18 +81,19 @@ class CorePersonRecordServiceTest {
   @Nested
   inner class ReferenceData {
     private val domain = "TEST"
+    private val parentDomain = "PARENT"
 
     @Test
     fun `Can retrieve reference data codes`() {
       val referenceCodes = listOf(
         ReferenceDataCode(domain, "CODE1", "Code one", "Y", 1),
         ReferenceDataCode(domain, "CODE2", "Code two", "Y", 2),
-        ReferenceDataCode(domain, "CODE3", "Code three", "F", 3),
+        ReferenceDataCode(domain, "CODE3", "Code three", "F", 3, "P1", parentDomain),
       )
       val expected = listOf(
         ReferenceDataCodeDto("TEST_CODE1", "CODE1", "Code one", 1, true),
         ReferenceDataCodeDto("TEST_CODE2", "CODE2", "Code two", 2, true),
-        ReferenceDataCodeDto("TEST_CODE3", "CODE3", "Code three", 3, false),
+        ReferenceDataCodeDto("TEST_CODE3", "CODE3", "Code three", 3, false, "P1", parentDomain),
       )
       whenever(referenceDataClient.getReferenceDataByDomain(domain)).thenReturn(
         ResponseEntity.ok(referenceCodes),
@@ -148,7 +148,6 @@ class CorePersonRecordServiceTest {
 
     private val militaryRecords = listOf(
       MilitaryRecordDto(
-        bookingId = -1L,
         militarySeq = 1,
         warZoneCode = "WZ1",
         warZoneDescription = "War Zone One",
@@ -195,7 +194,7 @@ class CorePersonRecordServiceTest {
   }
 
   @Nested
-  inner class CreateMilitaryRecord {
+  inner class MilitaryRecordRequest {
     private val prisonerNumber = "A1234AA"
 
     @Test
@@ -223,25 +222,26 @@ class CorePersonRecordServiceTest {
   @Nested
   inner class UpdateMilitaryRecord {
     private val prisonerNumber = "A1234AA"
+    private val militarySeq = 1
 
     @Test
     fun `can update military records`() {
-      whenever(prisonApiClient.updateMilitaryRecord(prisonerNumber, UPDATE_MILITARY_RECORD)).thenReturn(
+      whenever(prisonApiClient.updateMilitaryRecord(prisonerNumber, militarySeq, UPDATE_MILITARY_RECORD)).thenReturn(
         ResponseEntity.noContent().build(),
       )
 
-      val response = underTest.updateMilitaryRecord(prisonerNumber, UPDATE_MILITARY_RECORD)
+      val response = underTest.updateMilitaryRecord(prisonerNumber, militarySeq, UPDATE_MILITARY_RECORD)
       assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
     }
 
     @ParameterizedTest(name = "{0}")
     @ValueSource(ints = [400, 401, 403, 404, 422, 500])
     fun `propagates non-2xx status codes`(status: Int) {
-      whenever(prisonApiClient.updateMilitaryRecord(prisonerNumber, UPDATE_MILITARY_RECORD)).thenReturn(
+      whenever(prisonApiClient.updateMilitaryRecord(prisonerNumber, militarySeq, UPDATE_MILITARY_RECORD)).thenReturn(
         ResponseEntity.status(status).build(),
       )
 
-      val response = underTest.updateMilitaryRecord(prisonerNumber, UPDATE_MILITARY_RECORD)
+      val response = underTest.updateMilitaryRecord(prisonerNumber, militarySeq, UPDATE_MILITARY_RECORD)
       assertThat(response.statusCode.value()).isEqualTo(status)
     }
   }
@@ -279,9 +279,7 @@ class CorePersonRecordServiceTest {
     val TEST_BIRTHPLACE_BODY = UpdateBirthPlace("London")
     val TEST_COUNTRY_OF_BIRTH_BODY = UpdateBirthCountry("ENG")
 
-    val UPDATE_MILITARY_RECORD = UpdateMilitaryRecord(
-      bookingId = -1L,
-      militarySeq = 1,
+    val UPDATE_MILITARY_RECORD = MilitaryRecordRequest(
       warZoneCode = "AFG",
       startDate = LocalDate.parse("2021-01-01"),
       militaryDischargeCode = "HON",
@@ -296,7 +294,7 @@ class CorePersonRecordServiceTest {
       disciplinaryActionCode = "CM",
     )
 
-    val CREATE_MILITARY_RECORD = CreateMilitaryRecord(
+    val CREATE_MILITARY_RECORD = MilitaryRecordRequest(
       startDate = LocalDate.parse("2021-01-01"),
       militaryBranchCode = "NAV",
       selectiveServicesFlag = false,

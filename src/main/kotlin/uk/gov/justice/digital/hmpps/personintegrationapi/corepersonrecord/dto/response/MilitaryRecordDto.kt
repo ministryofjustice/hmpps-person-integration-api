@@ -9,12 +9,6 @@ import java.time.LocalDate
 @Schema(description = "DTO representing a military record with details about service in the UK Armed Forces.")
 data class MilitaryRecordDto(
   @Schema(
-    description = "Booking ID of the prisoner.",
-    example = "1234567",
-  )
-  val bookingId: Long,
-
-  @Schema(
     description = "Sequence number of the military record within the booking.",
     example = "1",
   )

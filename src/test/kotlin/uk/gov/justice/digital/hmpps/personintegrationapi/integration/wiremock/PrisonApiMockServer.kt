@@ -175,7 +175,7 @@ class PrisonApiMockServer : WireMockServer(8082) {
   }
 
   fun stubUpdateMilitaryRecord() {
-    val endpoint = "military-records"
+    val endpoint = "military-records/1"
     stubOffenderPutEndpoint(endpoint, HttpStatus.NO_CONTENT, PRISONER_NUMBER)
     stubOffenderPutEndpoint(endpoint, HttpStatus.INTERNAL_SERVER_ERROR, PRISONER_NUMBER_THROW_EXCEPTION)
     stubOffenderPutEndpoint(

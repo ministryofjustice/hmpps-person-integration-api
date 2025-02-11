@@ -3,8 +3,8 @@ package uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDate
 
-@Schema(description = "Create a military record.")
-class CreateMilitaryRecord(
+@Schema(description = "Military record request object. Used to create or update a military record.")
+class MilitaryRecordRequest(
   @Schema(
     description = "Code identifying the war zone where the service took place.",
     example = "AFG",
