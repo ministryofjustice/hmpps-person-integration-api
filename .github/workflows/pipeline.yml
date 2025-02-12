@@ -43,11 +43,6 @@ on:
         required: true
         default: true
         type: boolean
-      docker_multiplatform:
-        description: docker multiplatform build or not
-        required: true
-        default: true
-        type: boolean
 
 permissions:
   contents: read
@@ -75,7 +70,7 @@ jobs:
       registry_org: ${{ inputs.registry_org || 'ministryofjustice' }}
       additional_docker_tag: ${{ inputs.additional_docker_tag }}
       push: ${{ inputs.push || true }}
-      docker_multiplatform: ${{ inputs.docker_multiplatform || true }}
+      docker_multiplatform: false
 
   deploy_dev:
     name: Deploy to dev environment
