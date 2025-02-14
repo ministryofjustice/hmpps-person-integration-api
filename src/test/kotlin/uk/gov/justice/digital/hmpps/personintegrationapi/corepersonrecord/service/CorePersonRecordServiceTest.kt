@@ -18,8 +18,8 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.ReferenceDataClient
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.dto.UpdateBirthCountry
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.MilitaryRecordRequest
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthCountry
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecord
