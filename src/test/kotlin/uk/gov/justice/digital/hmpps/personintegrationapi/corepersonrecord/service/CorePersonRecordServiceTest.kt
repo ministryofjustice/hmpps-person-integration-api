@@ -275,7 +275,6 @@ class CorePersonRecordServiceTest {
     const val PRISONER_NUMBER = "A1234AA"
     const val TEST_BIRTHPLACE_VALUE = "London"
     const val TEST_COUNTRY_OF_BIRTH_VALUE = "ENG"
-    const val TEST_OTHER_NATIONALITIES_VALUE = "French"
     val TEST_BIRTHPLACE_BODY = UpdateBirthPlace("London")
     val TEST_COUNTRY_OF_BIRTH_BODY = UpdateBirthCountry("ENG")
 

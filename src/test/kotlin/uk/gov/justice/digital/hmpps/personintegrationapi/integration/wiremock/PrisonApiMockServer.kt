@@ -94,6 +94,80 @@ internal const val PRISON_API_MILITARY_RECORDS = """
               }
             """
 
+internal const val DISTINGUISHING_MARK = """
+              {
+                "id": 1,
+                "bookingId": -1,
+                "offenderNo": "A1234AA",
+                "bodyPart": "LEG",
+                "markType": "TAT",
+                "side": "R",
+                "partOrientation": "LOW",
+                "comment": "Some comment",
+                "createdAt": "2025-01-01T00:00:00",
+                "createdBy": "USER",
+                "photographUuids": [
+                  {
+                    "id": 100,
+                    "latest": false
+                  },
+                  {
+                    "id": 101,
+                    "latest": true
+                  }
+                ]
+              }
+            """
+
+internal const val DISTINGUISHING_MARKS = """
+              [
+                {
+                  "id": 1,
+                  "bookingId": -1,
+                  "offenderNo": "A1234AA",
+                  "bodyPart": "LEG",
+                  "markType": "TAT",
+                  "side": "R",
+                  "partOrientation": "LOW",
+                  "comment": "Some comment",
+                  "createdAt": "2025-01-01T00:00:00",
+                  "createdBy": "USER",
+                  "photographUuids": [
+                    {
+                      "id": 100,
+                      "latest": false
+                    },
+                    {
+                      "id": 101,
+                      "latest": true
+                    }
+                  ]
+                },
+                {
+                  "id": 2,
+                  "bookingId": -1,
+                  "offenderNo": "A1234AA",
+                  "bodyPart": "ARM",
+                  "markType": "SCAR",
+                  "side": "L",
+                  "partOrientation": "UPP",
+                  "comment": "Some comment",
+                  "createdAt": "2025-01-01T00:00:00",
+                  "createdBy": "USER",
+                  "photographUuids": [
+                    {
+                      "id": 103,
+                      "latest": true
+                    }
+                  ]
+                }
+              ]
+            """
+
+internal const val IMAGE_ID = "1"
+internal const val IMAGE_ID_NOT_FOUND = "999"
+internal val IMAGE = "image".toByteArray()
+
 class PrisonApiMockServer : WireMockServer(8082) {
   fun stubHealthPing(status: Int) {
     stubFor(
@@ -198,7 +272,114 @@ class PrisonApiMockServer : WireMockServer(8082) {
     )
   }
 
-  private fun stubOffenderGetEndpoint(endpoint: String, status: HttpStatus, prisonerNumber: String, body: String? = null) {
+  fun stubGetDistinguishingMarks() {
+    stubFor(
+      get(urlPathMatching("/api/person/$PRISONER_NUMBER/distinguishing-marks")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.OK.value())
+          .withBody(DISTINGUISHING_MARKS.trimIndent()),
+      ),
+    )
+    stubFor(
+      get(urlPathMatching("/api/person/$PRISONER_NUMBER_NOT_FOUND/distinguishing-marks")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.NOT_FOUND.value())
+          .withBody(PRISON_API_NOT_FOUND_RESPONSE.trimIndent()),
+      ),
+    )
+  }
+
+  fun stubGetDistinguishingMark() {
+    stubFor(
+      get(urlPathMatching("/api/person/$PRISONER_NUMBER/distinguishing-mark/1")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.OK.value())
+          .withBody(DISTINGUISHING_MARK.trimIndent()),
+      ),
+    )
+    stubFor(
+      get(urlPathMatching("/api/person/$PRISONER_NUMBER_NOT_FOUND/distinguishing-mark/1")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.NOT_FOUND.value())
+          .withBody(PRISON_API_NOT_FOUND_RESPONSE.trimIndent()),
+      ),
+    )
+  }
+
+  fun stubUpdateDistinguishingMark() {
+    stubFor(
+      put(urlPathMatching("/api/person/$PRISONER_NUMBER/distinguishing-mark/1")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.OK.value())
+          .withBody(DISTINGUISHING_MARK.trimIndent()),
+      ),
+    )
+    stubFor(
+      put(urlPathMatching("/api/person/$PRISONER_NUMBER_NOT_FOUND/distinguishing-mark/1")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.NOT_FOUND.value())
+          .withBody(PRISON_API_NOT_FOUND_RESPONSE.trimIndent()),
+      ),
+    )
+  }
+
+  fun stubCreateDistinguishingMark() {
+    stubFor(
+      post(urlPathMatching("/api/person/$PRISONER_NUMBER/distinguishing-mark")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.OK.value())
+          .withBody(DISTINGUISHING_MARK.trimIndent()),
+      ),
+    )
+    stubFor(
+      post(urlPathMatching("/api/person/$PRISONER_NUMBER_NOT_FOUND/distinguishing-mark")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.NOT_FOUND.value())
+          .withBody(PRISON_API_NOT_FOUND_RESPONSE.trimIndent()),
+      ),
+    )
+  }
+
+  fun stubGetDistinguishingMarkImage() {
+    stubFor(
+      get(urlPathMatching("/api/person/photo/$IMAGE_ID")).willReturn(
+        aResponse().withHeader("Content-Type", "image/jpeg")
+          .withStatus(HttpStatus.OK.value())
+          .withBody(IMAGE),
+      ),
+    )
+    stubFor(
+      get(urlPathMatching("/api/person/photo/$IMAGE_ID_NOT_FOUND")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.NOT_FOUND.value())
+          .withBody(PRISON_API_NOT_FOUND_RESPONSE.trimIndent()),
+      ),
+    )
+  }
+
+  fun stubAddDistinguishingMarkImage() {
+    stubFor(
+      post(urlPathMatching("/api/person/$PRISONER_NUMBER/distinguishing-mark/1/photo")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.OK.value())
+          .withBody(DISTINGUISHING_MARK.trimIndent()),
+      ),
+    )
+    stubFor(
+      post(urlPathMatching("/api/person/$PRISONER_NUMBER_NOT_FOUND/distinguishing-mark/1/photo")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.NOT_FOUND.value())
+          .withBody(PRISON_API_NOT_FOUND_RESPONSE.trimIndent()),
+      ),
+    )
+  }
+
+  private fun stubOffenderGetEndpoint(
+    endpoint: String,
+    status: HttpStatus,
+    prisonerNumber: String,
+    body: String? = null,
+  ) {
     stubFor(
       get(urlPathMatching("/api/offenders/$prisonerNumber/$endpoint")).willReturn(
         aResponse().withHeader("Content-Type", "application/json")
@@ -208,7 +389,12 @@ class PrisonApiMockServer : WireMockServer(8082) {
     )
   }
 
-  private fun stubOffenderPutEndpoint(endpoint: String, status: HttpStatus, prisonerNumber: String, body: String? = null) {
+  private fun stubOffenderPutEndpoint(
+    endpoint: String,
+    status: HttpStatus,
+    prisonerNumber: String,
+    body: String? = null,
+  ) {
     stubFor(
       put(urlPathMatching("/api/offenders/$prisonerNumber/$endpoint")).willReturn(
         aResponse().withHeader("Content-Type", "application/json")
@@ -218,7 +404,12 @@ class PrisonApiMockServer : WireMockServer(8082) {
     )
   }
 
-  private fun stubOffenderPostEndpoint(endpoint: String, status: HttpStatus, prisonerNumber: String, body: String? = null) {
+  private fun stubOffenderPostEndpoint(
+    endpoint: String,
+    status: HttpStatus,
+    prisonerNumber: String,
+    body: String? = null,
+  ) {
     stubFor(
       post(urlPathMatching("/api/offenders/$prisonerNumber/$endpoint")).willReturn(
         aResponse().withHeader("Content-Type", "application/json")
@@ -241,14 +432,24 @@ class PrisonApiExtension :
   override fun beforeAll(context: ExtensionContext): Unit = prisonApi.start()
   override fun beforeEach(context: ExtensionContext) {
     prisonApi.resetAll()
+
+    prisonApi.stubReferenceDataCodes()
+
     prisonApi.stubUpdateBirthPlaceForWorkingName()
     prisonApi.stubUpdateBirthCountryForWorkingName()
     prisonApi.stubUpdateNationalityForWorkingName()
     prisonApi.stubUpdateReligionForWorkingName()
-    prisonApi.stubReferenceDataCodes()
+
     prisonApi.stubGetMilitaryRecords()
     prisonApi.stubUpdateMilitaryRecord()
     prisonApi.stubCreateMilitaryRecord()
+
+    prisonApi.stubGetDistinguishingMarks()
+    prisonApi.stubGetDistinguishingMark()
+    prisonApi.stubUpdateDistinguishingMark()
+    prisonApi.stubCreateDistinguishingMark()
+    prisonApi.stubGetDistinguishingMarkImage()
+    prisonApi.stubAddDistinguishingMarkImage()
   }
 
   override fun afterAll(context: ExtensionContext): Unit = prisonApi.stop()
