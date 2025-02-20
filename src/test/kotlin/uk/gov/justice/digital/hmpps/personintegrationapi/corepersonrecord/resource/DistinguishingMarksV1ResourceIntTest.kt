@@ -250,7 +250,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
     }
   }
 
-  @DisplayName("GET v1/distinguishing-mark/{markId}")
+  @DisplayName("GET v1/distinguishing-mark/image/{imageId}")
   @Nested
   inner class GetDistinguishingMarkImage {
 
