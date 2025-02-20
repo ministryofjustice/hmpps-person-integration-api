@@ -22,6 +22,7 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory
 import reactor.netty.http.client.HttpClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.ReferenceDataClient
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.resolver.DistinguishingMarkCreateRequestResolver
 import uk.gov.justice.digital.hmpps.personintegrationapi.config.UserEnhancedOAuth2ClientCredentialGrantRequestConverter
 import uk.gov.justice.hmpps.kotlin.auth.healthWebClient
 import java.time.Duration
@@ -58,7 +59,9 @@ class WebClientConfiguration(
   @DependsOn("prisonApiWebClient")
   fun prisonApiClient(prisonApiWebClient: WebClient): PrisonApiClient {
     val factory =
-      HttpServiceProxyFactory.builderFor(WebClientAdapter.create(prisonApiWebClient)).build()
+      HttpServiceProxyFactory.builderFor(WebClientAdapter.create(prisonApiWebClient))
+        .customArgumentResolver(DistinguishingMarkCreateRequestResolver())
+        .build()
     val client = factory.createClient(PrisonApiClient::class.java)
 
     return client
