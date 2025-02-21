@@ -6,9 +6,12 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApi
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.ReferenceDataClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.MilitaryRecordRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthCountry
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.PhysicalAttributesRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PhysicalAttributes
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.mapper.mapRefDataDescription
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.BirthplaceUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.CorePersonRecordV1UpdateRequestDto
@@ -41,17 +44,20 @@ class CorePersonRecordService(
     val response = referenceDataClient.getReferenceDataByDomain(domain)
 
     if (response.statusCode.is2xxSuccessful) {
-      val mappedResponse = response.body?.map {
-        ReferenceDataCodeDto(
-          "${domain}_${it.code}",
-          it.code,
-          it.description,
-          it.listSeq,
-          it.activeFlag == "Y",
-          it.parentCode,
-          it.parentDomain,
-        )
-      }
+      val mappedResponse = response.body
+        ?.filterNot { excludedCodes.contains(Pair(it.domain, it.code)) }
+        ?.map {
+          ReferenceDataCodeDto(
+            "${domain}_${it.code}",
+            it.code,
+            mapRefDataDescription(it.domain, it.code, it.description),
+            it.listSeq,
+            it.activeFlag == "Y",
+            it.parentCode,
+            it.parentDomain,
+          )
+        }
+        ?.sortedBy { it.listSequence }
       return ResponseEntity.ok(mappedResponse)
     } else {
       return ResponseEntity.status(response.statusCode).build()
@@ -99,4 +105,40 @@ class CorePersonRecordService(
   fun createMilitaryRecord(prisonerNumber: String, militaryRecordRequest: MilitaryRecordRequest): ResponseEntity<Void> = prisonApiClient.createMilitaryRecord(prisonerNumber, militaryRecordRequest)
 
   fun updateNationality(prisonerNumber: String, updateNationality: UpdateNationality): ResponseEntity<Void> = prisonApiClient.updateNationalityForWorkingName(prisonerNumber, updateNationality)
+
+  fun getPhysicalAttributes(prisonerNumber: String): ResponseEntity<PhysicalAttributes> {
+    val response = prisonApiClient.getPhysicalAttributes(prisonerNumber)
+
+    if (!response.statusCode.is2xxSuccessful) return ResponseEntity.status(response.statusCode).build()
+
+    val mappedResponse = response.body?.let { body ->
+      body.copy(
+        hairDescription = body.hairCode?.let { mapRefDataDescription(HAIR, it, body.hairDescription) },
+        facialHairDescription = body.facialHairCode?.let { mapRefDataDescription(FACIAL_HAIR, it, body.facialHairDescription) },
+        faceDescription = body.faceCode?.let { mapRefDataDescription(FACE, it, body.faceDescription) },
+        buildDescription = body.buildCode?.let { mapRefDataDescription(BUILD, it, body.buildDescription) },
+        leftEyeColourDescription = body.leftEyeColourCode?.let { mapRefDataDescription(L_EYE_C, it, body.leftEyeColourDescription) },
+        rightEyeColourDescription = body.rightEyeColourCode?.let { mapRefDataDescription(R_EYE_C, it, body.rightEyeColourDescription) },
+      )
+    }
+
+    return ResponseEntity.ok(mappedResponse)
+  }
+
+  fun updatePhysicalAttributes(prisonerNumber: String, physicalAttributesRequest: PhysicalAttributesRequest): ResponseEntity<Void> = prisonApiClient.updatePhysicalAttributes(prisonerNumber, physicalAttributesRequest)
+
+  companion object {
+    val excludedCodes = setOf(
+      Pair("FACIAL_HAIR", "NA"),
+      Pair("L_EYE_C", "MISSING"),
+      Pair("R_EYE_C", "MISSING"),
+    )
+
+    const val HAIR = "HAIR"
+    const val FACIAL_HAIR = "FACIAL_HAIR"
+    const val FACE = "FACE"
+    const val BUILD = "BUILD"
+    const val L_EYE_C = "L_EYE_C"
+    const val R_EYE_C = "R_EYE_C"
+  }
 }

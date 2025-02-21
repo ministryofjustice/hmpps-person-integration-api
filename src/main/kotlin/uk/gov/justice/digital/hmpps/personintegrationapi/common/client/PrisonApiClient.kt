@@ -16,11 +16,13 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.D
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.DistinguishingMarkUpdateRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.MilitaryRecordRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthCountry
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.PhysicalAttributesRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateReligion
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecordPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.DistinguishingMarkDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PhysicalAttributes
 
 @HttpExchange("/api")
 interface PrisonApiClient {
@@ -102,4 +104,15 @@ interface PrisonApiClient {
     @PathVariable prisonerNumber: String,
     @PathVariable markId: Int,
   ): ResponseEntity<DistinguishingMarkDto>
+
+  @GetExchange("/{offenderNo}/core-person-record/physical-attributes")
+  fun getPhysicalAttributes(
+    @PathVariable offenderNo: String,
+  ): ResponseEntity<PhysicalAttributes>
+
+  @PutExchange("/{offenderNo}/core-person-record/physical-attributes")
+  fun updatePhysicalAttributes(
+    @PathVariable offenderNo: String,
+    @RequestBody physicalAttributes: PhysicalAttributesRequest,
+  ): ResponseEntity<Void>
 }
