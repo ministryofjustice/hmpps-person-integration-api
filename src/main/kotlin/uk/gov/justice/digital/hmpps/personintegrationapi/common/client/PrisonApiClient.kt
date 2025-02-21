@@ -68,12 +68,12 @@ interface PrisonApiClient {
     @RequestBody updateNationality: UpdateReligion,
   ): ResponseEntity<Void>
 
-  @GetExchange("/{offenderNo}/core-person-record/physical-attributes")
+  @GetExchange("/offenders/{offenderNo}/core-person-record/physical-attributes")
   fun getPhysicalAttributes(
     @PathVariable offenderNo: String,
   ): ResponseEntity<PhysicalAttributes>
 
-  @PutExchange("/{offenderNo}/core-person-record/physical-attributes")
+  @PutExchange("/offenders/{offenderNo}/core-person-record/physical-attributes")
   fun updatePhysicalAttributes(
     @PathVariable offenderNo: String,
     @RequestBody physicalAttributes: PhysicalAttributesRequest,
