@@ -23,6 +23,10 @@ import org.springframework.web.multipart.MultipartFile
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.DistinguishingMarkCreateRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.DistinguishingMarkUpdateRequest
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.DistinguishingMarkImageDetailPrisonDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.DistinguishingMarkPrisonDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.ReferenceDataCode
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataValue
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.DistinguishingMarkDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.DistinguishingMarkImageDetail
 import java.time.LocalDateTime
@@ -42,11 +46,11 @@ class DistinguishingMarksServiceTest {
   }
 
   @Nested
-  inner class GetDistinguishingMarksForPrisonerLatestBooking {
+  inner class GetDistinguishingMarksForPrisonerLatestBookingPrisonDto {
     @BeforeEach
     fun beforeEach() {
       whenever(prisonApiClient.getDistinguishingMarks(PRISONER_NUMBER))
-        .thenReturn(ResponseEntity.ok(listOf(DISTINGUISHING_MARK)))
+        .thenReturn(ResponseEntity.ok(listOf(DISTINGUISHING_MARK_PRISON_API_RESPONSE)))
     }
 
     @Test
@@ -65,11 +69,11 @@ class DistinguishingMarksServiceTest {
   }
 
   @Nested
-  inner class GetDistinguishingMarkById {
+  inner class GetDistinguishingMarkPrisonDtoById {
     @BeforeEach
     fun beforeEach() {
       whenever(prisonApiClient.getDistinguishingMark(PRISONER_NUMBER, 1))
-        .thenReturn(ResponseEntity.ok(DISTINGUISHING_MARK))
+        .thenReturn(ResponseEntity.ok(DISTINGUISHING_MARK_PRISON_API_RESPONSE))
     }
 
     @Test
@@ -97,11 +101,11 @@ class DistinguishingMarksServiceTest {
   }
 
   @Nested
-  inner class UpdateDistinguishingMark {
+  inner class UpdateDistinguishingMarkPrisonDto {
     @BeforeEach
     fun beforeEach() {
       whenever(prisonApiClient.updateDistinguishingMark(DISTINGUISHING_MARK_UPDATE_REQUEST, PRISONER_NUMBER, 1))
-        .thenReturn(ResponseEntity.ok(DISTINGUISHING_MARK))
+        .thenReturn(ResponseEntity.ok(DISTINGUISHING_MARK_PRISON_API_RESPONSE))
     }
 
     @Test
@@ -129,7 +133,7 @@ class DistinguishingMarksServiceTest {
   }
 
   @Nested
-  inner class CreateDistinguishingMark {
+  inner class CreateDistinguishingMarkPrisonDto {
     @BeforeEach
     fun beforeEach() {
       whenever(
@@ -139,7 +143,7 @@ class DistinguishingMarksServiceTest {
           PRISONER_NUMBER,
         ),
       )
-        .thenReturn(ResponseEntity.ok(DISTINGUISHING_MARK))
+        .thenReturn(ResponseEntity.ok(DISTINGUISHING_MARK_PRISON_API_RESPONSE))
     }
 
     @Test
@@ -168,7 +172,7 @@ class DistinguishingMarksServiceTest {
   }
 
   @Nested
-  inner class GetDistinguishingMarkImage {
+  inner class GetDistinguishingMarkPrisonDtoImage {
     @BeforeEach
     fun beforeEach() {
       whenever(prisonApiClient.getDistinguishingMarkImage(1))
@@ -191,11 +195,11 @@ class DistinguishingMarksServiceTest {
   }
 
   @Nested
-  inner class AddDistinguishingMarkImage {
+  inner class AddDistinguishingMarkPrisonDtoImage {
     @BeforeEach
     fun beforeEach() {
       whenever(prisonApiClient.addDistinguishingMarkImage(MULTIPART_FILE, PRISONER_NUMBER, 1))
-        .thenReturn(ResponseEntity.ok(DISTINGUISHING_MARK))
+        .thenReturn(ResponseEntity.ok(DISTINGUISHING_MARK_PRISON_API_RESPONSE))
     }
 
     @Test
@@ -227,14 +231,31 @@ class DistinguishingMarksServiceTest {
     const val MARK_ID = "A1234AA-1"
     const val SOURCE_NOMIS = "nomis"
 
+    val DISTINGUISHING_MARK_PRISON_API_RESPONSE = DistinguishingMarkPrisonDto(
+      id = 1,
+      bookingId = -1,
+      offenderNo = "A1234AA",
+      bodyPart = ReferenceDataCode("BODY_PART", "LEG", "Leg", "Y", 1),
+      markType = ReferenceDataCode("MARK_TYPE", "TAT", "Tattoo", "Y", 1),
+      side = ReferenceDataCode("SIDE", "R", "Right", "Y", 1),
+      partOrientation = ReferenceDataCode("PART_ORIENT", "LOW", "Low", "Y", 1),
+      comment = "Some comment",
+      createdAt = LocalDateTime.parse("2025-01-01T00:00:00"),
+      createdBy = "USER",
+      photographUuids = listOf(
+        DistinguishingMarkImageDetailPrisonDto(100L, false),
+        DistinguishingMarkImageDetailPrisonDto(101L, true),
+      ),
+    )
+
     val DISTINGUISHING_MARK = DistinguishingMarkDto(
       id = 1,
       bookingId = -1,
       offenderNo = "A1234AA",
-      bodyPart = "LEG",
-      markType = "TAT",
-      side = "R",
-      partOrientation = "LOW",
+      bodyPart = ReferenceDataValue("BODY_PART_LEG", "LEG", "Leg"),
+      markType = ReferenceDataValue("MARK_TYPE_TAT", "TAT", "Tattoo"),
+      side = ReferenceDataValue("SIDE_R", "R", "Right"),
+      partOrientation = ReferenceDataValue("PART_ORIENT_LOW", "LOW", "Low"),
       comment = "Some comment",
       createdAt = LocalDateTime.parse("2025-01-01T00:00:00"),
       createdBy = "USER",

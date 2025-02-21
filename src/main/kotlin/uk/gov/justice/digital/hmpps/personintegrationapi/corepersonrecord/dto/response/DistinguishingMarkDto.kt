@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.r
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import io.swagger.v3.oas.annotations.media.Schema
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataValue
 import java.time.LocalDateTime
 
 @JsonInclude(Include.NON_NULL)
@@ -26,29 +27,17 @@ data class DistinguishingMarkDto(
   )
   val offenderNo: String? = null,
 
-  @Schema(
-    description = "The body part that the mark is on",
-    example = "TORSO",
-  )
-  val bodyPart: String? = null,
+  @Schema(description = "The body part that the mark is on")
+  val bodyPart: ReferenceDataValue? = null,
 
-  @Schema(
-    description = "The type of distinguishign mark (e.g. scar, tattoo)",
-    example = "SCAR",
-  )
-  val markType: String? = null,
+  @Schema(description = "The type of distinguishign mark (e.g. scar, tattoo)")
+  val markType: ReferenceDataValue? = null,
 
-  @Schema(
-    description = "The side of the body the mark is on",
-    example = "L",
-  )
-  val side: String? = null,
+  @Schema(description = "The side of the body the mark is on")
+  val side: ReferenceDataValue? = null,
 
-  @Schema(
-    description = "The orientation of the mark on the body part (e.g. upper, lower)",
-    example = "UPP",
-  )
-  val partOrientation: String? = null,
+  @Schema(description = "The orientation of the mark on the body part (e.g. upper, lower)")
+  val partOrientation: ReferenceDataValue? = null,
 
   @Schema(description = "Comments about the distinguishing mark")
   val comment: String? = null,

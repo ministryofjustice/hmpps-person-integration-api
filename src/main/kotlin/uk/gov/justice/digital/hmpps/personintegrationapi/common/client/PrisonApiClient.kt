@@ -20,9 +20,9 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.U
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateReligion
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.DistinguishingMarkPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecordPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PhysicalAttributes
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.DistinguishingMarkDto
 
 @HttpExchange("/api")
 interface PrisonApiClient {
@@ -68,30 +68,41 @@ interface PrisonApiClient {
     @RequestBody updateNationality: UpdateReligion,
   ): ResponseEntity<Void>
 
+  @GetExchange("/{offenderNo}/core-person-record/physical-attributes")
+  fun getPhysicalAttributes(
+    @PathVariable offenderNo: String,
+  ): ResponseEntity<PhysicalAttributes>
+
+  @PutExchange("/{offenderNo}/core-person-record/physical-attributes")
+  fun updatePhysicalAttributes(
+    @PathVariable offenderNo: String,
+    @RequestBody physicalAttributes: PhysicalAttributesRequest,
+  ): ResponseEntity<Void>
+
   @GetExchange("/person/{prisonerNumber}/distinguishing-marks")
   fun getDistinguishingMarks(
     @PathVariable prisonerNumber: String,
-  ): ResponseEntity<List<DistinguishingMarkDto>>
+  ): ResponseEntity<List<DistinguishingMarkPrisonDto>>
 
   @GetExchange("/person/{prisonerNumber}/distinguishing-mark/{markId}")
   fun getDistinguishingMark(
     @PathVariable prisonerNumber: String,
     @PathVariable markId: Int,
-  ): ResponseEntity<DistinguishingMarkDto>
+  ): ResponseEntity<DistinguishingMarkPrisonDto>
 
   @PutExchange("/person/{prisonerNumber}/distinguishing-mark/{markId}")
   fun updateDistinguishingMark(
     @RequestBody request: DistinguishingMarkUpdateRequest,
     @PathVariable prisonerNumber: String,
     @PathVariable markId: Int,
-  ): ResponseEntity<DistinguishingMarkDto>
+  ): ResponseEntity<DistinguishingMarkPrisonDto>
 
   @PostExchange("/person/{prisonerNumber}/distinguishing-mark", accept = [APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE])
   fun createDistinguishingMark(
     @RequestPart(name = "file") file: MultipartFile?,
     @ModelAttribute request: DistinguishingMarkCreateRequest,
     @PathVariable prisonerNumber: String,
-  ): ResponseEntity<DistinguishingMarkDto>
+  ): ResponseEntity<DistinguishingMarkPrisonDto>
 
   @GetExchange("/person/photo/{imageId}")
   fun getDistinguishingMarkImage(
@@ -103,16 +114,5 @@ interface PrisonApiClient {
     @RequestPart(name = "file") file: MultipartFile,
     @PathVariable prisonerNumber: String,
     @PathVariable markId: Int,
-  ): ResponseEntity<DistinguishingMarkDto>
-
-  @GetExchange("/{offenderNo}/core-person-record/physical-attributes")
-  fun getPhysicalAttributes(
-    @PathVariable offenderNo: String,
-  ): ResponseEntity<PhysicalAttributes>
-
-  @PutExchange("/{offenderNo}/core-person-record/physical-attributes")
-  fun updatePhysicalAttributes(
-    @PathVariable offenderNo: String,
-    @RequestBody physicalAttributes: PhysicalAttributesRequest,
-  ): ResponseEntity<Void>
+  ): ResponseEntity<DistinguishingMarkPrisonDto>
 }
