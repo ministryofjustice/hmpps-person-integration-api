@@ -8,7 +8,9 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.D
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.DistinguishingMarkUpdateRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.SourceSystem.NOMIS
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.toSourceSystem
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.DistinguishingMarkPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.DistinguishingMarkDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.DistinguishingMarkImageDetail
 
 @Service
 class DistinguishingMarksService(
@@ -17,14 +19,24 @@ class DistinguishingMarksService(
   fun getDistinguishingMarks(
     prisonerNumber: String,
     sourceSystem: String,
-  ): ResponseEntity<List<DistinguishingMarkDto>> = when (sourceSystem.toSourceSystem()) {
-    NOMIS -> prisonApiClient.getDistinguishingMarks(prisonerNumber)
+  ): ResponseEntity<List<DistinguishingMarkDto>> {
+    when (sourceSystem.toSourceSystem()) {
+      NOMIS -> {
+        val response = prisonApiClient.getDistinguishingMarks(prisonerNumber)
+
+        return if (response.statusCode.is2xxSuccessful) {
+          ResponseEntity.ok(response.body?.map { toDto(it) })
+        } else {
+          ResponseEntity.status(response.statusCode).build()
+        }
+      }
+    }
   }
 
   fun getDistinguishingMark(markId: String, sourceSystem: String): ResponseEntity<DistinguishingMarkDto> = when (sourceSystem.toSourceSystem()) {
     NOMIS -> {
       val (prisonerNumber, sequenceId) = parseMarkId(markId)
-      prisonApiClient.getDistinguishingMark(prisonerNumber, sequenceId)
+      mappedResponse(prisonApiClient.getDistinguishingMark(prisonerNumber, sequenceId))
     }
   }
 
@@ -35,7 +47,7 @@ class DistinguishingMarksService(
   ): ResponseEntity<DistinguishingMarkDto> = when (sourceSystem.toSourceSystem()) {
     NOMIS -> {
       val (prisonerNumber, sequenceId) = parseMarkId(markId)
-      prisonApiClient.updateDistinguishingMark(request, prisonerNumber, sequenceId)
+      mappedResponse(prisonApiClient.updateDistinguishingMark(request, prisonerNumber, sequenceId))
     }
   }
 
@@ -45,7 +57,7 @@ class DistinguishingMarksService(
     prisonerNumber: String,
     sourceSystem: String,
   ): ResponseEntity<DistinguishingMarkDto> = when (sourceSystem.toSourceSystem()) {
-    NOMIS -> prisonApiClient.createDistinguishingMark(file, request, prisonerNumber)
+    NOMIS -> mappedResponse(prisonApiClient.createDistinguishingMark(file, request, prisonerNumber))
   }
 
   fun getDistinguishingMarkImage(imageId: String, sourceSystem: String): ResponseEntity<ByteArray> = when (sourceSystem.toSourceSystem()) {
@@ -59,7 +71,7 @@ class DistinguishingMarksService(
   ): ResponseEntity<DistinguishingMarkDto> = when (sourceSystem.toSourceSystem()) {
     NOMIS -> {
       val (prisonerNumber, sequenceId) = parseMarkId(markId)
-      prisonApiClient.addDistinguishingMarkImage(file, prisonerNumber, sequenceId)
+      mappedResponse(prisonApiClient.addDistinguishingMarkImage(file, prisonerNumber, sequenceId))
     }
   }
 
@@ -70,4 +82,24 @@ class DistinguishingMarksService(
     }
     return Pair(tokens[0], tokens[1].toInt())
   }
+
+  private fun mappedResponse(response: ResponseEntity<DistinguishingMarkPrisonDto>): ResponseEntity<DistinguishingMarkDto> = if (response.statusCode.is2xxSuccessful) {
+    ResponseEntity.ok(response.body?.let { toDto(it) })
+  } else {
+    ResponseEntity.status(response.statusCode).build()
+  }
+
+  private fun toDto(value: DistinguishingMarkPrisonDto): DistinguishingMarkDto = DistinguishingMarkDto(
+    id = value.id,
+    bookingId = value.bookingId,
+    offenderNo = value.offenderNo,
+    bodyPart = value.bodyPart?.toReferenceDataValue(),
+    markType = value.markType?.toReferenceDataValue(),
+    side = value.side?.toReferenceDataValue(),
+    partOrientation = value.partOrientation?.toReferenceDataValue(),
+    comment = value.comment,
+    createdAt = value.createdAt,
+    createdBy = value.createdBy,
+    photographUuids = value.photographUuids.map { DistinguishingMarkImageDetail(it.id, it.latest) },
+  )
 }

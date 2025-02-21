@@ -12,6 +12,7 @@ import org.springframework.mock.web.MockMultipartFile
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.DistinguishingMarkUpdateRequest
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataValue
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePersonRecordRoleConstants
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.DistinguishingMarkDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.DistinguishingMarkImageDetail
@@ -26,7 +27,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
 
   @DisplayName("GET v1/distinguishing-marks")
   @Nested
-  inner class GetDistinguishingMarks {
+  inner class GetDistinguishingMarksPrisonDto {
 
     @Nested
     inner class Security {
@@ -80,7 +81,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
 
   @DisplayName("GET v1/distinguishing-mark/{markId}")
   @Nested
-  inner class GetDistinguishingMarkById {
+  inner class GetDistinguishingMarkPrisonDtoById {
 
     @Nested
     inner class Security {
@@ -133,7 +134,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
 
   @DisplayName("PUT v1/distinguishing-mark/{markId}")
   @Nested
-  inner class UpdateDistinguishingMark {
+  inner class UpdateDistinguishingMarkPrisonDto {
 
     @Nested
     inner class Security {
@@ -190,7 +191,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
 
   @DisplayName("POST v1/distinguishing-mark/{prisonerNumber}")
   @Nested
-  inner class CreateDistinguishingMark {
+  inner class CreateDistinguishingMarkPrisonDto {
 
     @Nested
     inner class Security {
@@ -252,7 +253,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
 
   @DisplayName("GET v1/distinguishing-mark/image/{imageId}")
   @Nested
-  inner class GetDistinguishingMarkImage {
+  inner class GetDistinguishingMarkPrisonDtoImage {
 
     @Nested
     inner class Security {
@@ -305,7 +306,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
 
   @DisplayName("POST v1/distinguishing-mark/{markId}/image")
   @Nested
-  inner class AddDistinguishingMarkImage {
+  inner class AddDistinguishingMarkPrisonDtoImage {
 
     @Nested
     inner class Security {
@@ -375,10 +376,10 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
       id = 1,
       bookingId = -1,
       offenderNo = "A1234AA",
-      bodyPart = "LEG",
-      markType = "TAT",
-      side = "R",
-      partOrientation = "LOW",
+      bodyPart = ReferenceDataValue("BODY_PART_LEG", "LEG", "Leg"),
+      markType = ReferenceDataValue("MARK_TYPE_TAT", "TAT", "Tattoo"),
+      side = ReferenceDataValue("SIDE_R", "R", "Right"),
+      partOrientation = ReferenceDataValue("PART_ORIENT_LOW", "LOW", "Low"),
       comment = "Some comment",
       createdAt = LocalDateTime.parse("2025-01-01T00:00:00"),
       createdBy = "USER",
@@ -392,10 +393,10 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
       id = 2,
       bookingId = -1,
       offenderNo = "A1234AA",
-      bodyPart = "ARM",
-      markType = "SCAR",
-      side = "L",
-      partOrientation = "UPP",
+      bodyPart = ReferenceDataValue("BODY_PART_ARM", "ARM", "Arm"),
+      markType = ReferenceDataValue("MARK_TYPE_SCAR", "SCAR", "Scar"),
+      side = ReferenceDataValue("SIDE_L", "L", "Left"),
+      partOrientation = ReferenceDataValue("PART_ORIENT_UPP", "UPP", "Upper"),
       comment = "Some comment",
       createdAt = LocalDateTime.parse("2025-01-01T00:00:00"),
       createdBy = "USER",

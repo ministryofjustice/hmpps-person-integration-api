@@ -17,7 +17,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.D
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.DistinguishingMarkUpdateRequest
 
 @ExtendWith(MockitoExtension::class)
-class DistinguishingMarkCreateRequestResolverTest {
+class DistinguishingMarkPrisonDtoCreateRequestResolverTest {
 
   @Test
   fun `maps supported request correctly`() {
