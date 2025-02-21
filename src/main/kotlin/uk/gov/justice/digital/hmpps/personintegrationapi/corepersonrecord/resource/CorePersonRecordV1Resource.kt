@@ -26,7 +26,9 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.annotation.ValidPrisonerNumber
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.MilitaryRecordRequest
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.PhysicalAttributesRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PhysicalAttributes
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePersonRecordRoleConstants
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
@@ -380,4 +382,92 @@ class CorePersonRecordV1Resource(
     @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
     @RequestBody(required = true) @Valid updateNationality: UpdateNationality,
   ): ResponseEntity<Void> = corePersonRecordService.updateNationality(prisonerNumber, updateNationality)
+
+  @GetMapping("/physical-attributes")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(
+    summary = "Get physical attributes for the given prisoner number",
+    description = "Returns the physical attributes for the prisoner. " +
+      "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}` or `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}`",
+    responses = [
+      ApiResponse(
+        responseCode = "200",
+        description = "Physical attributes found",
+        content = [Content(schema = Schema(implementation = PhysicalAttributes::class))],
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorised, requires a valid Oauth2 token",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Missing required role. Requires ${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE} or ${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}.",
+        content = [
+          Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Prisoner not found",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
+      ),
+    ],
+  )
+  @PreAuthorize("hasAnyRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}', '${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
+  fun getPhysicalAttributes(
+    @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
+  ): ResponseEntity<PhysicalAttributes> = corePersonRecordService.getPhysicalAttributes(prisonerNumber)
+
+  @PutMapping("/physical-attributes")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(
+    summary = "Update physical attributes for the given prisoner number",
+    description = "Updates the physical attributes for the prisoner. " +
+      "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}`",
+    responses = [
+      ApiResponse(
+        responseCode = "204",
+        description = "Physical attributes successfully updated.",
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized to access this endpoint",
+        content = [
+          Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Missing required role. Requires ${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}",
+        content = [
+          Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Record not found",
+        content = [
+          Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
+  fun updatePhysicalAttributes(
+    @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
+    @RequestBody(required = true) @Valid physicalAttributesRequest: PhysicalAttributesRequest,
+  ): ResponseEntity<Void> = corePersonRecordService.updatePhysicalAttributes(prisonerNumber, physicalAttributesRequest)
 }
