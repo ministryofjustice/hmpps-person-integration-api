@@ -453,6 +453,23 @@ class PrisonApiMockServer : WireMockServer(8082) {
     )
   }
 
+  fun stubUpdateDistinguishingMarkImage() {
+    stubFor(
+      put(urlPathMatching("/api/person/photo/$IMAGE_ID/image")).willReturn(
+        aResponse().withHeader("Content-Type", "image/jpeg")
+          .withStatus(HttpStatus.OK.value())
+          .withBody(IMAGE),
+      ),
+    )
+    stubFor(
+      put(urlPathMatching("/api/person/photo/$IMAGE_ID_NOT_FOUND/image")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.NOT_FOUND.value())
+          .withBody(PRISON_API_NOT_FOUND_RESPONSE.trimIndent()),
+      ),
+    )
+  }
+
   fun stubAddDistinguishingMarkImage() {
     stubFor(
       post(urlPathMatching("/api/person/$PRISONER_NUMBER/distinguishing-mark/1/photo")).willReturn(
@@ -545,6 +562,7 @@ class PrisonApiExtension :
     prisonApi.stubUpdateDistinguishingMark()
     prisonApi.stubCreateDistinguishingMark()
     prisonApi.stubGetDistinguishingMarkImage()
+    prisonApi.stubUpdateDistinguishingMarkImage()
     prisonApi.stubAddDistinguishingMarkImage()
   }
 
