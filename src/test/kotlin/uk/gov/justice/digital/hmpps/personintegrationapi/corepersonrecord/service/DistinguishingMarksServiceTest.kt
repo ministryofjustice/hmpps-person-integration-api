@@ -46,7 +46,7 @@ class DistinguishingMarksServiceTest {
   }
 
   @Nested
-  inner class GetDistinguishingMarksForPrisonerLatestBookingPrisonDto {
+  inner class GetDistinguishingMarksForPrisonerLatestBooking {
     @BeforeEach
     fun beforeEach() {
       whenever(prisonApiClient.getDistinguishingMarks(PRISONER_NUMBER))
@@ -69,7 +69,7 @@ class DistinguishingMarksServiceTest {
   }
 
   @Nested
-  inner class GetDistinguishingMarkPrisonDtoById {
+  inner class GetDistinguishingMarkById {
     @BeforeEach
     fun beforeEach() {
       whenever(prisonApiClient.getDistinguishingMark(PRISONER_NUMBER, 1))
@@ -101,7 +101,7 @@ class DistinguishingMarksServiceTest {
   }
 
   @Nested
-  inner class UpdateDistinguishingMarkPrisonDto {
+  inner class UpdateDistinguishingMark {
     @BeforeEach
     fun beforeEach() {
       whenever(prisonApiClient.updateDistinguishingMark(DISTINGUISHING_MARK_UPDATE_REQUEST, PRISONER_NUMBER, 1))
@@ -133,7 +133,7 @@ class DistinguishingMarksServiceTest {
   }
 
   @Nested
-  inner class CreateDistinguishingMarkPrisonDto {
+  inner class CreateDistinguishingMark {
     @BeforeEach
     fun beforeEach() {
       whenever(
@@ -172,7 +172,7 @@ class DistinguishingMarksServiceTest {
   }
 
   @Nested
-  inner class GetDistinguishingMarkPrisonDtoImage {
+  inner class GetDistinguishingMarkImage {
     @BeforeEach
     fun beforeEach() {
       whenever(prisonApiClient.getDistinguishingMarkImage(1))
@@ -195,7 +195,30 @@ class DistinguishingMarksServiceTest {
   }
 
   @Nested
-  inner class AddDistinguishingMarkPrisonDtoImage {
+  inner class UpdateDistinguishingMarkImage {
+    @BeforeEach
+    fun beforeEach() {
+      whenever(prisonApiClient.updateDistinguishingMarkImage(MULTIPART_FILE, 1))
+        .thenReturn(ResponseEntity.ok(IMAGE))
+    }
+
+    @Test
+    fun `can update a distinguishing mark by id`() {
+      val response = underTest.updateDistinguishingMarkImage(MULTIPART_FILE, "1", SOURCE_NOMIS)
+      assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+      assertThat(response.body).isEqualTo(IMAGE)
+    }
+
+    @Test
+    fun `throws an exception if the source system is not supported`() {
+      assertThrows<IllegalArgumentException> {
+        underTest.updateDistinguishingMarkImage(MULTIPART_FILE, "1", "UNKNOWN_SOURCE")
+      }
+    }
+  }
+
+  @Nested
+  inner class AddDistinguishingMarkImage {
     @BeforeEach
     fun beforeEach() {
       whenever(prisonApiClient.addDistinguishingMarkImage(MULTIPART_FILE, PRISONER_NUMBER, 1))

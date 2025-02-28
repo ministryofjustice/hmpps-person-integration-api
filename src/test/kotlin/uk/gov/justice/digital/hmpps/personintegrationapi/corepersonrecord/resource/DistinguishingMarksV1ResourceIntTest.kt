@@ -27,7 +27,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
 
   @DisplayName("GET v1/distinguishing-marks")
   @Nested
-  inner class GetDistinguishingMarksPrisonDto {
+  inner class GetDistinguishingMarks {
 
     @Nested
     inner class Security {
@@ -81,7 +81,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
 
   @DisplayName("GET v1/distinguishing-mark/{markId}")
   @Nested
-  inner class GetDistinguishingMarkPrisonDtoById {
+  inner class GetDistinguishingMarkById {
 
     @Nested
     inner class Security {
@@ -134,7 +134,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
 
   @DisplayName("PUT v1/distinguishing-mark/{markId}")
   @Nested
-  inner class UpdateDistinguishingMarkPrisonDto {
+  inner class UpdateDistinguishingMark {
 
     @Nested
     inner class Security {
@@ -191,7 +191,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
 
   @DisplayName("POST v1/distinguishing-mark/{prisonerNumber}")
   @Nested
-  inner class CreateDistinguishingMarkPrisonDto {
+  inner class CreateDistinguishingMark {
 
     @Nested
     inner class Security {
@@ -253,7 +253,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
 
   @DisplayName("GET v1/distinguishing-mark/image/{imageId}")
   @Nested
-  inner class GetDistinguishingMarkPrisonDtoImage {
+  inner class GetDistinguishingMarkImage {
 
     @Nested
     inner class Security {
@@ -304,9 +304,70 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
     }
   }
 
+  @DisplayName("PUT v1/distinguishing-mark/image/{imageId}")
+  @Nested
+  inner class UpdateDistinguishingMarkImage {
+
+    @Nested
+    inner class Security {
+      @Test
+      fun `access forbidden when no authority`() {
+        webTestClient.put().uri("/v1/distinguishing-mark/image/$IMAGE_ID?sourceSystem=$SOURCE_NOMIS")
+          .contentType(MULTIPART_FORM_DATA)
+          .body(BodyInserters.fromMultipartData(MULTIPART_BUILDER.build()))
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `access forbidden with wrong role`() {
+        webTestClient.put().uri("/v1/distinguishing-mark/image/$IMAGE_ID?sourceSystem=$SOURCE_NOMIS")
+          .headers(setAuthorisation(roles = listOf("ROLE_IS_WRONG")))
+          .contentType(MULTIPART_FORM_DATA)
+          .body(BodyInserters.fromMultipartData(MULTIPART_BUILDER.build()))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+    }
+
+    @Nested
+    inner class NotFound {
+
+      @Test
+      fun `handles a 404 not found response from downstream api`() {
+        webTestClient.put().uri("/v1/distinguishing-mark/image/$IMAGE_ID_NOT_FOUND?sourceSystem=$SOURCE_NOMIS")
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .contentType(MULTIPART_FORM_DATA)
+          .body(BodyInserters.fromMultipartData(MULTIPART_BUILDER.build()))
+          .exchange()
+          .expectStatus().isNotFound
+          .expectBody().json(PRISON_API_NOT_FOUND_RESPONSE.trimIndent())
+      }
+    }
+
+    @Nested
+    inner class HappyPath {
+
+      @Test
+      fun `can update existing distinguishing mark image`() {
+        val response =
+          webTestClient.put().uri("/v1/distinguishing-mark/image/$IMAGE_ID?sourceSystem=$SOURCE_NOMIS")
+            .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+            .contentType(MULTIPART_FORM_DATA)
+            .body(BodyInserters.fromMultipartData(MULTIPART_BUILDER.build()))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(ByteArray::class.java)
+            .returnResult().responseBody
+
+        assertThat(response).isEqualTo(IMAGE)
+      }
+    }
+  }
+
   @DisplayName("POST v1/distinguishing-mark/{markId}/image")
   @Nested
-  inner class AddDistinguishingMarkPrisonDtoImage {
+  inner class AddDistinguishingMarkImage {
 
     @Nested
     inner class Security {

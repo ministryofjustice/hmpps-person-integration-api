@@ -310,6 +310,77 @@ class DistinguishingMarksV1Resource(
     @RequestParam(required = true) sourceSystem: String,
   ): ResponseEntity<ByteArray> = distinguishingMarksService.getDistinguishingMarkImage(imageId, sourceSystem)
 
+  @PutMapping(
+    "/distinguishing-mark/image/{imageId}",
+    produces = [
+      APPLICATION_JSON_VALUE,
+    ],
+    consumes = [
+      MULTIPART_FORM_DATA_VALUE,
+    ],
+  )
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(
+    summary = "Updates an existing distinguishing mark image",
+    description = "Updates an existing distinguishing mark image. " +
+      "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}`",
+    parameters = [
+      Parameter(
+        name = "imageId",
+        description = "The image identifier.",
+        example = "1",
+      ),
+      Parameter(
+        name = "sourceSystem",
+        description = "The source system which should be used to query the data.",
+        example = "NOMIS",
+      ),
+    ],
+    responses = [
+      ApiResponse(
+        responseCode = "200",
+        description = "Distinguishing mark image updated",
+        content = [Content(mediaType = IMAGE_JPEG_VALUE)],
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorised, requires a valid Oauth2 token",
+        content = [
+          Content(
+            mediaType = APPLICATION_JSON_VALUE,
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Missing required role. Requires ${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}.",
+        content = [
+          Content(
+            mediaType = APPLICATION_JSON_VALUE,
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Distinguishing mark image not found",
+        content = [
+          Content(
+            mediaType = APPLICATION_JSON_VALUE,
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
+  fun updateDistinguishingMarkImage(
+    @RequestPart(name = "file", required = true) file: MultipartFile,
+    @PathVariable(required = true) imageId: String,
+    @RequestParam(required = true) sourceSystem: String,
+  ): ResponseEntity<ByteArray> = distinguishingMarksService.updateDistinguishingMarkImage(file, imageId, sourceSystem)
+
   @PostMapping(
     "/distinguishing-mark/{markId}/image",
     produces = [

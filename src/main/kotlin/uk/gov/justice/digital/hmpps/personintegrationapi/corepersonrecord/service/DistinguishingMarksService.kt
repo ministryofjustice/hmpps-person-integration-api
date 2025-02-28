@@ -61,7 +61,15 @@ class DistinguishingMarksService(
   }
 
   fun getDistinguishingMarkImage(imageId: String, sourceSystem: String): ResponseEntity<ByteArray> = when (sourceSystem.toSourceSystem()) {
-    NOMIS -> prisonApiClient.getDistinguishingMarkImage(imageId.toInt())
+    NOMIS -> prisonApiClient.getDistinguishingMarkImage(imageId.toLong())
+  }
+
+  fun updateDistinguishingMarkImage(
+    file: MultipartFile,
+    imageId: String,
+    sourceSystem: String,
+  ): ResponseEntity<ByteArray> = when (sourceSystem.toSourceSystem()) {
+    NOMIS -> prisonApiClient.updateDistinguishingMarkImage(file, imageId.toLong())
   }
 
   fun addDistinguishingMarkImage(

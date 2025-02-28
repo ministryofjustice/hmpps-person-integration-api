@@ -106,7 +106,13 @@ interface PrisonApiClient {
 
   @GetExchange("/person/photo/{imageId}")
   fun getDistinguishingMarkImage(
-    @PathVariable imageId: Int,
+    @PathVariable imageId: Long,
+  ): ResponseEntity<ByteArray>
+
+  @PutExchange("/person/photo/{imageId}/image")
+  fun updateDistinguishingMarkImage(
+    @RequestPart(name = "file") file: MultipartFile,
+    @PathVariable imageId: Long,
   ): ResponseEntity<ByteArray>
 
   @PostExchange("/person/{prisonerNumber}/distinguishing-mark/{markId}/photo")
