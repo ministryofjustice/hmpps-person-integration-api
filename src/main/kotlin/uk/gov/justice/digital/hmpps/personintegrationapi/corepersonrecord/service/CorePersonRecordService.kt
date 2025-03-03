@@ -9,10 +9,10 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.P
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthCountry
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PhysicalAttributes
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.mapper.mapRefDataDescription
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.PhysicalAttributesDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.BirthplaceUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.CorePersonRecordV1UpdateRequestDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.CountryOfBirthUpdateDto
@@ -106,19 +106,22 @@ class CorePersonRecordService(
 
   fun updateNationality(prisonerNumber: String, updateNationality: UpdateNationality): ResponseEntity<Void> = prisonApiClient.updateNationalityForWorkingName(prisonerNumber, updateNationality)
 
-  fun getPhysicalAttributes(prisonerNumber: String): ResponseEntity<PhysicalAttributes> {
+  fun getPhysicalAttributes(prisonerNumber: String): ResponseEntity<PhysicalAttributesDto> {
     val response = prisonApiClient.getPhysicalAttributes(prisonerNumber)
 
     if (!response.statusCode.is2xxSuccessful) return ResponseEntity.status(response.statusCode).build()
 
     val mappedResponse = response.body?.let { body ->
-      body.copy(
-        hairDescription = body.hairCode?.let { mapRefDataDescription(HAIR, it, body.hairDescription) },
-        facialHairDescription = body.facialHairCode?.let { mapRefDataDescription(FACIAL_HAIR, it, body.facialHairDescription) },
-        faceDescription = body.faceCode?.let { mapRefDataDescription(FACE, it, body.faceDescription) },
-        buildDescription = body.buildCode?.let { mapRefDataDescription(BUILD, it, body.buildDescription) },
-        leftEyeColourDescription = body.leftEyeColourCode?.let { mapRefDataDescription(L_EYE_C, it, body.leftEyeColourDescription) },
-        rightEyeColourDescription = body.rightEyeColourCode?.let { mapRefDataDescription(R_EYE_C, it, body.rightEyeColourDescription) },
+      PhysicalAttributesDto(
+        height = body.height,
+        weight = body.weight,
+        hair = body.hair?.toReferenceDataValue(),
+        facialHair = body.facialHair?.toReferenceDataValue(),
+        face = body.face?.toReferenceDataValue(),
+        build = body.build?.toReferenceDataValue(),
+        leftEyeColour = body.leftEyeColour?.toReferenceDataValue(),
+        rightEyeColour = body.rightEyeColour?.toReferenceDataValue(),
+        shoeSize = body.shoeSize,
       )
     }
 

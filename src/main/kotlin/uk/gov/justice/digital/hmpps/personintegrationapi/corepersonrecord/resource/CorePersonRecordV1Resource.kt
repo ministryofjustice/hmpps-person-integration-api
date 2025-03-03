@@ -28,10 +28,10 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.annotation.Valid
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.MilitaryRecordRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.PhysicalAttributesRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PhysicalAttributes
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePersonRecordRoleConstants
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.PhysicalAttributesDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.CorePersonRecordV1UpdateRequestDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.service.CorePersonRecordService
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
@@ -393,7 +393,7 @@ class CorePersonRecordV1Resource(
       ApiResponse(
         responseCode = "200",
         description = "Physical attributes found",
-        content = [Content(schema = Schema(implementation = PhysicalAttributes::class))],
+        content = [Content(schema = Schema(implementation = PhysicalAttributesDto::class))],
       ),
       ApiResponse(
         responseCode = "401",
@@ -420,7 +420,7 @@ class CorePersonRecordV1Resource(
   @PreAuthorize("hasAnyRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}', '${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun getPhysicalAttributes(
     @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
-  ): ResponseEntity<PhysicalAttributes> = corePersonRecordService.getPhysicalAttributes(prisonerNumber)
+  ): ResponseEntity<PhysicalAttributesDto> = corePersonRecordService.getPhysicalAttributes(prisonerNumber)
 
   @PutMapping("/physical-attributes")
   @ResponseStatus(HttpStatus.NO_CONTENT)

@@ -22,7 +22,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.U
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateReligion
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.DistinguishingMarkPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecordPrisonDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PhysicalAttributes
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PhysicalAttributesPrisonDto
 
 @HttpExchange("/api")
 interface PrisonApiClient {
@@ -71,7 +71,7 @@ interface PrisonApiClient {
   @GetExchange("/offenders/{offenderNo}/core-person-record/physical-attributes")
   fun getPhysicalAttributes(
     @PathVariable offenderNo: String,
-  ): ResponseEntity<PhysicalAttributes>
+  ): ResponseEntity<PhysicalAttributesPrisonDto>
 
   @PutExchange("/offenders/{offenderNo}/core-person-record/physical-attributes")
   fun updatePhysicalAttributes(
