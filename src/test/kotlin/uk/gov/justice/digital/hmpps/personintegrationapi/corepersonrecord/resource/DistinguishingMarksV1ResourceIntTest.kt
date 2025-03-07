@@ -21,6 +21,9 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.IM
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER_NOT_FOUND
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISON_API_NOT_FOUND_RESPONSE
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.VIRUS_SCAN_ERROR_RESPONSE
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.VIRUS_SCAN_FAILED_RESPONSE
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.VIRUS_SCAN_UNEXPECTED_ERROR_RESPONSE
 import java.time.LocalDateTime
 
 class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
@@ -199,7 +202,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
       fun `access forbidden when no authority`() {
         webTestClient.post().uri("/v1/distinguishing-mark?prisonerNumber=$PRISONER_NUMBER&sourceSystem=$SOURCE_NOMIS")
           .contentType(MULTIPART_FORM_DATA)
-          .body(BodyInserters.fromMultipartData(MULTIPART_POST_BUILDER.build()))
+          .body(BodyInserters.fromMultipartData(imageAndMarkDetailsRequestBody(MULTIPART_FILE).build()))
           .exchange()
           .expectStatus().isUnauthorized
       }
@@ -208,7 +211,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
       fun `access forbidden with wrong role`() {
         webTestClient.post().uri("/v1/distinguishing-mark?prisonerNumber=$PRISONER_NUMBER&sourceSystem=$SOURCE_NOMIS")
           .contentType(MULTIPART_FORM_DATA)
-          .body(BodyInserters.fromMultipartData(MULTIPART_POST_BUILDER.build()))
+          .body(BodyInserters.fromMultipartData(imageAndMarkDetailsRequestBody(MULTIPART_FILE).build()))
           .headers(setAuthorisation(roles = listOf("ROLE_IS_WRONG")))
           .exchange()
           .expectStatus().isForbidden
@@ -224,10 +227,50 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
           .uri("/v1/distinguishing-mark?prisonerNumber=$PRISONER_NUMBER_NOT_FOUND&sourceSystem=$SOURCE_NOMIS")
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
           .contentType(MULTIPART_FORM_DATA)
-          .body(BodyInserters.fromMultipartData(MULTIPART_POST_BUILDER.build()))
+          .body(BodyInserters.fromMultipartData(imageAndMarkDetailsRequestBody(MULTIPART_FILE).build()))
           .exchange()
           .expectStatus().isNotFound
           .expectBody().json(PRISON_API_NOT_FOUND_RESPONSE.trimIndent())
+      }
+    }
+
+    @Nested
+    inner class VirusScan {
+
+      @Test
+      fun `handles a failed virus scan result`() {
+        webTestClient.post()
+          .uri("/v1/distinguishing-mark?prisonerNumber=$PRISONER_NUMBER&sourceSystem=$SOURCE_NOMIS")
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .contentType(MULTIPART_FORM_DATA)
+          .body(BodyInserters.fromMultipartData(imageAndMarkDetailsRequestBody(MULTIPART_FILE_WITH_VIRUS).build()))
+          .exchange()
+          .expectStatus().isBadRequest
+          .expectBody().json(VIRUS_SCAN_FAILED_RESPONSE.trimIndent())
+      }
+
+      @Test
+      fun `handles a virus scan error`() {
+        webTestClient.post()
+          .uri("/v1/distinguishing-mark?prisonerNumber=$PRISONER_NUMBER&sourceSystem=$SOURCE_NOMIS")
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .contentType(MULTIPART_FORM_DATA)
+          .body(BodyInserters.fromMultipartData(imageAndMarkDetailsRequestBody(MULTIPART_FILE_VIRUS_ERROR).build()))
+          .exchange()
+          .expectStatus().isBadRequest
+          .expectBody().json(VIRUS_SCAN_ERROR_RESPONSE.trimIndent())
+      }
+
+      @Test
+      fun `handles a virus scan unexpected error`() {
+        webTestClient.post()
+          .uri("/v1/distinguishing-mark?prisonerNumber=$PRISONER_NUMBER&sourceSystem=$SOURCE_NOMIS")
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .contentType(MULTIPART_FORM_DATA)
+          .body(BodyInserters.fromMultipartData(imageAndMarkDetailsRequestBody(MULTIPART_FILE_VIRUS_UNEXPECTED_ERROR).build()))
+          .exchange()
+          .expectStatus().is5xxServerError
+          .expectBody().json(VIRUS_SCAN_UNEXPECTED_ERROR_RESPONSE.trimIndent())
       }
     }
 
@@ -240,7 +283,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
           webTestClient.post().uri("/v1/distinguishing-mark?prisonerNumber=$PRISONER_NUMBER&sourceSystem=$SOURCE_NOMIS")
             .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
             .contentType(MULTIPART_FORM_DATA)
-            .body(BodyInserters.fromMultipartData(MULTIPART_POST_BUILDER.build()))
+            .body(BodyInserters.fromMultipartData(imageAndMarkDetailsRequestBody(MULTIPART_FILE).build()))
             .exchange()
             .expectStatus().isOk
             .expectBody(DistinguishingMarkDto::class.java)
@@ -314,7 +357,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
       fun `access forbidden when no authority`() {
         webTestClient.put().uri("/v1/distinguishing-mark/image/$IMAGE_ID?sourceSystem=$SOURCE_NOMIS")
           .contentType(MULTIPART_FORM_DATA)
-          .body(BodyInserters.fromMultipartData(MULTIPART_BUILDER.build()))
+          .body(BodyInserters.fromMultipartData(imageRequestBody(MULTIPART_FILE).build()))
           .exchange()
           .expectStatus().isUnauthorized
       }
@@ -324,7 +367,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
         webTestClient.put().uri("/v1/distinguishing-mark/image/$IMAGE_ID?sourceSystem=$SOURCE_NOMIS")
           .headers(setAuthorisation(roles = listOf("ROLE_IS_WRONG")))
           .contentType(MULTIPART_FORM_DATA)
-          .body(BodyInserters.fromMultipartData(MULTIPART_BUILDER.build()))
+          .body(BodyInserters.fromMultipartData(imageRequestBody(MULTIPART_FILE).build()))
           .exchange()
           .expectStatus().isForbidden
       }
@@ -338,7 +381,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
         webTestClient.put().uri("/v1/distinguishing-mark/image/$IMAGE_ID_NOT_FOUND?sourceSystem=$SOURCE_NOMIS")
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
           .contentType(MULTIPART_FORM_DATA)
-          .body(BodyInserters.fromMultipartData(MULTIPART_BUILDER.build()))
+          .body(BodyInserters.fromMultipartData(imageRequestBody(MULTIPART_FILE).build()))
           .exchange()
           .expectStatus().isNotFound
           .expectBody().json(PRISON_API_NOT_FOUND_RESPONSE.trimIndent())
@@ -354,7 +397,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
           webTestClient.put().uri("/v1/distinguishing-mark/image/$IMAGE_ID?sourceSystem=$SOURCE_NOMIS")
             .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
             .contentType(MULTIPART_FORM_DATA)
-            .body(BodyInserters.fromMultipartData(MULTIPART_BUILDER.build()))
+            .body(BodyInserters.fromMultipartData(imageRequestBody(MULTIPART_FILE).build()))
             .exchange()
             .expectStatus().isOk
             .expectBody(ByteArray::class.java)
@@ -375,7 +418,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
       fun `access forbidden when no authority`() {
         webTestClient.post().uri("/v1/distinguishing-mark/$MARK_ID/image?sourceSystem=$SOURCE_NOMIS")
           .contentType(MULTIPART_FORM_DATA)
-          .body(BodyInserters.fromMultipartData(MULTIPART_BUILDER.build()))
+          .body(BodyInserters.fromMultipartData(imageRequestBody(MULTIPART_FILE).build()))
           .exchange()
           .expectStatus().isUnauthorized
       }
@@ -385,7 +428,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
         webTestClient.post().uri("/v1/distinguishing-mark/$MARK_ID/image?sourceSystem=$SOURCE_NOMIS")
           .headers(setAuthorisation(roles = listOf("ROLE_IS_WRONG")))
           .contentType(MULTIPART_FORM_DATA)
-          .body(BodyInserters.fromMultipartData(MULTIPART_BUILDER.build()))
+          .body(BodyInserters.fromMultipartData(imageRequestBody(MULTIPART_FILE).build()))
           .exchange()
           .expectStatus().isForbidden
       }
@@ -399,7 +442,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
         webTestClient.post().uri("/v1/distinguishing-mark/$MARK_ID_NOT_FOUND/image?sourceSystem=$SOURCE_NOMIS")
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
           .contentType(MULTIPART_FORM_DATA)
-          .body(BodyInserters.fromMultipartData(MULTIPART_BUILDER.build()))
+          .body(BodyInserters.fromMultipartData(imageRequestBody(MULTIPART_FILE).build()))
           .exchange()
           .expectStatus().isNotFound
           .expectBody().json(PRISON_API_NOT_FOUND_RESPONSE.trimIndent())
@@ -415,7 +458,7 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
           webTestClient.post().uri("/v1/distinguishing-mark/$MARK_ID/image?sourceSystem=$SOURCE_NOMIS")
             .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
             .contentType(MULTIPART_FORM_DATA)
-            .body(BodyInserters.fromMultipartData(MULTIPART_BUILDER.build()))
+            .body(BodyInserters.fromMultipartData(imageRequestBody(MULTIPART_FILE).build()))
             .exchange()
             .expectStatus().isOk
             .expectBody(DistinguishingMarkDto::class.java)
@@ -424,6 +467,21 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
         assertThat(response).isEqualTo(MARK_1)
       }
     }
+  }
+
+  private fun imageRequestBody(file: MultipartFile): MultipartBodyBuilder = MultipartBodyBuilder().apply {
+    part("file", ByteArrayResource(file.bytes))
+      .header("Content-Disposition", "form-data; name=file; filename=${file.originalFilename}")
+  }
+
+  private fun imageAndMarkDetailsRequestBody(file: MultipartFile): MultipartBodyBuilder = MultipartBodyBuilder().apply {
+    part("file", ByteArrayResource(file.bytes))
+      .header("Content-Disposition", "form-data; name=file; filename=${file.originalFilename}")
+    part("bodyPart", "LEG")
+    part("markType", "TAT")
+    part("side", "R")
+    part("partOrientation", "UPP")
+    part("comment", "Some comment")
   }
 
   private companion object {
@@ -481,21 +539,25 @@ class DistinguishingMarksV1ResourceIntTest : IntegrationTestBase() {
       "I AM A JPEG, HONEST...".toByteArray(),
     )
 
-    val MULTIPART_BUILDER =
-      MultipartBodyBuilder().apply {
-        part("file", ByteArrayResource(MULTIPART_FILE.bytes))
-          .header("Content-Disposition", "form-data; name=file; filename=filename.jpg")
-      }
+    val MULTIPART_FILE_WITH_VIRUS: MultipartFile = MockMultipartFile(
+      "file",
+      "virus.jpg",
+      MediaType.IMAGE_JPEG_VALUE,
+      "I AM A JPEG, HONEST...".toByteArray(),
+    )
 
-    val MULTIPART_POST_BUILDER =
-      MultipartBodyBuilder().apply {
-        part("file", ByteArrayResource(MULTIPART_FILE.bytes))
-          .header("Content-Disposition", "form-data; name=file; filename=filename.jpg")
-        part("bodyPart", "LEG")
-        part("markType", "TAT")
-        part("side", "R")
-        part("partOrientation", "UPP")
-        part("comment", "Some comment")
-      }
+    val MULTIPART_FILE_VIRUS_ERROR: MultipartFile = MockMultipartFile(
+      "file",
+      "error.jpg",
+      MediaType.IMAGE_JPEG_VALUE,
+      "I AM A JPEG, HONEST...".toByteArray(),
+    )
+
+    val MULTIPART_FILE_VIRUS_UNEXPECTED_ERROR: MultipartFile = MockMultipartFile(
+      "file",
+      "unexpected_error.jpg",
+      MediaType.IMAGE_JPEG_VALUE,
+      "I AM A JPEG, HONEST...".toByteArray(),
+    )
   }
 }
