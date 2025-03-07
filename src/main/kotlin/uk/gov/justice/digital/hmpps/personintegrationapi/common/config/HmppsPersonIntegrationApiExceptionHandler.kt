@@ -16,6 +16,8 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.servlet.resource.NoResourceFoundException
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.VirusScanException
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.VirusScanFailureException
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
 @RestControllerAdvice
@@ -104,6 +106,28 @@ class HmppsPersonIntegrationApiExceptionHandler {
         developerMessage = e.message,
       ),
     ).also { log.debug("Forbidden (403) returned: {}", e.message) }
+
+  @ExceptionHandler(VirusScanException::class)
+  fun handleVirusScanException(e: VirusScanException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(INTERNAL_SERVER_ERROR)
+    .body(
+      ErrorResponse(
+        status = INTERNAL_SERVER_ERROR,
+        userMessage = e.message,
+        developerMessage = e.message,
+      ),
+    ).also { log.debug("Internal server error (500) returned: {}", e.message) }
+
+  @ExceptionHandler(VirusScanFailureException::class)
+  fun handleVirusScanFailureException(e: VirusScanFailureException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(BAD_REQUEST)
+    .body(
+      ErrorResponse(
+        status = BAD_REQUEST,
+        userMessage = e.message,
+        developerMessage = e.message,
+      ),
+    ).also { log.debug("Bad request (400) returned due to virus scan: {}", e.message) }
 
   @ExceptionHandler(Exception::class)
   fun handleException(e: Exception): ResponseEntity<ErrorResponse> = ResponseEntity

@@ -10,3 +10,6 @@ hmpps-auth:
 
 prison-api:
   base_url: "http://localhost:8082"
+
+document-api:
+  base_url: "http://localhost:8083"
