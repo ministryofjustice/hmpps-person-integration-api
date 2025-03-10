@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching
+import com.github.tomakehurst.wiremock.matching.EqualToPattern
 import com.github.tomakehurst.wiremock.matching.MultipartValuePatternBuilder
 import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
@@ -69,6 +70,7 @@ class DocumentApiMockServer : WireMockServer(8083) {
   fun stubVirusScanPassed() {
     stubFor(
       post(urlPathMatching("/documents/scan"))
+        .withHeader("Service-Name", EqualToPattern("hmpps-person-integration-api"))
         .withMultipartRequestBody(MultipartValuePatternBuilder().withFileName("filename.jpg"))
         .willReturn(
           aResponse().withHeader("Content-Type", "application/json")
@@ -81,6 +83,7 @@ class DocumentApiMockServer : WireMockServer(8083) {
   fun stubVirusScanFailed() {
     stubFor(
       post(urlPathMatching("/documents/scan"))
+        .withHeader("Service-Name", EqualToPattern("hmpps-person-integration-api"))
         .withMultipartRequestBody(MultipartValuePatternBuilder().withFileName("virus.jpg"))
         .willReturn(
           aResponse().withHeader("Content-Type", "application/json")
@@ -93,6 +96,7 @@ class DocumentApiMockServer : WireMockServer(8083) {
   fun stubVirusScanError() {
     stubFor(
       post(urlPathMatching("/documents/scan"))
+        .withHeader("Service-Name", EqualToPattern("hmpps-person-integration-api"))
         .withMultipartRequestBody(MultipartValuePatternBuilder().withFileName("error.jpg"))
         .willReturn(
           aResponse().withHeader("Content-Type", "application/json")
@@ -105,6 +109,7 @@ class DocumentApiMockServer : WireMockServer(8083) {
   fun stubVirusScanUnexpectedError() {
     stubFor(
       post(urlPathMatching("/documents/scan"))
+        .withHeader("Service-Name", EqualToPattern("hmpps-person-integration-api"))
         .withMultipartRequestBody(MultipartValuePatternBuilder().withFileName("unexpected_error.jpg"))
         .willReturn(
           aResponse().withHeader("Content-Type", "application/json")

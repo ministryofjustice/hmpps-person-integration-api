@@ -16,9 +16,14 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentia
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction
 import org.springframework.web.context.annotation.RequestScope
+import org.springframework.web.reactive.function.client.ClientRequest
+import org.springframework.web.reactive.function.client.ClientResponse
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction
+import org.springframework.web.reactive.function.client.ExchangeFunction
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.support.WebClientAdapter
 import org.springframework.web.service.invoker.HttpServiceProxyFactory
+import reactor.core.publisher.Mono
 import reactor.netty.http.client.HttpClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.DocumentApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
@@ -55,7 +60,7 @@ class WebClientConfiguration(
   fun prisonApiWebClient(
     clientRegistrationRepository: ClientRegistrationRepository,
     builder: WebClient.Builder,
-  ): WebClient = getOAuthWebClient(
+  ) = getOAuthWebClient(
     authorizedClientManagerUserEnhanced(clientRegistrationRepository),
     builder,
     prisonApiBaseUri,
@@ -92,7 +97,7 @@ class WebClientConfiguration(
     builder: WebClient.Builder,
   ): WebClient = getOAuthWebClient(
     authorizedClientManagerUserEnhanced(clientRegistrationRepository),
-    builder,
+    builder.filter(DocumentApiHeaderFilter()),
     documentApiBaseUri,
     "hmpps-person-integration-api",
     documentApiTimeout,
@@ -147,5 +152,16 @@ class WebClientConfiguration(
       .clientConnector(ReactorClientHttpConnector(HttpClient.create().responseTimeout(timout)))
       .apply(oauth2Client.oauth2Configuration())
       .build()
+  }
+
+  private class DocumentApiHeaderFilter : ExchangeFilterFunction {
+    override fun filter(request: ClientRequest, next: ExchangeFunction): Mono<ClientResponse> {
+      val modifiedRequest = ClientRequest
+        .from(request)
+        .header("Service-Name", "hmpps-person-integration-api")
+        .build()
+
+      return next.exchange(modifiedRequest)
+    }
   }
 }
