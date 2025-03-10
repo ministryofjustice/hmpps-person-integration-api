@@ -16,10 +16,16 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentia
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction
 import org.springframework.web.context.annotation.RequestScope
+import org.springframework.web.reactive.function.client.ClientRequest
+import org.springframework.web.reactive.function.client.ClientResponse
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction
+import org.springframework.web.reactive.function.client.ExchangeFunction
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.support.WebClientAdapter
 import org.springframework.web.service.invoker.HttpServiceProxyFactory
+import reactor.core.publisher.Mono
 import reactor.netty.http.client.HttpClient
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.DocumentApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.ReferenceDataClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.resolver.DistinguishingMarkCreateRequestResolver
@@ -35,6 +41,10 @@ class WebClientConfiguration(
   @Value("\${prison-api.base_url}") private val prisonApiBaseUri: String,
   @Value("\${prison-api.health_timeout:20s}") private val prisonApiHealthTimeout: Duration,
   @Value("\${prison-api.timeout:30s}") private val prisonApiTimeout: Duration,
+
+  @Value("\${document-api.base_url}") private val documentApiBaseUri: String,
+  @Value("\${document-api.health_timeout:20s}") private val documentApiHealthTimeout: Duration,
+  @Value("\${document-api.timeout:30s}") private val documentApiTimeout: Duration,
 ) {
   @Bean
   fun authHealthWebClient(builder: WebClient.Builder): WebClient = builder.healthWebClient(authBaseUri, authHealthTimeout)
@@ -43,11 +53,14 @@ class WebClientConfiguration(
   fun prisonApiHealthWebClient(builder: WebClient.Builder): WebClient = builder.healthWebClient(prisonApiBaseUri, prisonApiHealthTimeout)
 
   @Bean
+  fun documentApiHealthWebClient(builder: WebClient.Builder): WebClient = builder.healthWebClient(documentApiBaseUri, documentApiHealthTimeout)
+
+  @Bean
   @RequestScope
   fun prisonApiWebClient(
     clientRegistrationRepository: ClientRegistrationRepository,
     builder: WebClient.Builder,
-  ): WebClient = getOAuthWebClient(
+  ) = getOAuthWebClient(
     authorizedClientManagerUserEnhanced(clientRegistrationRepository),
     builder,
     prisonApiBaseUri,
@@ -73,6 +86,30 @@ class WebClientConfiguration(
     val factory =
       HttpServiceProxyFactory.builderFor(WebClientAdapter.create(prisonApiWebClient)).build()
     val client = factory.createClient(ReferenceDataClient::class.java)
+
+    return client
+  }
+
+  @Bean
+  @RequestScope
+  fun documentApiWebClient(
+    clientRegistrationRepository: ClientRegistrationRepository,
+    builder: WebClient.Builder,
+  ): WebClient = getOAuthWebClient(
+    authorizedClientManagerUserEnhanced(clientRegistrationRepository),
+    builder.filter(DocumentApiHeaderFilter()),
+    documentApiBaseUri,
+    "hmpps-person-integration-api",
+    documentApiTimeout,
+  )
+
+  @Bean
+  @DependsOn("documentApiWebClient")
+  fun documentApiClient(documentApiWebClient: WebClient): DocumentApiClient {
+    val factory =
+      HttpServiceProxyFactory.builderFor(WebClientAdapter.create(documentApiWebClient))
+        .build()
+    val client = factory.createClient(DocumentApiClient::class.java)
 
     return client
   }
@@ -115,5 +152,16 @@ class WebClientConfiguration(
       .clientConnector(ReactorClientHttpConnector(HttpClient.create().responseTimeout(timout)))
       .apply(oauth2Client.oauth2Configuration())
       .build()
+  }
+
+  private class DocumentApiHeaderFilter : ExchangeFilterFunction {
+    override fun filter(request: ClientRequest, next: ExchangeFunction): Mono<ClientResponse> {
+      val modifiedRequest = ClientRequest
+        .from(request)
+        .header("Service-Name", "hmpps-person-integration-api")
+        .build()
+
+      return next.exchange(modifiedRequest)
+    }
   }
 }

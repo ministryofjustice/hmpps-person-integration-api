@@ -3,18 +3,25 @@ package uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.servi
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import org.springframework.web.reactive.function.client.WebClientResponseException.InternalServerError
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.DocumentApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.DistinguishingMarkCreateRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.DistinguishingMarkUpdateRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.SourceSystem.NOMIS
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.toSourceSystem
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.DistinguishingMarkPrisonDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.VirusScanResult
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.VirusScanStatus
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.DistinguishingMarkDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.DistinguishingMarkImageDetail
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.VirusScanException
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.VirusScanFailureException
 
 @Service
 class DistinguishingMarksService(
   private val prisonApiClient: PrisonApiClient,
+  private val documentApiClient: DocumentApiClient,
 ) {
   fun getDistinguishingMarks(
     prisonerNumber: String,
@@ -56,8 +63,11 @@ class DistinguishingMarksService(
     request: DistinguishingMarkCreateRequest,
     prisonerNumber: String,
     sourceSystem: String,
-  ): ResponseEntity<DistinguishingMarkDto> = when (sourceSystem.toSourceSystem()) {
-    NOMIS -> mappedResponse(prisonApiClient.createDistinguishingMark(file, request, prisonerNumber))
+  ): ResponseEntity<DistinguishingMarkDto> {
+    virusScan(file)
+    return when (sourceSystem.toSourceSystem()) {
+      NOMIS -> mappedResponse(prisonApiClient.createDistinguishingMark(file, request, prisonerNumber))
+    }
   }
 
   fun getDistinguishingMarkImage(imageId: String, sourceSystem: String): ResponseEntity<ByteArray> = when (sourceSystem.toSourceSystem()) {
@@ -68,18 +78,45 @@ class DistinguishingMarksService(
     file: MultipartFile,
     imageId: String,
     sourceSystem: String,
-  ): ResponseEntity<ByteArray> = when (sourceSystem.toSourceSystem()) {
-    NOMIS -> prisonApiClient.updateDistinguishingMarkImage(file, imageId.toLong())
+  ): ResponseEntity<ByteArray> {
+    virusScan(file)
+    return when (sourceSystem.toSourceSystem()) {
+      NOMIS -> prisonApiClient.updateDistinguishingMarkImage(file, imageId.toLong())
+    }
   }
 
   fun addDistinguishingMarkImage(
     file: MultipartFile,
     markId: String,
     sourceSystem: String,
-  ): ResponseEntity<DistinguishingMarkDto> = when (sourceSystem.toSourceSystem()) {
-    NOMIS -> {
-      val (prisonerNumber, sequenceId) = parseMarkId(markId)
-      mappedResponse(prisonApiClient.addDistinguishingMarkImage(file, prisonerNumber, sequenceId))
+  ): ResponseEntity<DistinguishingMarkDto> {
+    virusScan(file)
+    return when (sourceSystem.toSourceSystem()) {
+      NOMIS -> {
+        val (prisonerNumber, sequenceId) = parseMarkId(markId)
+        mappedResponse(prisonApiClient.addDistinguishingMarkImage(file, prisonerNumber, sequenceId))
+      }
+    }
+  }
+
+  private fun virusScan(file: MultipartFile?) {
+    if (file != null) {
+      try {
+        val scanResult = documentApiClient.virusScan(file)
+
+        if (scanResult.statusCode.is2xxSuccessful) {
+          val result = scanResult.body as VirusScanResult
+          when (result.status) {
+            VirusScanStatus.FAILED -> throw VirusScanFailureException("Virus scan failed - ${result.result}")
+            VirusScanStatus.ERROR -> throw VirusScanFailureException("Virus scan error - ${result.result}")
+            VirusScanStatus.PASSED -> {}
+          }
+        } else {
+          throw VirusScanException()
+        }
+      } catch (e: InternalServerError) {
+        throw VirusScanException()
+      }
     }
   }
 

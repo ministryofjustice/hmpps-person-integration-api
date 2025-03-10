@@ -20,15 +20,20 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.web.multipart.MultipartFile
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.DocumentApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.DistinguishingMarkCreateRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.DistinguishingMarkUpdateRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.DistinguishingMarkImageDetailPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.DistinguishingMarkPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.ReferenceDataCode
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.VirusScanResult
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.VirusScanStatus
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataValue
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.DistinguishingMarkDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.DistinguishingMarkImageDetail
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.VirusScanException
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.VirusScanFailureException
 import java.time.LocalDateTime
 
 @ExtendWith(MockitoExtension::class)
@@ -37,12 +42,16 @@ class DistinguishingMarksServiceTest {
   @Mock
   lateinit var prisonApiClient: PrisonApiClient
 
+  @Mock
+  lateinit var documentApiClient: DocumentApiClient
+
   @InjectMocks
   lateinit var underTest: DistinguishingMarksService
 
   @AfterEach
   fun afterEach() {
     reset(prisonApiClient)
+    reset(documentApiClient)
   }
 
   @Nested
@@ -136,14 +145,15 @@ class DistinguishingMarksServiceTest {
   inner class CreateDistinguishingMark {
     @BeforeEach
     fun beforeEach() {
+      whenever(documentApiClient.virusScan(MULTIPART_FILE))
+        .thenReturn(ResponseEntity.ok(DOCUMENT_API_VIRUS_SCAN_PASSED_RESPONSE))
       whenever(
         prisonApiClient.createDistinguishingMark(
           MULTIPART_FILE,
           DISTINGUISHING_MARK_CREATE_REQUEST,
           PRISONER_NUMBER,
         ),
-      )
-        .thenReturn(ResponseEntity.ok(DISTINGUISHING_MARK_PRISON_API_RESPONSE))
+      ).thenReturn(ResponseEntity.ok(DISTINGUISHING_MARK_PRISON_API_RESPONSE))
     }
 
     @Test
@@ -161,6 +171,34 @@ class DistinguishingMarksServiceTest {
     @Test
     fun `throws an exception if the source system is not supported`() {
       assertThrows<IllegalArgumentException> {
+        underTest.createDistinguishingMark(
+          MULTIPART_FILE,
+          DISTINGUISHING_MARK_CREATE_REQUEST,
+          PRISONER_NUMBER,
+          "UNKNOWN_SOURCE",
+        )
+      }
+    }
+
+    @Test
+    fun `throws an exception if the virus scan fails`() {
+      whenever(documentApiClient.virusScan(MULTIPART_FILE))
+        .thenReturn(ResponseEntity.ok(DOCUMENT_API_VIRUS_SCAN_FAILED_RESPONSE))
+      assertThrows<VirusScanFailureException> {
+        underTest.createDistinguishingMark(
+          MULTIPART_FILE,
+          DISTINGUISHING_MARK_CREATE_REQUEST,
+          PRISONER_NUMBER,
+          "UNKNOWN_SOURCE",
+        )
+      }
+    }
+
+    @Test
+    fun `throws an exception if the virus scan errors`() {
+      whenever(documentApiClient.virusScan(MULTIPART_FILE))
+        .thenReturn(ResponseEntity(HttpStatus.BAD_REQUEST))
+      assertThrows<VirusScanException> {
         underTest.createDistinguishingMark(
           MULTIPART_FILE,
           DISTINGUISHING_MARK_CREATE_REQUEST,
@@ -198,6 +236,8 @@ class DistinguishingMarksServiceTest {
   inner class UpdateDistinguishingMarkImage {
     @BeforeEach
     fun beforeEach() {
+      whenever(documentApiClient.virusScan(MULTIPART_FILE))
+        .thenReturn(ResponseEntity.ok(DOCUMENT_API_VIRUS_SCAN_PASSED_RESPONSE))
       whenever(prisonApiClient.updateDistinguishingMarkImage(MULTIPART_FILE, 1))
         .thenReturn(ResponseEntity.ok(IMAGE))
     }
@@ -215,12 +255,32 @@ class DistinguishingMarksServiceTest {
         underTest.updateDistinguishingMarkImage(MULTIPART_FILE, "1", "UNKNOWN_SOURCE")
       }
     }
+
+    @Test
+    fun `throws an exception if the virus scan fails`() {
+      whenever(documentApiClient.virusScan(MULTIPART_FILE))
+        .thenReturn(ResponseEntity.ok(DOCUMENT_API_VIRUS_SCAN_FAILED_RESPONSE))
+      assertThrows<VirusScanFailureException> {
+        underTest.updateDistinguishingMarkImage(MULTIPART_FILE, "1", SOURCE_NOMIS)
+      }
+    }
+
+    @Test
+    fun `throws an exception if the virus scan errors`() {
+      whenever(documentApiClient.virusScan(MULTIPART_FILE))
+        .thenReturn(ResponseEntity.badRequest().build())
+      assertThrows<VirusScanException> {
+        underTest.updateDistinguishingMarkImage(MULTIPART_FILE, "1", SOURCE_NOMIS)
+      }
+    }
   }
 
   @Nested
   inner class AddDistinguishingMarkImage {
     @BeforeEach
     fun beforeEach() {
+      whenever(documentApiClient.virusScan(MULTIPART_FILE))
+        .thenReturn(ResponseEntity.ok(DOCUMENT_API_VIRUS_SCAN_PASSED_RESPONSE))
       whenever(prisonApiClient.addDistinguishingMarkImage(MULTIPART_FILE, PRISONER_NUMBER, 1))
         .thenReturn(ResponseEntity.ok(DISTINGUISHING_MARK_PRISON_API_RESPONSE))
     }
@@ -232,13 +292,6 @@ class DistinguishingMarksServiceTest {
       assertThat(response.body).isEqualTo(DISTINGUISHING_MARK)
     }
 
-    @Test
-    fun `throws an exception if the source system is not supported`() {
-      assertThrows<IllegalArgumentException> {
-        underTest.addDistinguishingMarkImage(MULTIPART_FILE, MARK_ID, "UNKNOWN_SOURCE")
-      }
-    }
-
     @DisplayName("throws an exception if the mark id is in an invalid format")
     @ParameterizedTest(name = "{0}")
     @ValueSource(strings = ["A1234AA", "A1234AA-A", "A1234AA-1-2"])
@@ -247,12 +300,47 @@ class DistinguishingMarksServiceTest {
         underTest.addDistinguishingMarkImage(MULTIPART_FILE, markId, SOURCE_NOMIS)
       }
     }
+
+    @Test
+    fun `throws an exception if the source system is not supported`() {
+      assertThrows<IllegalArgumentException> {
+        underTest.addDistinguishingMarkImage(MULTIPART_FILE, MARK_ID, "UNKNOWN_SOURCE")
+      }
+    }
+
+    @Test
+    fun `throws an exception if the virus scan fails`() {
+      whenever(documentApiClient.virusScan(MULTIPART_FILE))
+        .thenReturn(ResponseEntity.ok(DOCUMENT_API_VIRUS_SCAN_FAILED_RESPONSE))
+      assertThrows<VirusScanFailureException> {
+        underTest.addDistinguishingMarkImage(MULTIPART_FILE, MARK_ID, "UNKNOWN_SOURCE")
+      }
+    }
+
+    @Test
+    fun `throws an exception if the virus scan errors`() {
+      whenever(documentApiClient.virusScan(MULTIPART_FILE))
+        .thenReturn(ResponseEntity.badRequest().build())
+      assertThrows<VirusScanException> {
+        underTest.addDistinguishingMarkImage(MULTIPART_FILE, MARK_ID, "UNKNOWN_SOURCE")
+      }
+    }
   }
 
   private companion object {
     const val PRISONER_NUMBER = "A1234AA"
     const val MARK_ID = "A1234AA-1"
     const val SOURCE_NOMIS = "nomis"
+
+    val DOCUMENT_API_VIRUS_SCAN_PASSED_RESPONSE = VirusScanResult(
+      VirusScanStatus.PASSED,
+      "Passed",
+    )
+
+    val DOCUMENT_API_VIRUS_SCAN_FAILED_RESPONSE = VirusScanResult(
+      VirusScanStatus.FAILED,
+      "Failed",
+    )
 
     val DISTINGUISHING_MARK_PRISON_API_RESPONSE = DistinguishingMarkPrisonDto(
       id = 1,

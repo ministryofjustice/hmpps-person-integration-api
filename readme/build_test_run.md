@@ -74,6 +74,7 @@ SYSTEM_CLIENT_ID=<Extract from k8s namespace>
 SYSTEM_CLIENT_SECRET=<Extract from k8s namespace>
 HMPPS_AUTH_URL=https://sign-in-dev.hmpps.service.justice.gov.uk/auth
 PRISON_API_BASE_URL=https://prison-api-dev.prison.service.justice.gov.uk
+DOCUMENT_API_BASE_URL=https://document-api-dev.hmpps.service.justice.gov.uk
 ```
 </details>
 
