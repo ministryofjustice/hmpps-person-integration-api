@@ -10,6 +10,9 @@ import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.access.AccessDeniedException
+import org.springframework.validation.FieldError
+import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.HandlerMethodValidationException
@@ -19,6 +22,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.VirusScanException
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.VirusScanFailureException
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
+import java.util.stream.Collectors
 
 @RestControllerAdvice
 class HmppsPersonIntegrationApiExceptionHandler {
@@ -57,6 +61,31 @@ class HmppsPersonIntegrationApiExceptionHandler {
         developerMessage = ex.message,
       ),
     ).also { log.info(ex.message) }
+
+  @ExceptionHandler(MissingServletRequestParameterException::class)
+  fun handleMissingParams(ex: MissingServletRequestParameterException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(BAD_REQUEST)
+    .body(
+      ErrorResponse(
+        status = BAD_REQUEST,
+        userMessage = "Missing parameter: ${ex.parameterName}",
+        developerMessage = ex.message,
+      ),
+    ).also { log.info(ex.message) }
+
+  @ExceptionHandler(MethodArgumentNotValidException::class)
+  fun handleMethodArgumentNotValidException(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(BAD_REQUEST)
+    .body(
+      ErrorResponse(
+        status = BAD_REQUEST,
+        userMessage = e.bindingResult.fieldErrors
+          .stream()
+          .map { error: FieldError -> "Field: " + error.field + " - " + error.defaultMessage }
+          .collect(Collectors.joining(", ")),
+        developerMessage = e.message,
+      ),
+    ).also { log.info("Validation exception: {}", e.message) }
 
   @ExceptionHandler(HandlerMethodValidationException::class)
   fun handleHandlerMethodValidationException(e: HandlerMethodValidationException): ResponseEntity<ErrorResponse> = e.allErrors.map { it.toString() }.distinct().sorted().joinToString("\n")
