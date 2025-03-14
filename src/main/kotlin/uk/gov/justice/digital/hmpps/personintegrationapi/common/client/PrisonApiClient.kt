@@ -12,14 +12,17 @@ import org.springframework.web.service.annotation.GetExchange
 import org.springframework.web.service.annotation.HttpExchange
 import org.springframework.web.service.annotation.PostExchange
 import org.springframework.web.service.annotation.PutExchange
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateAlias
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.DistinguishingMarkCreateRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.DistinguishingMarkUpdateRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.MilitaryRecordRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.PhysicalAttributesRequest
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateAlias
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthCountry
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateReligion
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.CorePersonRecordAlias
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.DistinguishingMarkPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecordPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PhysicalAttributesPrisonDto
@@ -121,4 +124,16 @@ interface PrisonApiClient {
     @PathVariable prisonerNumber: String,
     @PathVariable markId: Int,
   ): ResponseEntity<DistinguishingMarkPrisonDto>
+
+  @PutExchange("/aliases/{offenderId}")
+  fun updateAlias(
+    @PathVariable offenderId: Long,
+    @RequestBody request: UpdateAlias,
+  ): ResponseEntity<CorePersonRecordAlias>
+
+  @PostExchange("/offenders/{offenderNo}/aliases")
+  fun createAlias(
+    @PathVariable offenderNo: String,
+    @RequestBody request: CreateAlias,
+  ): ResponseEntity<CorePersonRecordAlias>
 }

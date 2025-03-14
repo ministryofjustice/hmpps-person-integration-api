@@ -15,254 +15,302 @@ import org.springframework.http.HttpStatus
 internal const val PRISONER_NUMBER = "A1234AA"
 internal const val PRISONER_NUMBER_THROW_EXCEPTION = "THROW"
 internal const val PRISONER_NUMBER_NOT_FOUND = "NOTFOUND"
-internal const val PRISON_API_NOT_FOUND_RESPONSE = """
-              {
-                "status": 404,
-                "errorCode": "12345",
-                "userMessage": "Prisoner not found",
-                "developerMessage": "Prisoner not found"
-              }
-            """
-internal const val PRISON_API_REFERENCE_CODES = """
-              [
-                {
-                  "domain": "TEST",
-                  "code": "ONE",
-                  "description": "Code One",
-                  "activeFlag": "Y",
-                  "listSeq": 99,
-                  "subCodes": []
-                },
-                {
-                  "domain": "TEST",
-                  "code": "TWO",
-                  "description": "Code Two",
-                  "activeFlag": "Y",
-                  "listSeq": 99,
-                  "subCodes": []
-                }
-              ]
-            """
-internal const val PRISON_API_MILITARY_RECORDS = """
-              {
-                "militaryRecords": [
-                  {
-                    "bookingId": -1,
-                    "militarySeq": 1,
-                    "warZoneCode": "WZ1",
-                    "warZoneDescription": "War Zone One",
-                    "startDate": "2021-01-01",
-                    "endDate": "2021-12-31",
-                    "militaryDischargeCode": "MD1",
-                    "militaryDischargeDescription": "Military Discharge One",
-                    "militaryBranchCode": "MB1",
-                    "militaryBranchDescription": "Military Branch One",
-                    "description": "Description One",
-                    "unitNumber": "Unit Number One",
-                    "enlistmentLocation": "Enlistment Location One",
-                    "dischargeLocation": "Discharge Location One",
-                    "selectiveServicesFlag": true,
-                    "militaryRankCode": "MR1",
-                    "militaryRankDescription": "Military Rank One (Army)",
-                    "serviceNumber": "Service Number One",
-                    "disciplinaryActionCode": "DA1",
-                    "disciplinaryActionDescription": "Disciplinary Action One"
-                  },
-                  {
-                    "bookingId": -1,
-                    "militarySeq": 2,
-                    "warZoneCode": "WZ2",
-                    "warZoneDescription": "War Zone Two",
-                    "startDate": "2022-01-01",
-                    "endDate": "2022-12-31",
-                    "militaryDischargeCode": "MD2",
-                    "militaryDischargeDescription": "Military Discharge Two",
-                    "militaryBranchCode": "MB2",
-                    "militaryBranchDescription": "Military Branch Two",
-                    "description": "Description Two",
-                    "unitNumber": "Unit Number Two",
-                    "enlistmentLocation": "Enlistment Location Two",
-                    "dischargeLocation": "Discharge Location Two",
-                    "selectiveServicesFlag": false,
-                    "militaryRankCode": "MR2",
-                    "militaryRankDescription": "Military Rank Two (Navy)",
-                    "serviceNumber": "Service Number Two",
-                    "disciplinaryActionCode": "DA2",
-                    "disciplinaryActionDescription": "Disciplinary Action Two"
-                  }
-                ]
-              }
-            """
+internal const val PRISON_API_NOT_FOUND_RESPONSE =
+  // language=json
+  """
+  {
+    "status": 404,
+    "errorCode": "12345",
+    "userMessage": "Prisoner not found",
+    "developerMessage": "Prisoner not found"
+  }
+  """
 
-internal const val DISTINGUISHING_MARK = """
-              {
-                "id": 1,
-                "bookingId": -1,
-                "offenderNo": "A1234AA",
-                "bodyPart": {
-                    "domain": "BODY_PART",
-                    "code": "LEG",
-                    "description": "Leg",
-                    "activeFlag": "Y",
-                    "listSeq": 99,
-                    "systemDataFlag": "N",
-                    "subCodes": []
-                  },
-                  "markType": {
-                    "domain": "MARK_TYPE",
-                    "code": "TAT",
-                    "description": "Tattoo",
-                    "activeFlag": "Y",
-                    "listSeq": 99,
-                    "systemDataFlag": "N",
-                    "subCodes": []
-                  },
-                  "side": {
-                    "domain": "SIDE",
-                    "code": "R",
-                    "description": "Right",
-                    "activeFlag": "Y",
-                    "listSeq": 1,
-                    "systemDataFlag": "N",
-                    "subCodes": []
-                  },
-                  "partOrientation": {
-                    "domain": "PART_ORIENT",
-                    "code": "LOW",
-                    "description": "Low",
-                    "activeFlag": "Y",
-                    "listSeq": 99,
-                    "systemDataFlag": "N",
-                    "subCodes": []
-                  },
-                "comment": "Some comment",
-                "createdAt": "2025-01-01T00:00:00",
-                "createdBy": "USER",
-                "photographUuids": [
-                  {
-                    "id": 100,
-                    "latest": false
-                  },
-                  {
-                    "id": 101,
-                    "latest": true
-                  }
-                ]
-              }
-            """
+internal const val PRISON_API_REFERENCE_CODES =
+  // language=json
+  """
+  [
+    {
+      "domain": "TEST",
+      "code": "ONE",
+      "description": "Code One",
+      "activeFlag": "Y",
+      "listSeq": 99,
+      "subCodes": []
+    },
+    {
+      "domain": "TEST",
+      "code": "TWO",
+      "description": "Code Two",
+      "activeFlag": "Y",
+      "listSeq": 99,
+      "subCodes": []
+    }
+  ]
+  """
 
-internal const val DISTINGUISHING_MARKS = """
-              [
-                {
-                  "id": 1,
-                  "bookingId": -1,
-                  "offenderNo": "A1234AA",
-                  "bodyPart": {
-                    "domain": "BODY_PART",
-                    "code": "LEG",
-                    "description": "Leg",
-                    "activeFlag": "Y",
-                    "listSeq": 99,
-                    "systemDataFlag": "N",
-                    "subCodes": []
-                  },
-                  "markType": {
-                    "domain": "MARK_TYPE",
-                    "code": "TAT",
-                    "description": "Tattoo",
-                    "activeFlag": "Y",
-                    "listSeq": 99,
-                    "systemDataFlag": "N",
-                    "subCodes": []
-                  },
-                  "side": {
-                    "domain": "SIDE",
-                    "code": "R",
-                    "description": "Right",
-                    "activeFlag": "Y",
-                    "listSeq": 1,
-                    "systemDataFlag": "N",
-                    "subCodes": []
-                  },
-                  "partOrientation": {
-                    "domain": "PART_ORIENT",
-                    "code": "LOW",
-                    "description": "Low",
-                    "activeFlag": "Y",
-                    "listSeq": 99,
-                    "systemDataFlag": "N",
-                    "subCodes": []
-                  },
-                  "comment": "Some comment",
-                  "createdAt": "2025-01-01T00:00:00",
-                  "createdBy": "USER",
-                  "photographUuids": [
-                    {
-                      "id": 100,
-                      "latest": false
-                    },
-                    {
-                      "id": 101,
-                      "latest": true
-                    }
-                  ]
-                },
-                {
-                  "id": 2,
-                  "bookingId": -1,
-                  "offenderNo": "A1234AA",
-                  "bodyPart": {
-                    "domain": "BODY_PART",
-                    "code": "ARM",
-                    "description": "Arm",
-                    "activeFlag": "Y",
-                    "listSeq": 99,
-                    "systemDataFlag": "N",
-                    "subCodes": []
-                  },
-                  "markType": {
-                    "domain": "MARK_TYPE",
-                    "code": "SCAR",
-                    "description": "Scar",
-                    "activeFlag": "Y",
-                    "listSeq": 99,
-                    "systemDataFlag": "N",
-                    "subCodes": []
-                  },
-                  "side": {
-                    "domain": "SIDE",
-                    "code": "L",
-                    "description": "Left",
-                    "activeFlag": "Y",
-                    "listSeq": 1,
-                    "systemDataFlag": "N",
-                    "subCodes": []
-                  },
-                  "partOrientation": {
-                    "domain": "PART_ORIENT",
-                    "code": "UPP",
-                    "description": "Upper",
-                    "activeFlag": "Y",
-                    "listSeq": 99,
-                    "systemDataFlag": "N",
-                    "subCodes": []
-                  },
-                  "comment": "Some comment",
-                  "createdAt": "2025-01-01T00:00:00",
-                  "createdBy": "USER",
-                  "photographUuids": [
-                    {
-                      "id": 103,
-                      "latest": true
-                    }
-                  ]
-                }
-              ]
-            """
+internal const val PRISON_API_MILITARY_RECORDS =
+  // language=json
+  """
+  {
+    "militaryRecords": [
+      {
+        "bookingId": -1,
+        "militarySeq": 1,
+        "warZoneCode": "WZ1",
+        "warZoneDescription": "War Zone One",
+        "startDate": "2021-01-01",
+        "endDate": "2021-12-31",
+        "militaryDischargeCode": "MD1",
+        "militaryDischargeDescription": "Military Discharge One",
+        "militaryBranchCode": "MB1",
+        "militaryBranchDescription": "Military Branch One",
+        "description": "Description One",
+        "unitNumber": "Unit Number One",
+        "enlistmentLocation": "Enlistment Location One",
+        "dischargeLocation": "Discharge Location One",
+        "selectiveServicesFlag": true,
+        "militaryRankCode": "MR1",
+        "militaryRankDescription": "Military Rank One (Army)",
+        "serviceNumber": "Service Number One",
+        "disciplinaryActionCode": "DA1",
+        "disciplinaryActionDescription": "Disciplinary Action One"
+      },
+      {
+        "bookingId": -1,
+        "militarySeq": 2,
+        "warZoneCode": "WZ2",
+        "warZoneDescription": "War Zone Two",
+        "startDate": "2022-01-01",
+        "endDate": "2022-12-31",
+        "militaryDischargeCode": "MD2",
+        "militaryDischargeDescription": "Military Discharge Two",
+        "militaryBranchCode": "MB2",
+        "militaryBranchDescription": "Military Branch Two",
+        "description": "Description Two",
+        "unitNumber": "Unit Number Two",
+        "enlistmentLocation": "Enlistment Location Two",
+        "dischargeLocation": "Discharge Location Two",
+        "selectiveServicesFlag": false,
+        "militaryRankCode": "MR2",
+        "militaryRankDescription": "Military Rank Two (Navy)",
+        "serviceNumber": "Service Number Two",
+        "disciplinaryActionCode": "DA2",
+        "disciplinaryActionDescription": "Disciplinary Action Two"
+      }
+    ]
+  }
+  """
+
+internal const val DISTINGUISHING_MARK =
+  // language=json
+  """
+  {
+    "id": 1,
+    "bookingId": -1,
+    "offenderNo": "A1234AA",
+    "bodyPart": {
+        "domain": "BODY_PART",
+        "code": "LEG",
+        "description": "Leg",
+        "activeFlag": "Y",
+        "listSeq": 99,
+        "systemDataFlag": "N",
+        "subCodes": []
+      },
+      "markType": {
+        "domain": "MARK_TYPE",
+        "code": "TAT",
+        "description": "Tattoo",
+        "activeFlag": "Y",
+        "listSeq": 99,
+        "systemDataFlag": "N",
+        "subCodes": []
+      },
+      "side": {
+        "domain": "SIDE",
+        "code": "R",
+        "description": "Right",
+        "activeFlag": "Y",
+        "listSeq": 1,
+        "systemDataFlag": "N",
+        "subCodes": []
+      },
+      "partOrientation": {
+        "domain": "PART_ORIENT",
+        "code": "LOW",
+        "description": "Low",
+        "activeFlag": "Y",
+        "listSeq": 99,
+        "systemDataFlag": "N",
+        "subCodes": []
+      },
+    "comment": "Some comment",
+    "createdAt": "2025-01-01T00:00:00",
+    "createdBy": "USER",
+    "photographUuids": [
+      {
+        "id": 100,
+        "latest": false
+      },
+      {
+        "id": 101,
+        "latest": true
+      }
+    ]
+  }
+  """
+
+internal const val DISTINGUISHING_MARKS =
+  // language=json
+  """
+  [
+    {
+      "id": 1,
+      "bookingId": -1,
+      "offenderNo": "A1234AA",
+      "bodyPart": {
+        "domain": "BODY_PART",
+        "code": "LEG",
+        "description": "Leg",
+        "activeFlag": "Y",
+        "listSeq": 99,
+        "systemDataFlag": "N",
+        "subCodes": []
+      },
+      "markType": {
+        "domain": "MARK_TYPE",
+        "code": "TAT",
+        "description": "Tattoo",
+        "activeFlag": "Y",
+        "listSeq": 99,
+        "systemDataFlag": "N",
+        "subCodes": []
+      },
+      "side": {
+        "domain": "SIDE",
+        "code": "R",
+        "description": "Right",
+        "activeFlag": "Y",
+        "listSeq": 1,
+        "systemDataFlag": "N",
+        "subCodes": []
+      },
+      "partOrientation": {
+        "domain": "PART_ORIENT",
+        "code": "LOW",
+        "description": "Low",
+        "activeFlag": "Y",
+        "listSeq": 99,
+        "systemDataFlag": "N",
+        "subCodes": []
+      },
+      "comment": "Some comment",
+      "createdAt": "2025-01-01T00:00:00",
+      "createdBy": "USER",
+      "photographUuids": [
+        {
+          "id": 100,
+          "latest": false
+        },
+        {
+          "id": 101,
+          "latest": true
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "bookingId": -1,
+      "offenderNo": "A1234AA",
+      "bodyPart": {
+        "domain": "BODY_PART",
+        "code": "ARM",
+        "description": "Arm",
+        "activeFlag": "Y",
+        "listSeq": 99,
+        "systemDataFlag": "N",
+        "subCodes": []
+      },
+      "markType": {
+        "domain": "MARK_TYPE",
+        "code": "SCAR",
+        "description": "Scar",
+        "activeFlag": "Y",
+        "listSeq": 99,
+        "systemDataFlag": "N",
+        "subCodes": []
+      },
+      "side": {
+        "domain": "SIDE",
+        "code": "L",
+        "description": "Left",
+        "activeFlag": "Y",
+        "listSeq": 1,
+        "systemDataFlag": "N",
+        "subCodes": []
+      },
+      "partOrientation": {
+        "domain": "PART_ORIENT",
+        "code": "UPP",
+        "description": "Upper",
+        "activeFlag": "Y",
+        "listSeq": 99,
+        "systemDataFlag": "N",
+        "subCodes": []
+      },
+      "comment": "Some comment",
+      "createdAt": "2025-01-01T00:00:00",
+      "createdBy": "USER",
+      "photographUuids": [
+        {
+          "id": 103,
+          "latest": true
+        }
+      ]
+    }
+  ]
+  """
 
 internal const val IMAGE_ID = "1"
 internal const val IMAGE_ID_NOT_FOUND = "999"
 internal val IMAGE = "image".toByteArray()
+
+internal const val OFFENDER_ID = "12345"
+internal const val OFFENDER_ID_NOT_FOUND = "54321"
+internal const val ALIAS_RESPONSE =
+  // language=json
+  """
+  {
+    "prisonerNumber": "A1234AA",
+    "offenderId": 12345,
+    "firstName": "John",
+    "middleName": "Middlename",
+    "lastName": "Smith",
+    "dateOfBirth": "1980-01-01",
+    "nameType": {
+      "domain": "NAME_TYPE",
+      "code": "CN",
+      "description": "Name type"
+    },
+    "title": {
+      "domain": "TITLE",
+      "code": "MR",
+      "description": "Title"
+    },
+    "sex": {
+      "domain": "SEX",
+      "code": "M",
+      "description": "Sex"
+    },
+    "ethnicity": {
+      "domain": "ETHNICITY",
+      "code": "W1",
+      "description": "Ethnicity"
+    },
+    "isWorkingName": true
+  }
+  """
 
 class PrisonApiMockServer : WireMockServer(8082) {
   fun stubHealthPing(status: Int) {
@@ -487,6 +535,40 @@ class PrisonApiMockServer : WireMockServer(8082) {
     )
   }
 
+  fun stubCreateAlias() {
+    stubFor(
+      post(urlPathMatching("/api/offenders/$PRISONER_NUMBER/aliases")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.CREATED.value())
+          .withBody(ALIAS_RESPONSE.trimIndent()),
+      ),
+    )
+    stubFor(
+      post(urlPathMatching("/api/offenders/$PRISONER_NUMBER_NOT_FOUND/aliases")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.NOT_FOUND.value())
+          .withBody(PRISON_API_NOT_FOUND_RESPONSE.trimIndent()),
+      ),
+    )
+  }
+
+  fun stubUpdateAlias() {
+    stubFor(
+      put(urlPathMatching("/api/aliases/$OFFENDER_ID")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.OK.value())
+          .withBody(ALIAS_RESPONSE.trimIndent()),
+      ),
+    )
+    stubFor(
+      put(urlPathMatching("/api/aliases/$OFFENDER_ID_NOT_FOUND")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.NOT_FOUND.value())
+          .withBody(PRISON_API_NOT_FOUND_RESPONSE.trimIndent()),
+      ),
+    )
+  }
+
   private fun stubOffenderGetEndpoint(
     endpoint: String,
     status: HttpStatus,
@@ -564,6 +646,9 @@ class PrisonApiExtension :
     prisonApi.stubGetDistinguishingMarkImage()
     prisonApi.stubUpdateDistinguishingMarkImage()
     prisonApi.stubAddDistinguishingMarkImage()
+
+    prisonApi.stubCreateAlias()
+    prisonApi.stubUpdateAlias()
   }
 
   override fun afterAll(context: ExtensionContext): Unit = prisonApi.stop()
