@@ -2,6 +2,8 @@ package uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.servi
 
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.DocumentApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.ReferenceDataClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.MilitaryRecordRequest
@@ -11,6 +13,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.U
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.mapper.mapRefDataDescription
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.util.virusScan
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.PhysicalAttributesDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.BirthplaceUpdateDto
@@ -22,6 +25,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.except
 class CorePersonRecordService(
   private val prisonApiClient: PrisonApiClient,
   private val referenceDataClient: ReferenceDataClient,
+  private val documentApiClient: DocumentApiClient,
 ) {
 
   fun updateCorePersonRecordField(prisonerNumber: String, updateRequestDto: CorePersonRecordV1UpdateRequestDto) {
@@ -129,6 +133,15 @@ class CorePersonRecordService(
   }
 
   fun updatePhysicalAttributes(prisonerNumber: String, physicalAttributesRequest: PhysicalAttributesRequest): ResponseEntity<Void> = prisonApiClient.updatePhysicalAttributes(prisonerNumber, physicalAttributesRequest)
+
+  fun updateProfileImage(file: MultipartFile, prisonerNumber: String): ResponseEntity<Void> {
+    virusScan(file, documentApiClient)
+    val response = prisonApiClient.updateProfileImage(file, prisonerNumber)
+    if (response.statusCode.isError) {
+      return ResponseEntity.status(response.statusCode).build()
+    }
+    return ResponseEntity.noContent().build()
+  }
 
   companion object {
     val excludedCodes = setOf(

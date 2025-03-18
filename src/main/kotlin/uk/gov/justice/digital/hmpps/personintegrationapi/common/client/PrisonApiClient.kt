@@ -24,6 +24,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.U
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateReligion
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.CorePersonRecordAlias
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.DistinguishingMarkPrisonDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.ImageDetailPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecordPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PhysicalAttributesPrisonDto
 
@@ -136,4 +137,10 @@ interface PrisonApiClient {
     @PathVariable offenderNo: String,
     @RequestBody request: CreateAlias,
   ): ResponseEntity<CorePersonRecordAlias>
+
+  @PostExchange("/images/offenders/{prisonerNumber}")
+  fun updateProfileImage(
+    @RequestPart(name = "file") file: MultipartFile,
+    @PathVariable prisonerNumber: String,
+  ): ResponseEntity<ImageDetailPrisonDto>
 }
