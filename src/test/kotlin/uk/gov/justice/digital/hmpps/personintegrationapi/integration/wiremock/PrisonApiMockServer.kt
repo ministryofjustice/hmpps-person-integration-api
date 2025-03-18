@@ -272,6 +272,21 @@ internal const val DISTINGUISHING_MARKS =
   ]
   """
 
+internal const val IMAGE_DETAIL =
+// language=json
+"""
+  {
+    "imageId": 2461788,
+    "active": false,
+    "captureDate": "2008-08-27",
+    "captureDateTime": "2021-07-05T10:35:17",
+    "imageView": "FACE",
+    "imageOrientation": "FRONT",
+    "imageType": "OFF_BKG",
+    "objectId": 9007199254740991
+  }
+"""
+
 internal const val IMAGE_ID = "1"
 internal const val IMAGE_ID_NOT_FOUND = "999"
 internal val IMAGE = "image".toByteArray()
@@ -613,6 +628,23 @@ class PrisonApiMockServer : WireMockServer(8082) {
       ),
     )
   }
+
+  fun stubUpdatePrisonerProfileImage() {
+    stubFor(
+      post(urlPathMatching("/api/images/offenders/$PRISONER_NUMBER")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.OK.value())
+          .withBody(IMAGE_DETAIL.trimIndent()),
+      ),
+    )
+    stubFor(
+      post(urlPathMatching("/api/person/$PRISONER_NUMBER_NOT_FOUND/distinguishing-mark/1/photo")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.NOT_FOUND.value())
+          .withBody(PRISON_API_NOT_FOUND_RESPONSE.trimIndent()),
+      ),
+    )
+  }
 }
 
 class PrisonApiExtension :
@@ -649,6 +681,8 @@ class PrisonApiExtension :
 
     prisonApi.stubCreateAlias()
     prisonApi.stubUpdateAlias()
+
+    prisonApi.stubUpdatePrisonerProfileImage()
   }
 
   override fun afterAll(context: ExtensionContext): Unit = prisonApi.stop()

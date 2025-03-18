@@ -15,23 +15,32 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.reset
 import org.mockito.kotlin.whenever
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.mock.web.MockMultipartFile
+import org.springframework.web.multipart.MultipartFile
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.DocumentApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.ReferenceDataClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.MilitaryRecordRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthCountry
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.ImageDetailPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecord
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecordPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.ReferenceDataCode
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.VirusScanResult
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.VirusScanStatus
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.BirthplaceUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.CountryOfBirthUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.DateOfBirthUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.UnknownCorePersonFieldException
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.VirusScanFailureException
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @ExtendWith(MockitoExtension::class)
 class CorePersonRecordServiceTest {
@@ -42,12 +51,15 @@ class CorePersonRecordServiceTest {
   @Mock
   lateinit var referenceDataClient: ReferenceDataClient
 
+  @Mock
+  lateinit var documentApiClient: DocumentApiClient
+
   @InjectMocks
   lateinit var underTest: CorePersonRecordService
 
   @AfterEach
   fun afterEach() {
-    reset(prisonApiClient, referenceDataClient)
+    reset(prisonApiClient, referenceDataClient, documentApiClient)
   }
 
   @Nested
@@ -271,6 +283,68 @@ class CorePersonRecordServiceTest {
     }
   }
 
+  @Nested
+  inner class UpdateProfileImage {
+    private val prisonerNumber = "A1234AA"
+
+    @Test
+    fun `can update the prisoners photo`() {
+      whenever(prisonApiClient.updateProfileImage(MULTIPART_FILE, prisonerNumber)).thenReturn(
+        ResponseEntity.ok(
+          ImageDetailPrisonDto(
+            imageId = 1,
+            imageOrientation = "A",
+            imageType = "A",
+            imageView = "A",
+            active = true,
+            captureDate = LocalDate.now(),
+            captureDateTime = LocalDateTime.now(),
+            objectId = 1234,
+          ),
+        ),
+      )
+
+      whenever(documentApiClient.virusScan(MULTIPART_FILE)).thenReturn(
+        ResponseEntity.ok(
+          DOCUMENT_API_VIRUS_SCAN_PASSED_RESPONSE,
+        ),
+      )
+
+      val response = underTest.updateProfileImage(MULTIPART_FILE, prisonerNumber)
+
+      assertThat(response.statusCode.value()).isEqualTo(204)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(ints = [400, 401, 403, 404, 422, 500])
+    fun `propagates non-2xx status codes from the Prison API`(status: Int) {
+      whenever(prisonApiClient.updateProfileImage(MULTIPART_FILE, prisonerNumber)).thenReturn(
+        ResponseEntity.status(status).build(),
+      )
+
+      whenever(documentApiClient.virusScan(MULTIPART_FILE)).thenReturn(
+        ResponseEntity.ok(
+          DOCUMENT_API_VIRUS_SCAN_PASSED_RESPONSE,
+        ),
+      )
+
+      val response = underTest.updateProfileImage(MULTIPART_FILE, prisonerNumber)
+      assertThat(response.statusCode.value()).isEqualTo(status)
+    }
+
+    @Test
+    fun `throws an exception if the virus scan fails`() {
+      whenever(documentApiClient.virusScan(MULTIPART_FILE))
+        .thenReturn(ResponseEntity.ok(DOCUMENT_API_VIRUS_SCAN_FAILED_RESPONSE))
+      assertThrows<VirusScanFailureException> {
+        underTest.updateProfileImage(
+          MULTIPART_FILE,
+          PRISONER_NUMBER,
+        )
+      }
+    }
+  }
+
   private companion object {
     const val PRISONER_NUMBER = "A1234AA"
     const val TEST_BIRTHPLACE_VALUE = "London"
@@ -300,5 +374,22 @@ class CorePersonRecordServiceTest {
     )
 
     val UPDATE_NATIONALITY = UpdateNationality("BRIT", "French")
+
+    val DOCUMENT_API_VIRUS_SCAN_PASSED_RESPONSE = VirusScanResult(
+      VirusScanStatus.PASSED,
+      "Passed",
+    )
+
+    val MULTIPART_FILE: MultipartFile = MockMultipartFile(
+      "file",
+      "filename.jpg",
+      MediaType.IMAGE_JPEG_VALUE,
+      "I AM A JPEG, HONEST...".toByteArray(),
+    )
+
+    val DOCUMENT_API_VIRUS_SCAN_FAILED_RESPONSE = VirusScanResult(
+      VirusScanStatus.FAILED,
+      "Failed",
+    )
   }
 }
