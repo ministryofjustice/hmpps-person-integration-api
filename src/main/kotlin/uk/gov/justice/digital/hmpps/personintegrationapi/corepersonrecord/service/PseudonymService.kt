@@ -60,7 +60,8 @@ class PseudonymService(
     prisonerNumber = prisonerNumber,
     isWorkingName = isWorkingName,
     firstName = firstName,
-    middleName = middleName,
+    middleName1 = middleName1,
+    middleName2 = middleName2,
     lastName = lastName,
     dateOfBirth = dateOfBirth,
     nameType = nameType?.toReferenceDataValue(),
@@ -71,7 +72,8 @@ class PseudonymService(
 
   private fun PseudonymRequestDto.toUpdateAlias() = UpdateAlias(
     firstName = firstName,
-    middleName = middleName,
+    middleName1 = middleName1,
+    middleName2 = middleName2,
     lastName = lastName,
     dateOfBirth = dateOfBirth,
     nameType = nameType,
@@ -82,7 +84,8 @@ class PseudonymService(
 
   private fun PseudonymRequestDto.toCreateAlias() = CreateAlias(
     firstName = firstName,
-    middleName = middleName,
+    middleName1 = middleName1,
+    middleName2 = middleName2,
     lastName = lastName,
     dateOfBirth = dateOfBirth,
     nameType = nameType,

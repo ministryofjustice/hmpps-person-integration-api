@@ -118,27 +118,47 @@ class PseudonymV1ResourceIntTest : IntegrationTestBase() {
       }
 
       @Nested
-      @DisplayName("Middle name")
-      inner class MiddleName {
+      @DisplayName("Middle name 1")
+      inner class MiddleName1 {
 
         @Test
         internal fun `first middle name must only contain valid characters`() {
-          expectBadRequest(createRequest(middleName = "@@@"))
+          expectBadRequest(createRequest(middleName1 = "@@@"))
             .jsonPath("$.userMessage")
-            .isEqualTo("Field: middleName - Middle name is not valid")
+            .isEqualTo("Field: middleName1 - Middle name 1 is not valid")
         }
 
         @Test
         internal fun `first middle can not be greater than 35 characters`() {
-          expectBadRequest(createRequest(middleName = "A".repeat(36)))
+          expectBadRequest(createRequest(middleName1 = "A".repeat(36)))
             .jsonPath("$.userMessage")
-            .isEqualTo("Field: middleName - size must be between 0 and 35")
+            .isEqualTo("Field: middleName1 - size must be between 0 and 35")
+        }
+      }
+
+      @Nested
+      @DisplayName("Middle name 2")
+      inner class MiddleName2 {
+
+        @Test
+        internal fun `second middle name must only contain valid characters`() {
+          expectBadRequest(createRequest(middleName2 = "@@@"))
+            .jsonPath("$.userMessage")
+            .isEqualTo("Field: middleName2 - Middle name 2 is not valid")
+        }
+
+        @Test
+        internal fun `second middle can not be greater than 35 characters`() {
+          expectBadRequest(createRequest(middleName2 = "A".repeat(36)))
+            .jsonPath("$.userMessage")
+            .isEqualTo("Field: middleName2 - size must be between 0 and 35")
         }
       }
 
       private fun createRequest(
         firstName: String = "John",
-        middleName: String? = "Middlename",
+        middleName1: String? = "Middleone",
+        middleName2: String? = "Middletwo",
         lastName: String = "Smith",
         title: String? = "MR",
         dateOfBirth: LocalDate = LocalDate.parse("1990-01-02"),
@@ -148,7 +168,8 @@ class PseudonymV1ResourceIntTest : IntegrationTestBase() {
       ) = PseudonymRequestDto(
         isWorkingName = true,
         firstName = firstName,
-        middleName = middleName,
+        middleName1 = middleName1,
+        middleName2 = middleName2,
         lastName = lastName,
         dateOfBirth = dateOfBirth,
         nameType = nameType,
@@ -258,7 +279,8 @@ class PseudonymV1ResourceIntTest : IntegrationTestBase() {
     const val OFFENDER_ID = 12345L
     const val SOURCE_SYSTEM = "NOMIS"
     const val FIRST_NAME = "John"
-    const val MIDDLE_NAME = "Middlename"
+    const val MIDDLE_NAME_1 = "Middleone"
+    const val MIDDLE_NAME_2 = "Middletwo"
     const val LAST_NAME = "Smith"
     const val NAME_TYPE = "CN"
     const val TITLE = "MR"
@@ -272,7 +294,8 @@ class PseudonymV1ResourceIntTest : IntegrationTestBase() {
       """
       {
         "firstName": "John",
-        "middleName": "Middlename",
+        "middleName1": "Middleone",
+        "middleName2": "Middletwo",
         "lastName": "Smith",
         "dateOfBirth": "1980-01-01",
         "nameType": "CN",
@@ -288,7 +311,8 @@ class PseudonymV1ResourceIntTest : IntegrationTestBase() {
       sourceSystem = NOMIS,
       sourceSystemId = OFFENDER_ID,
       firstName = FIRST_NAME,
-      middleName = MIDDLE_NAME,
+      middleName1 = MIDDLE_NAME_1,
+      middleName2 = MIDDLE_NAME_2,
       lastName = LAST_NAME,
       dateOfBirth = DATE_OF_BIRTH,
       nameType = ReferenceDataValue("NAME_TYPE_$NAME_TYPE", NAME_TYPE, "Name type"),
