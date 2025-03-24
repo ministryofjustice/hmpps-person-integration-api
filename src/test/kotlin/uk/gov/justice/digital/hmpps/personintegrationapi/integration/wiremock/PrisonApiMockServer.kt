@@ -300,7 +300,8 @@ internal const val ALIAS_RESPONSE =
     "prisonerNumber": "A1234AA",
     "offenderId": 12345,
     "firstName": "John",
-    "middleName": "Middlename",
+    "middleName1": "Middleone",
+    "middleName2": "Middletwo",
     "lastName": "Smith",
     "dateOfBirth": "1980-01-01",
     "nameType": {

@@ -113,7 +113,8 @@ class PseudonymServiceTest {
     const val OFFENDER_ID = 12345L
     const val SOURCE_SYSTEM = "NOMIS"
     const val FIRST_NAME = "John"
-    const val MIDDLE_NAME = "Middlename"
+    const val MIDDLE_NAME_1 = "Middleone"
+    const val MIDDLE_NAME_2 = "Middletwo"
     const val LAST_NAME = "Smith"
     const val NAME_TYPE = "CN"
     const val TITLE = "MR"
@@ -124,7 +125,8 @@ class PseudonymServiceTest {
 
     val ALIAS_CREATION_REQUEST = CreateAlias(
       firstName = FIRST_NAME,
-      middleName = MIDDLE_NAME,
+      middleName1 = MIDDLE_NAME_1,
+      middleName2 = MIDDLE_NAME_2,
       lastName = LAST_NAME,
       dateOfBirth = DATE_OF_BIRTH,
       nameType = NAME_TYPE,
@@ -136,7 +138,8 @@ class PseudonymServiceTest {
 
     val ALIAS_UPDATE_REQUEST = UpdateAlias(
       firstName = FIRST_NAME,
-      middleName = MIDDLE_NAME,
+      middleName1 = MIDDLE_NAME_1,
+      middleName2 = MIDDLE_NAME_2,
       lastName = LAST_NAME,
       dateOfBirth = DATE_OF_BIRTH,
       nameType = NAME_TYPE,
@@ -149,7 +152,8 @@ class PseudonymServiceTest {
       prisonerNumber = PRISONER_NUMBER,
       offenderId = OFFENDER_ID,
       firstName = FIRST_NAME,
-      middleName = MIDDLE_NAME,
+      middleName1 = MIDDLE_NAME_1,
+      middleName2 = MIDDLE_NAME_2,
       lastName = LAST_NAME,
       dateOfBirth = DATE_OF_BIRTH,
       nameType = CorePersonRecordReferenceDataValue("NAME_TYPE", NAME_TYPE, "Name type"),
@@ -161,7 +165,8 @@ class PseudonymServiceTest {
 
     val PSEUDONYM_REQUEST = PseudonymRequestDto(
       firstName = FIRST_NAME,
-      middleName = MIDDLE_NAME,
+      middleName1 = MIDDLE_NAME_1,
+      middleName2 = MIDDLE_NAME_2,
       lastName = LAST_NAME,
       dateOfBirth = DATE_OF_BIRTH,
       nameType = NAME_TYPE,
@@ -176,7 +181,8 @@ class PseudonymServiceTest {
       sourceSystem = NOMIS,
       sourceSystemId = OFFENDER_ID,
       firstName = FIRST_NAME,
-      middleName = MIDDLE_NAME,
+      middleName1 = MIDDLE_NAME_1,
+      middleName2 = MIDDLE_NAME_2,
       lastName = LAST_NAME,
       dateOfBirth = DATE_OF_BIRTH,
       nameType = ReferenceDataValue("NAME_TYPE_$NAME_TYPE", NAME_TYPE, "Name type"),

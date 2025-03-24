@@ -8,8 +8,11 @@ data class CreateAlias(
   @Schema(description = "First name", example = "John")
   val firstName: String,
 
-  @Schema(description = "Middle name", example = "Middlename")
-  val middleName: String? = null,
+  @Schema(description = "Middle name 1", example = "Middleone")
+  val middleName1: String? = null,
+
+  @Schema(description = "Middle name 2", example = "Middletwo")
+  val middleName2: String? = null,
 
   @Schema(description = "Last name", example = "Smith")
   val lastName: String,
