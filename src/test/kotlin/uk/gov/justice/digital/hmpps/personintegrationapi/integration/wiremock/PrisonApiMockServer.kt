@@ -362,6 +362,18 @@ class PrisonApiMockServer : WireMockServer(8082) {
     )
   }
 
+  fun stubUpdateEthnicityForWorkingName() {
+    val endpoint = "ethnicity"
+    stubOffenderPutEndpoint(endpoint, HttpStatus.NO_CONTENT, PRISONER_NUMBER)
+    stubOffenderPutEndpoint(endpoint, HttpStatus.INTERNAL_SERVER_ERROR, PRISONER_NUMBER_THROW_EXCEPTION)
+    stubOffenderPutEndpoint(
+      endpoint,
+      HttpStatus.NOT_FOUND,
+      PRISONER_NUMBER_NOT_FOUND,
+      PRISON_API_NOT_FOUND_RESPONSE.trimIndent(),
+    )
+  }
+
   fun stubUpdateNationalityForWorkingName() {
     val endpoint = "nationality"
     stubOffenderPutEndpoint(endpoint, HttpStatus.NO_CONTENT, PRISONER_NUMBER)
@@ -665,6 +677,7 @@ class PrisonApiExtension :
 
     prisonApi.stubUpdateBirthPlaceForWorkingName()
     prisonApi.stubUpdateBirthCountryForWorkingName()
+    prisonApi.stubUpdateEthnicityForWorkingName()
     prisonApi.stubUpdateNationalityForWorkingName()
     prisonApi.stubUpdateReligionForWorkingName()
 
