@@ -37,7 +37,6 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.re
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.BirthplaceUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.CountryOfBirthUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.DateOfBirthUpdateDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.EthnicityUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.UnknownCorePersonFieldException
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.VirusScanFailureException
 import java.time.LocalDate
@@ -81,11 +80,6 @@ class CorePersonRecordServiceTest {
     @Test
     fun `can update the country of birth field`() {
       underTest.updateCorePersonRecordField(PRISONER_NUMBER, CountryOfBirthUpdateDto(TEST_COUNTRY_OF_BIRTH_VALUE))
-    }
-
-    @Test
-    fun `can update the ethnicity field`() {
-      underTest.updateCorePersonRecordField(PRISONER_NUMBER, EthnicityUpdateDto(TEST_ETHNICITY_VALUE))
     }
 
     @Test
@@ -355,7 +349,6 @@ class CorePersonRecordServiceTest {
     const val PRISONER_NUMBER = "A1234AA"
     const val TEST_BIRTHPLACE_VALUE = "London"
     const val TEST_COUNTRY_OF_BIRTH_VALUE = "ENG"
-    const val TEST_ETHNICITY_VALUE = "W1"
     val TEST_BIRTHPLACE_BODY = UpdateBirthPlace("London")
     val TEST_COUNTRY_OF_BIRTH_BODY = UpdateBirthCountry("ENG")
 

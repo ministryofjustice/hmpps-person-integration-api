@@ -20,7 +20,6 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.P
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateAlias
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthCountry
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateEthnicity
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateReligion
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.CorePersonRecordAlias
@@ -41,12 +40,6 @@ interface PrisonApiClient {
   fun updateBirthCountryForWorkingName(
     @PathVariable offenderNo: String,
     @RequestBody updateBirthCountry: UpdateBirthCountry,
-  ): ResponseEntity<Void>
-
-  @PutExchange("/offenders/{offenderNo}/ethnicity")
-  fun updateEthnicityForWorkingName(
-    @PathVariable offenderNo: String,
-    @RequestBody updateEthnicity: UpdateEthnicity,
   ): ResponseEntity<Void>
 
   @PutExchange("/offenders/{offenderNo}/nationality")
