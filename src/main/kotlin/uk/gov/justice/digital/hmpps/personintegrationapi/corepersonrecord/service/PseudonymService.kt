@@ -18,6 +18,23 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.re
 class PseudonymService(
   private val prisonApiClient: PrisonApiClient,
 ) {
+  fun getPseudonyms(
+    prisonerNumber: String,
+    sourceSystem: String,
+  ): ResponseEntity<List<PseudonymResponseDto>> {
+    when (sourceSystem.toSourceSystem()) {
+      NOMIS -> {
+        val response = prisonApiClient.getAliases(prisonerNumber)
+
+        return if (response.statusCode.is2xxSuccessful) {
+          ResponseEntity.ok(response.body?.map { it.toResponseDto() })
+        } else {
+          ResponseEntity.status(response.statusCode).build()
+        }
+      }
+    }
+  }
+
   fun createPseudonym(
     prisonerNumber: String,
     sourceSystem: String,

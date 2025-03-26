@@ -551,6 +551,23 @@ class PrisonApiMockServer : WireMockServer(8082) {
     )
   }
 
+  fun stubGetAliases() {
+    stubFor(
+      get(urlPathMatching("/api/offenders/$PRISONER_NUMBER/aliases")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.OK.value())
+          .withBody("[${ALIAS_RESPONSE.trimIndent()}]"),
+      ),
+    )
+    stubFor(
+      get(urlPathMatching("/api/offenders/$PRISONER_NUMBER_NOT_FOUND/aliases")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.NOT_FOUND.value())
+          .withBody("[]"),
+      ),
+    )
+  }
+
   fun stubCreateAlias() {
     stubFor(
       post(urlPathMatching("/api/offenders/$PRISONER_NUMBER/aliases")).willReturn(
@@ -680,6 +697,7 @@ class PrisonApiExtension :
     prisonApi.stubUpdateDistinguishingMarkImage()
     prisonApi.stubAddDistinguishingMarkImage()
 
+    prisonApi.stubGetAliases()
     prisonApi.stubCreateAlias()
     prisonApi.stubUpdateAlias()
 
