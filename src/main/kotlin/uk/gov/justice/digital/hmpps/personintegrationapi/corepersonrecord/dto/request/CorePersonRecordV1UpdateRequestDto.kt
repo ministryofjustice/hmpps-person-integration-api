@@ -16,7 +16,6 @@ import java.time.LocalDate
   JsonSubTypes.Type(name = CorePersonRecordV1UpdateRequestDto.BIRTHPLACE, value = BirthplaceUpdateDto::class),
   JsonSubTypes.Type(name = CorePersonRecordV1UpdateRequestDto.COUNTRY_OF_BIRTH, value = CountryOfBirthUpdateDto::class),
   JsonSubTypes.Type(name = CorePersonRecordV1UpdateRequestDto.DATE_OF_BIRTH, value = DateOfBirthUpdateDto::class),
-  JsonSubTypes.Type(name = CorePersonRecordV1UpdateRequestDto.ETHNICITY, value = EthnicityUpdateDto::class),
 )
 @Schema(description = "Core Person Record V1 update request base")
 sealed class CorePersonRecordV1UpdateRequestDto {
@@ -27,7 +26,6 @@ sealed class CorePersonRecordV1UpdateRequestDto {
     const val BIRTHPLACE = "BIRTHPLACE"
     const val COUNTRY_OF_BIRTH = "COUNTRY_OF_BIRTH"
     const val DATE_OF_BIRTH = "DATE_OF_BIRTH"
-    const val ETHNICITY = "ETHNICITY"
   }
 }
 
@@ -90,24 +88,4 @@ data class CountryOfBirthUpdateDto(
     nullable = false,
   )
   override val fieldName: String = COUNTRY_OF_BIRTH
-}
-
-@Schema(description = "Core Person Record V1 ethnicity update request")
-data class EthnicityUpdateDto(
-  @Schema(
-    description = "The new value for the ethnicity field",
-    example = "W1",
-    required = true,
-    nullable = true,
-  )
-  override val value: String?,
-) : CorePersonRecordV1UpdateRequestDto() {
-  @Schema(
-    type = "String",
-    description = "The field to be updated",
-    allowableValues = [ETHNICITY],
-    required = true,
-    nullable = false,
-  )
-  override val fieldName: String = ETHNICITY
 }

@@ -73,16 +73,6 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
         expectSuccessfulRequestWith(NULL_COUNTRY_OF_BIRTH_PATCH_REQUEST_BODY)
       }
 
-      @Test
-      fun `can patch core person record ethnicity by prisoner number`() {
-        expectSuccessfulRequestWith(ETHNICITY_PATCH_REQUEST_BODY)
-      }
-
-      @Test
-      fun `patch core person record ethnicity accepts null value`() {
-        expectSuccessfulRequestWith(NULL_ETHNICITY_PATCH_REQUEST_BODY)
-      }
-
       private fun expectSuccessfulRequestWith(body: Any) {
         webTestClient.patch().uri("/v1/core-person-record?prisonerNumber=$PRISONER_NUMBER")
           .contentType(MediaType.APPLICATION_JSON)
@@ -496,25 +486,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
       // language=json
       """
         {
-          "fieldName": "COUNTRY_OF_BIRTH",
-          "value": null 
-        }
-      """.trimIndent()
-
-    val ETHNICITY_PATCH_REQUEST_BODY =
-      // language=json
-      """
-        {
-          "fieldName": "ETHNICITY",
-          "value": "W1"
-        }
-      """.trimIndent()
-
-    val NULL_ETHNICITY_PATCH_REQUEST_BODY =
-      // language=json
-      """
-        {
-          "fieldName": "ETHNICITY",
+          "fieldName": "BIRTHPLACE",
           "value": null 
         }
       """.trimIndent()
