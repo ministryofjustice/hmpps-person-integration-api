@@ -39,6 +39,20 @@ class PseudonymServiceTest {
   }
 
   @Nested
+  inner class GetPseudonyms {
+    @Test
+    fun `can retrieve pseudonyms`() {
+      whenever(prisonApiClient.getAliases(PRISONER_NUMBER))
+        .thenReturn(ResponseEntity.ok(listOf(ALIAS_RESPONSE)))
+
+      val response = underTest.getPseudonyms(PRISONER_NUMBER, SOURCE_SYSTEM)
+
+      assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+      assertThat(response.body).isEqualTo(listOf(PSEUDONYM_RESPONSE))
+    }
+  }
+
+  @Nested
   inner class CreatePseudonym {
 
     @BeforeEach

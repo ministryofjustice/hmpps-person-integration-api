@@ -19,6 +19,49 @@ import java.time.LocalDate
 
 class PseudonymV1ResourceIntTest : IntegrationTestBase() {
 
+  @DisplayName("GET v1/pseudonyms")
+  @Nested
+  inner class GetPseudonyms {
+
+    @DisplayName("Security")
+    @Nested
+    inner class Security {
+      @Test
+      fun `access forbidden when no authority`() {
+        webTestClient.get().uri("/v1/pseudonyms?prisonerNumber=$PRISONER_NUMBER&sourceSystem=$SOURCE_SYSTEM")
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `access forbidden with wrong role`() {
+        webTestClient.get().uri("/v1/pseudonyms?prisonerNumber=$PRISONER_NUMBER&sourceSystem=$SOURCE_SYSTEM")
+          .headers(setAuthorisation(roles = listOf("ROLE_IS_WRONG")))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+    }
+
+    @DisplayName("Happy Path")
+    @Nested
+    inner class HappyPath {
+
+      @Test
+      fun `can retrieve pseudonyms`() {
+        val response =
+          webTestClient.get()
+            .uri("/v1/pseudonyms?prisonerNumber=$PRISONER_NUMBER&sourceSystem=$SOURCE_SYSTEM")
+            .headers(setAuthorisation(roles = listOf(CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+            .exchange()
+            .expectStatus().isOk
+            .expectBodyList(PseudonymResponseDto::class.java)
+            .returnResult().responseBody
+
+        assertThat(response).isEqualTo(listOf(PSEUDONYM_RESPONSE))
+      }
+    }
+  }
+
   @DisplayName("POST v1/pseudonym")
   @Nested
   inner class CreatePseudonym {
