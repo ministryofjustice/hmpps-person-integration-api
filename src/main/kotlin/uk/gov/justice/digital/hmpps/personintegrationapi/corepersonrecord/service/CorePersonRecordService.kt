@@ -11,6 +11,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.P
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthCountry
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateSexualOrientation
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.mapper.mapRefDataDescription
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.util.virusScan
@@ -19,6 +20,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.re
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.BirthplaceUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.CorePersonRecordV1UpdateRequestDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.CountryOfBirthUpdateDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.SexualOrientationUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.UnknownCorePersonFieldException
 
 @Service
@@ -38,6 +40,11 @@ class CorePersonRecordService(
       is CountryOfBirthUpdateDto -> prisonApiClient.updateBirthCountryForWorkingName(
         prisonerNumber,
         UpdateBirthCountry(updateRequestDto.value),
+      )
+
+      is SexualOrientationUpdateDto -> prisonApiClient.updateSexualOrientationForWorkingName(
+        prisonerNumber,
+        UpdateSexualOrientation(updateRequestDto.value),
       )
 
       else -> throw UnknownCorePersonFieldException("Field '${updateRequestDto.fieldName}' cannot be updated.")
