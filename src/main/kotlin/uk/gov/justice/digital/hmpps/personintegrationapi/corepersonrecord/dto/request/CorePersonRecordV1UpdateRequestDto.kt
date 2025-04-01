@@ -16,6 +16,7 @@ import java.time.LocalDate
   JsonSubTypes.Type(name = CorePersonRecordV1UpdateRequestDto.BIRTHPLACE, value = BirthplaceUpdateDto::class),
   JsonSubTypes.Type(name = CorePersonRecordV1UpdateRequestDto.COUNTRY_OF_BIRTH, value = CountryOfBirthUpdateDto::class),
   JsonSubTypes.Type(name = CorePersonRecordV1UpdateRequestDto.DATE_OF_BIRTH, value = DateOfBirthUpdateDto::class),
+  JsonSubTypes.Type(name = CorePersonRecordV1UpdateRequestDto.SEXUAL_ORIENTATION, value = SexualOrientationUpdateDto::class),
 )
 @Schema(description = "Core Person Record V1 update request base")
 sealed class CorePersonRecordV1UpdateRequestDto {
@@ -26,6 +27,7 @@ sealed class CorePersonRecordV1UpdateRequestDto {
     const val BIRTHPLACE = "BIRTHPLACE"
     const val COUNTRY_OF_BIRTH = "COUNTRY_OF_BIRTH"
     const val DATE_OF_BIRTH = "DATE_OF_BIRTH"
+    const val SEXUAL_ORIENTATION = "SEXUAL_ORIENTATION"
   }
 }
 
@@ -88,4 +90,24 @@ data class CountryOfBirthUpdateDto(
     nullable = false,
   )
   override val fieldName: String = COUNTRY_OF_BIRTH
+}
+
+@Schema(description = "Core Person Record V1 sexual orientation update request")
+data class SexualOrientationUpdateDto(
+  @Schema(
+    description = "The new value for the sexual orientation field",
+    example = "HET",
+    required = true,
+    nullable = true,
+  )
+  override val value: String?,
+) : CorePersonRecordV1UpdateRequestDto() {
+  @Schema(
+    type = "String",
+    description = "The field to be updated",
+    allowableValues = [SEXUAL_ORIENTATION],
+    required = true,
+    nullable = false,
+  )
+  override val fieldName: String = SEXUAL_ORIENTATION
 }

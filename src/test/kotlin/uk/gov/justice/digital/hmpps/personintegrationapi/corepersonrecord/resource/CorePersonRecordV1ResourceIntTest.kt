@@ -73,6 +73,16 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
         expectSuccessfulRequestWith(NULL_COUNTRY_OF_BIRTH_PATCH_REQUEST_BODY)
       }
 
+      @Test
+      fun `can patch core person record sexual orientation by prisoner number`() {
+        expectSuccessfulRequestWith(SEXUAL_ORIENTATION_PATCH_REQUEST_BODY)
+      }
+
+      @Test
+      fun `patch core person record sexual orientation accepts null value`() {
+        expectSuccessfulRequestWith(NULL_SEXUAL_ORIENTATION_PATCH_REQUEST_BODY)
+      }
+
       private fun expectSuccessfulRequestWith(body: Any) {
         webTestClient.patch().uri("/v1/core-person-record?prisonerNumber=$PRISONER_NUMBER")
           .contentType(MediaType.APPLICATION_JSON)
@@ -486,7 +496,25 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
       // language=json
       """
         {
-          "fieldName": "BIRTHPLACE",
+          "fieldName": "COUNTRY_OF_BIRTH",
+          "value": null 
+        }
+      """.trimIndent()
+
+    val SEXUAL_ORIENTATION_PATCH_REQUEST_BODY =
+      // language=json
+      """
+        {
+          "fieldName": "SEXUAL_ORIENTATION",
+          "value": "HET"
+        }
+      """.trimIndent()
+
+    val NULL_SEXUAL_ORIENTATION_PATCH_REQUEST_BODY =
+      // language=json
+      """
+        {
+          "fieldName": "SEXUAL_ORIENTATION",
           "value": null 
         }
       """.trimIndent()

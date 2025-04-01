@@ -386,6 +386,18 @@ class PrisonApiMockServer : WireMockServer(8082) {
     )
   }
 
+  fun stubUpdateSexualOrientationForWorkingName() {
+    val endpoint = "sexual-orientation"
+    stubOffenderPutEndpoint(endpoint, HttpStatus.NO_CONTENT, PRISONER_NUMBER)
+    stubOffenderPutEndpoint(endpoint, HttpStatus.INTERNAL_SERVER_ERROR, PRISONER_NUMBER_THROW_EXCEPTION)
+    stubOffenderPutEndpoint(
+      endpoint,
+      HttpStatus.NOT_FOUND,
+      PRISONER_NUMBER_NOT_FOUND,
+      PRISON_API_NOT_FOUND_RESPONSE.trimIndent(),
+    )
+  }
+
   fun stubReferenceDataCodes(domain: String = "TEST", body: String = PRISON_API_REFERENCE_CODES) {
     stubFor(
       get(urlPathMatching("/api/reference-domains/domains/$domain/all-codes")).willReturn(
@@ -684,6 +696,7 @@ class PrisonApiExtension :
     prisonApi.stubUpdateBirthCountryForWorkingName()
     prisonApi.stubUpdateNationalityForWorkingName()
     prisonApi.stubUpdateReligionForWorkingName()
+    prisonApi.stubUpdateSexualOrientationForWorkingName()
 
     prisonApi.stubGetMilitaryRecords()
     prisonApi.stubUpdateMilitaryRecord()

@@ -22,6 +22,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.U
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateReligion
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateSexualOrientation
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.CorePersonRecordAlias
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.DistinguishingMarkPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.ImageDetailPrisonDto
@@ -46,6 +47,12 @@ interface PrisonApiClient {
   fun updateNationalityForWorkingName(
     @PathVariable offenderNo: String,
     @RequestBody updateNationality: UpdateNationality,
+  ): ResponseEntity<Void>
+
+  @PutExchange("/offenders/{offenderNo}/sexual-orientation")
+  fun updateSexualOrientationForWorkingName(
+    @PathVariable offenderNo: String,
+    @RequestBody updateSexualOrientation: UpdateSexualOrientation,
   ): ResponseEntity<Void>
 
   @GetExchange("/offenders/{offenderNo}/military-records")
