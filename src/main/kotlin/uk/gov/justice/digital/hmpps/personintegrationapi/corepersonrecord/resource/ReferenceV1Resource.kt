@@ -148,7 +148,7 @@ class ReferenceV1Resource(
     @RequestBody(required = true) @Valid referenceRequest: ReferenceRequestDto,
   ): ResponseEntity<ReferenceResponseDto> = referenceService.createReference(personId, referenceRequest)
 
-  @PutMapping("/reference/{referenceId}")
+  @PutMapping("/references/{referenceId}")
   @Operation(
     summary = "Update a reference for the given reference and person ID.",
     description = "Updates a reference. " +
