@@ -37,7 +37,7 @@ class ReferenceV1Resource(
   private val referenceService: ReferenceService,
 ) {
 
-  @GetMapping("/reference")
+  @GetMapping("/references")
   @Operation(
     summary = "Returns list of reference identifiers for the given person.",
     description = "Get references. " +
