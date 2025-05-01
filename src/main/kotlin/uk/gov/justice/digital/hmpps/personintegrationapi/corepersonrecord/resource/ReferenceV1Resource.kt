@@ -96,7 +96,7 @@ class ReferenceV1Resource(
     @RequestParam(required = false, defaultValue = false.toString()) includePseudonyms: Boolean,
   ): ResponseEntity<Collection<ReferenceResponseDto>> = referenceService.getReferences(personId, includePseudonyms)
 
-  @PostMapping("/reference")
+  @PostMapping("/references")
   @Operation(
     summary = "Create a new reference for the given person.",
     description = "Creates a reference. " +
