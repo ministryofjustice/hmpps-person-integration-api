@@ -197,6 +197,5 @@ class AddressV1Resource(
     @PathVariable @Valid @ValidPrisonerNumber personId: String,
     @PathVariable addressId: Long,
     @RequestBody(required = true) @Valid addressRequestDto: AddressRequestDto,
-  ): ResponseEntity<AddressResponseDto> =
-    addressService.updateAddress(personId, addressId, addressRequestDto)
+  ): ResponseEntity<AddressResponseDto> = addressService.updateAddress(personId, addressId, addressRequestDto)
 }

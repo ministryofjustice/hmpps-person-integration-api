@@ -1,12 +1,9 @@
 package uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response
 
 import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED
 import jakarta.validation.constraints.NotNull
-import jakarta.validation.constraints.Size
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataValue
 import java.time.LocalDate
-import java.util.UUID
 
 @Schema(description = "Address response object.")
 data class AddressResponseDto(
@@ -32,7 +29,7 @@ data class AddressResponseDto(
   @Schema(
     description = "The unique property reference number for the address.",
     example = "000123456789",
-    nullable = true
+    nullable = true,
   )
   val uprn: Long? = null,
 
@@ -51,7 +48,7 @@ data class AddressResponseDto(
   @Schema(
     description = "Dependant Locality, usually a child of the post town",
     example = "Small Village",
-    nullable = true
+    nullable = true,
   )
   val dependantLocality: String? = null,
 
@@ -59,14 +56,13 @@ data class AddressResponseDto(
     description = "Post town. This will be mapped to CITY reference data codes for persistence in " +
       "NOMIS. Any data without a mapping will not be persisted.",
     example = "My Town",
-    nullable = true
+    nullable = true,
   )
-
   val postTown: String? = null,
 
   @Schema(
     description = "Country",
-    nullable = false
+    nullable = false,
   )
   val country: ReferenceDataValue,
 
@@ -76,14 +72,14 @@ data class AddressResponseDto(
   @Schema(
     description = "Date address is in use from.",
     example = "2025-01-01",
-    nullable = false
+    nullable = false,
   )
   val fromDate: LocalDate,
 
   @Schema(
     description = "Date address is in use to.",
     example = "2025-01-02",
-    nullable = true
+    nullable = true,
   )
   val toDate: LocalDate? = null,
 
@@ -91,21 +87,21 @@ data class AddressResponseDto(
     description = "The address type (From ADDR_TYPE reference data).",
     example = "HOME",
     allowableValues = ["BUS", "HOME", "WORK"],
-    nullable = false
+    nullable = false,
   )
   val addressType: String,
 
   @Schema(
     description = "Boolean indicating whether to use this as the postal address",
     example = "True",
-    nullable = true
+    nullable = true,
   )
   val postalAddress: Boolean? = null,
 
   @Schema(
     description = "Boolean indicating whether to use this as the primary address for the person",
     example = "True",
-    nullable = true
+    nullable = true,
   )
   val primaryAddress: Boolean? = null,
 )

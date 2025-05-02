@@ -17,12 +17,12 @@ class AddressService(
     addressRequestDto: AddressRequestDto,
   ): ResponseEntity<AddressResponseDto> = ResponseEntity.ok(
     AddressResponseDto(
-        addressId = 12345,
-        personId = personId,
-        pseudonymId = addressRequestDto.pseudonymId,
-        country = ReferenceDataValue("1", addressRequestDto.countryCode, "country description"),
-        fromDate = addressRequestDto.fromDate,
-        addressType = addressRequestDto.addressType,
+      addressId = 12345,
+      personId = personId,
+      pseudonymId = addressRequestDto.pseudonymId,
+      country = ReferenceDataValue("1", addressRequestDto.countryCode, "country description"),
+      fromDate = addressRequestDto.fromDate,
+      addressType = addressRequestDto.addressType,
     ),
   )
 
@@ -31,12 +31,12 @@ class AddressService(
   ): ResponseEntity<Collection<AddressResponseDto>> = ResponseEntity.ok(
     listOf(
       AddressResponseDto(
-          addressId = 12345,
-          personId = personId,
-          pseudonymId = 123456,
-          country = ReferenceDataValue("1", "ENG", "England"),
-          fromDate = LocalDate.now(),
-          addressType = "HOME",
+        addressId = 12345,
+        personId = personId,
+        pseudonymId = 123456,
+        country = ReferenceDataValue("1", "ENG", "England"),
+        fromDate = LocalDate.now(),
+        addressType = "HOME",
       ),
     ),
   )
@@ -47,12 +47,12 @@ class AddressService(
     addressRequestDto: AddressRequestDto,
   ): ResponseEntity<AddressResponseDto> = ResponseEntity.ok(
     AddressResponseDto(
-        addressId = addressId,
-        personId = personId,
-        pseudonymId = addressRequestDto.pseudonymId,
-        country = ReferenceDataValue("1", addressRequestDto.countryCode, "country description"),
-        fromDate = addressRequestDto.fromDate,
-        addressType = addressRequestDto.addressType,
+      addressId = addressId,
+      personId = personId,
+      pseudonymId = addressRequestDto.pseudonymId,
+      country = ReferenceDataValue("1", addressRequestDto.countryCode, "country description"),
+      fromDate = addressRequestDto.fromDate,
+      addressType = addressRequestDto.addressType,
     ),
   )
 }
