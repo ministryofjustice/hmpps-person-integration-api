@@ -61,6 +61,12 @@ data class AddressResponseDto(
   val postTown: String? = null,
 
   @Schema(
+    description = "County",
+    nullable = true,
+  )
+  val county: ReferenceDataValue? = null,
+
+  @Schema(
     description = "Country",
     nullable = false,
   )

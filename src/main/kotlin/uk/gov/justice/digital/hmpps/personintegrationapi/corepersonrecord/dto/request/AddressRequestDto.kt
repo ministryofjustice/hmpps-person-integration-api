@@ -53,6 +53,14 @@ data class AddressRequestDto(
   val postTown: String? = null,
 
   @Schema(
+    description = "County Code (From COUNTRY reference data).",
+    example = "ENG",
+    requiredMode = REQUIRED,
+  )
+  @field:Size(max = 12)
+  val countyCode: String? = null,
+
+  @Schema(
     description = "Country Code (From COUNTRY reference data).",
     example = "ENG",
     requiredMode = REQUIRED,
