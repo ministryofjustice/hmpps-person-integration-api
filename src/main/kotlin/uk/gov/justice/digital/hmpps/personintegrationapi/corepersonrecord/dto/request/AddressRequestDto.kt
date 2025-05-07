@@ -22,7 +22,7 @@ data class AddressRequestDto(
   @Schema(
     description = "Building name",
     example = "1",
-  ) @field:Size(max = 30) val buildingNumber: String? = null,
+  ) @field:Size(max = 4) val buildingNumber: String? = null,
 
   @Schema(
     description = "Sub building name",
@@ -52,7 +52,6 @@ data class AddressRequestDto(
   @Schema(
     description = "County Code (From COUNTRY reference data).",
     example = "ENG",
-    requiredMode = REQUIRED,
   ) @field:Size(max = 12) val countyCode: String? = null,
 
   @Schema(
@@ -70,7 +69,7 @@ data class AddressRequestDto(
     description = "Date address is in use from.",
     example = "2025-01-01",
     requiredMode = REQUIRED,
-  ) val fromDate: LocalDate,
+  ) @field:NotNull val fromDate: LocalDate,
 
   @Schema(
     description = "Date address is in use to.",

@@ -19,7 +19,6 @@ class AddressService(
     AddressResponseDto(
       addressId = 12345,
       personId = personId,
-      pseudonymId = addressRequestDto.pseudonymId,
       country = ReferenceDataValue("1", addressRequestDto.countryCode, "country description"),
       fromDate = addressRequestDto.fromDate,
       addressType = addressRequestDto.addressType,
@@ -33,7 +32,6 @@ class AddressService(
       AddressResponseDto(
         addressId = 12345,
         personId = personId,
-        pseudonymId = 123456,
         country = ReferenceDataValue("1", "ENG", "England"),
         fromDate = LocalDate.now(),
         addressType = "HOME",
@@ -49,7 +47,6 @@ class AddressService(
     AddressResponseDto(
       addressId = addressId,
       personId = personId,
-      pseudonymId = addressRequestDto.pseudonymId,
       country = ReferenceDataValue("1", addressRequestDto.countryCode, "country description"),
       fromDate = addressRequestDto.fromDate,
       addressType = addressRequestDto.addressType,
