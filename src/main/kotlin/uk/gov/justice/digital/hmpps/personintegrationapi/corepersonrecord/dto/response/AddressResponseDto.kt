@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response
 
 import io.swagger.v3.oas.annotations.media.Schema
-import jakarta.validation.constraints.NotNull
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataValue
 import java.time.LocalDate
 
@@ -20,24 +19,24 @@ data class AddressResponseDto(
   val personId: String,
 
   @Schema(
-    description = "ID of the pseudonym/alias for a person this address is associated with.",
-    example = "true",
-  )
-  @field:NotNull
-  val pseudonymId: Long,
-
-  @Schema(
     description = "The unique property reference number for the address.",
     example = "000123456789",
     nullable = true,
   )
   val uprn: Long? = null,
 
-  @Schema(description = "Boolean indicating if the person has no fixed abode.", example = "False", nullable = true)
+  @Schema(
+      description = "Boolean indicating if the person has no fixed abode.",
+      example = "False",
+      nullable = true,
+  )
   val noFixedAbode: Boolean? = null,
 
   @Schema(description = "Building name", example = "1", nullable = true)
   val buildingNumber: String? = null,
+
+  @Schema(description = "Sub building name", example = "Unit 1", nullable = true)
+  val subBuildingName: String? = null,
 
   @Schema(description = "Building name", example = "The Building", nullable = true)
   val buildingName: String? = null,
@@ -58,15 +57,7 @@ data class AddressResponseDto(
     example = "My Town",
     nullable = true,
   )
-  val postTown: String? = null,
-
-  @Schema(
-    description = "Reference data code for the post town. This is only in used while NOMIS is the master" +
-      "data store.",
-    example = "LOND1",
-    nullable = true,
-  )
-  val postTownCode: String? = null,
+  val postTown: ReferenceDataValue? = null,
 
   @Schema(
     description = "County",
