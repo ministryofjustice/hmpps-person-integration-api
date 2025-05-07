@@ -53,6 +53,14 @@ data class AddressRequestDto(
   val postTown: String? = null,
 
   @Schema(
+    description = "Reference data code for the post town. This is only in used while NOMIS is the master" +
+      "data store.",
+    example = "LOND1",
+  )
+  @field:Size(max = 12)
+  val postTownCode: String? = null,
+
+  @Schema(
     description = "County Code (From COUNTRY reference data).",
     example = "ENG",
     requiredMode = REQUIRED,

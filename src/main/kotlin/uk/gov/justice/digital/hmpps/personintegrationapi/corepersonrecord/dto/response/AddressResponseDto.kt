@@ -61,6 +61,14 @@ data class AddressResponseDto(
   val postTown: String? = null,
 
   @Schema(
+    description = "Reference data code for the post town. This is only in used while NOMIS is the master" +
+      "data store.",
+    example = "LOND1",
+    nullable = true,
+  )
+  val postTownCode: String? = null,
+
+  @Schema(
     description = "County",
     nullable = true,
   )
