@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataValue
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.AddressTypeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.AddressRequestDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.AddressResponseDto
 import java.time.LocalDate
@@ -21,7 +22,16 @@ class AddressService(
       personId = personId,
       country = ReferenceDataValue("1", addressRequestDto.countryCode, "country description"),
       fromDate = addressRequestDto.fromDate,
-      addressType = addressRequestDto.addressType,
+      addressTypes = listOf<AddressTypeDto>(
+        AddressTypeDto(
+          ReferenceDataValue(
+            "HOME",
+            "HOME",
+            "Home Address",
+          ),
+          true,
+        ),
+      ),
     ),
   )
 
@@ -34,7 +44,17 @@ class AddressService(
         personId = personId,
         country = ReferenceDataValue("1", "ENG", "England"),
         fromDate = LocalDate.now(),
-        addressType = "HOME",
+        addressTypes = listOf<AddressTypeDto>(
+          AddressTypeDto(
+            ReferenceDataValue(
+              "HOME",
+              "HOME",
+              "Home Address",
+            ),
+            true,
+          ),
+        ),
+
       ),
     ),
   )
@@ -49,7 +69,16 @@ class AddressService(
       personId = personId,
       country = ReferenceDataValue("1", addressRequestDto.countryCode, "country description"),
       fromDate = addressRequestDto.fromDate,
-      addressType = addressRequestDto.addressType,
+      addressTypes = listOf<AddressTypeDto>(
+        AddressTypeDto(
+          ReferenceDataValue(
+            "HOME",
+            "HOME",
+            "Home Address",
+          ),
+          true,
+        ),
+      ),
     ),
   )
 }
