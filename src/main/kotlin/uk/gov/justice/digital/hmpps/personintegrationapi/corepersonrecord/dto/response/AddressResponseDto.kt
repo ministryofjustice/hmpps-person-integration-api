@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response
 
 import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED
 import jakarta.validation.constraints.NotNull
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataValue
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.AddressTypeDto
@@ -29,9 +28,9 @@ data class AddressResponseDto(
   val uprn: Long? = null,
 
   @Schema(
-      description = "Boolean indicating if the person has no fixed abode.",
-      example = "False",
-      nullable = true,
+    description = "Boolean indicating if the person has no fixed abode.",
+    example = "False",
+    nullable = true,
   )
   val noFixedAbode: Boolean? = null,
 
