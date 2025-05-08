@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.AddressTypeDto
 import java.time.LocalDate
 
 @Schema(description = "Address request object. Used to create or update an address.")
@@ -77,11 +78,9 @@ data class AddressRequestDto(
   ) val toDate: LocalDate? = null,
 
   @Schema(
-    description = "The address type (From ADDR_TYPE reference data).",
-    example = "HOME",
-    allowableValues = ["BUS", "HOME", "WORK"],
+    description = "Collection of address types applied to this address e.g. HOME (From ADDRESS_TYPE reference data).",
     requiredMode = REQUIRED,
-  ) @field:NotNull val addressType: String,
+  ) @field:NotNull val addressTypes: Collection<AddressTypeDto>,
 
   @Schema(
     description = "Boolean indicating whether to use this as the postal address",
