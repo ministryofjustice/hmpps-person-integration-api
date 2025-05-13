@@ -8,10 +8,10 @@ import jakarta.validation.constraints.Size
 @Schema(description = "Contact request object. Used to create or update a contact phone number or email address.")
 data class ContactRequestDto(
   @Schema(
-      description = "Contact type",
-      example = "HOME",
-      allowableValues = ["HOME", "BUS", "FAX", "ALTB", "ALTH", "MOB", "VISIT", "EMAIL"],
-      requiredMode = REQUIRED,
+    description = "Contact type",
+    example = "HOME",
+    allowableValues = ["HOME", "BUS", "FAX", "ALTB", "ALTH", "MOB", "VISIT", "EMAIL"],
+    requiredMode = REQUIRED,
   )
   @field:NotNull
   val contactType: String,

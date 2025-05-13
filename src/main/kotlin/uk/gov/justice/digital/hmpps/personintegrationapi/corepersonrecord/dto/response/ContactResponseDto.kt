@@ -1,13 +1,8 @@
 package uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response
 
 import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.SourceSystem
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataValue
-import java.time.LocalDate
-import java.util.UUID
 
 @Schema(description = "Contact response object containing phone number or email contact details for a person.")
 data class ContactResponseDto(

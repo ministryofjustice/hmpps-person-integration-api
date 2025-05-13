@@ -15,9 +15,9 @@ class ContactsService(
     contactRequest: ContactRequestDto,
   ): ResponseEntity<ContactResponseDto> = ResponseEntity.ok(
     ContactResponseDto(
-        personId,
-        contactRequest.contactType,
-        contactRequest.contactValue,
+      personId,
+      contactRequest.contactType,
+      contactRequest.contactValue,
     ),
   )
 
@@ -39,9 +39,9 @@ class ContactsService(
     contactRequest: ContactRequestDto,
   ): ResponseEntity<ContactResponseDto> = ResponseEntity.ok(
     ContactResponseDto(
-        personId,
-        contactRequest.contactType,
-        contactRequest.contactValue,
+      personId,
+      contactRequest.contactType,
+      contactRequest.contactValue,
     ),
   )
 }
