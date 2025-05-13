@@ -10,7 +10,7 @@ data class ContactRequestDto(
   @Schema(
       description = "Contact type",
       example = "HOME",
-      allowableValues = ["HOME", "MOBILE", "EMAIL"],
+      allowableValues = ["HOME", "BUS", "FAX", "ALTB", "ALTH", "MOB", "VISIT", "EMAIL"],
       requiredMode = REQUIRED,
   )
   @field:NotNull

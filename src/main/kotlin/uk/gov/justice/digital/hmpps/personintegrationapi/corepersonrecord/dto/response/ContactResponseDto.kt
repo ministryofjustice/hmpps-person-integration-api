@@ -23,7 +23,7 @@ data class ContactResponseDto(
   @Schema(
     description = "Contact type",
     example = "HOME",
-    allowableValues = ["HOME", "MOBILE", "EMAIL"],
+    allowableValues = ["HOME", "BUS", "FAX", "ALTB", "ALTH", "MOB", "VISIT", "EMAIL"],
   )
   @field:NotNull
   val contactType: String,
