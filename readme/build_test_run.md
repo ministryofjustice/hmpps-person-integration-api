@@ -15,7 +15,7 @@ To build the project without tests run:
 
 To run the unit and integration tests:
 ```
-./gradlew test 
+./gradlew test
 ```
 
 ## Running Locally
@@ -43,8 +43,8 @@ This will run the application on http://localhost:8080 and the swagger docs will
 If you want to run the application through IntelliJ or command line with gradle using the containerised dependencies then use:
 
 ```
-docker compose pull && docker compose up --scale hmpps-person-integration-api=0 
-```  
+docker compose pull && docker compose up --scale hmpps-person-integration-api=0
+```
 
 Then start the application using Gradle or IntelliJ.
 
@@ -62,7 +62,7 @@ Run or debug the main class with the spring active profile set to `dev`:
 
 ### Running against dependencies deployed in dev
 
-In order to run against deployed dependencies in dev the 
+In order to run against deployed dependencies in dev the
 
 <details>
 <summary>Environment variables required</summary>
@@ -118,14 +118,4 @@ To run Ktlint check:
 To run Ktlint format:
 ```
 ./gradlew ktlintFormat
-```
-
-To register pre-commit check to run Ktlint format:
-```
-./gradlew addKtlintFormatGitPreCommitHook 
-```
-
-...or to register pre-commit check to only run Ktlint check:
-```
-./gradlew addKtlintCheckGitPreCommitHook
 ```

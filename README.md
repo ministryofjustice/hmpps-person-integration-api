@@ -8,6 +8,6 @@ This is a Spring Boot service, written in Kotlin, which acts as an interface to 
 
 ## Contents
 
-1. [Building, Testing and Running](readme/build_test_run.md)
-2. [Architecture Decision Records](architecture-decision-record/README.md)
-
+1. [Pre-Commit Hooks](readme/pre_commit_hooks.md)
+2. [Building, Testing and Running](readme/build_test_run.md)
+3. [Architecture Decision Records](architecture-decision-record/README.md)
