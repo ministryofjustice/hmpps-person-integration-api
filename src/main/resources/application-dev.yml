@@ -6,5 +6,3 @@ prison-api:
 
 document-api:
   base_url: "http://localhost:8083"
-  
-
