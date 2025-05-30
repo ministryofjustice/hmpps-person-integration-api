@@ -14,7 +14,7 @@ Date: 2024-11-28
 
 ## Context
 
-For version 1 endpoints the HMPPS Person Integration API will make calls to the Prison API to update the source data in NOMIS. For simplicity the 
+For version 1 endpoints the HMPPS Person Integration API will make calls to the Prison API to update the source data in NOMIS. For simplicity the
 endpoints on the Prison API update a single field per request. Therefore, if the Person Integration API were to allow multiple fields to be updated in
 a single request this would require multiple calls to the Prison API. If one of these calls were to fail then we would need to roll back the changes
 from any successful calls in order to leave the data in a consistent state. This could be handled with retries and a fallback to reverse the updates
@@ -26,4 +26,3 @@ For simplicity the version 1 patch endpoints will allow a single field per-reque
 
 ## Consequences
 N/A
-
