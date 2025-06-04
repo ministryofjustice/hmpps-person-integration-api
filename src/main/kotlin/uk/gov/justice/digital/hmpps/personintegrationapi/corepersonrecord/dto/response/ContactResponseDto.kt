@@ -8,12 +8,12 @@ import jakarta.validation.constraints.Size
 data class ContactResponseDto(
 
   @Schema(
-    description = "The ID of the person the reference is associated with. " +
-      "While NOMIS is the data source the person ID will be the prisoner number.",
+    description = "The ID of the contact the reference is associated with. " +
+      "While NOMIS is the data source the contact ID will be either be the phone number ID or the email ID based on the type.",
     example = "true",
   )
   @field:NotNull
-  val personId: String,
+  val contactId: Long,
 
   @Schema(
     description = "Contact type",
@@ -23,7 +23,11 @@ data class ContactResponseDto(
   @field:NotNull
   val contactType: String,
 
-  @Schema(description = "Contact value", example = "01234 567 789")
+  @Schema(
+    description = "Contact value. For contacts with type EMAIL this will have a maximum length of 240 characters." +
+      "For contacts of any other type these will be treated as phone numbers with a maximum length of 40 characters.",
+    example = "01234 567 789",
+  )
   @field:Size(max = 240)
   @field:NotNull
   val contactValue: String,
