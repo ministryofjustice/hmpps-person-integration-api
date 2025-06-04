@@ -13,6 +13,8 @@ import org.springframework.web.service.annotation.HttpExchange
 import org.springframework.web.service.annotation.PostExchange
 import org.springframework.web.service.annotation.PutExchange
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateAlias
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateEmailAddress
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreatePhoneNumber
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.DistinguishingMarkCreateRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.DistinguishingMarkUpdateRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.MilitaryRecordRequest
@@ -25,8 +27,10 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.U
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateSexualOrientation
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.CorePersonRecordAlias
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.DistinguishingMarkPrisonDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.EmailAddressPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.ImageDetailPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecordPrisonDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PhoneNumberPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PhysicalAttributesPrisonDto
 
 @HttpExchange("/api")
@@ -155,4 +159,40 @@ interface PrisonApiClient {
     @RequestPart(name = "file") file: MultipartFile,
     @PathVariable prisonerNumber: String,
   ): ResponseEntity<ImageDetailPrisonDto>
+
+  @GetExchange("/offenders/{offenderNo}/phone-numbers")
+  fun getPhoneNumbers(
+    @PathVariable offenderNo: String,
+  ): ResponseEntity<List<PhoneNumberPrisonDto>>
+
+  @PostExchange("/offenders/{offenderNo}/phone-numbers")
+  fun createPhoneNumber(
+    @PathVariable offenderNo: String,
+    @RequestBody request: CreatePhoneNumber,
+  ): ResponseEntity<PhoneNumberPrisonDto>
+
+  @PutExchange("/offenders/{offenderNo}/phone-numbers/{phoneNumberId}")
+  fun updatePhoneNumber(
+    @PathVariable offenderNo: String,
+    @PathVariable phoneNumberId: Long,
+    @RequestBody request: CreatePhoneNumber,
+  ): ResponseEntity<PhoneNumberPrisonDto>
+
+  @GetExchange("/offenders/{offenderNo}/email-addresses")
+  fun getEmailAddresses(
+    @PathVariable offenderNo: String,
+  ): ResponseEntity<List<EmailAddressPrisonDto>>
+
+  @PostExchange("/offenders/{offenderNo}/email-addresses")
+  fun createEmailAddress(
+    @PathVariable offenderNo: String,
+    @RequestBody request: CreateEmailAddress,
+  ): ResponseEntity<EmailAddressPrisonDto>
+
+  @PutExchange("/offenders/{offenderNo}/email-addresses/{emailAddressId}")
+  fun updateEmailAddress(
+    @PathVariable offenderNo: String,
+    @PathVariable emailAddressId: Long,
+    @RequestBody request: CreateEmailAddress,
+  ): ResponseEntity<EmailAddressPrisonDto>
 }

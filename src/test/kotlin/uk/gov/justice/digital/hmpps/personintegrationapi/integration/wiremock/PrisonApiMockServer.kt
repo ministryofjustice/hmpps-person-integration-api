@@ -328,6 +328,61 @@ internal const val ALIAS_RESPONSE =
   }
   """
 
+internal const val PHONE_NUMBERS =
+  //language=json
+  """
+    [
+      {
+          "phoneId": 101,
+          "number": "09876 543 210",
+          "type": "HOME"
+      },
+      {
+          "phoneId": 102,
+          "number": "01234 567890",
+          "type": "BUS"
+      }
+    ]
+  """
+
+internal const val PHONE_NUMBER =
+  //language=json
+  """
+    {
+        "phoneId": 103,
+        "number": "09876 543 210",
+        "type": "HOME"
+    }
+  """
+
+internal const val PHONE_NUMBER_ID = 103
+
+internal const val EMAIL_ADDRESSES =
+  //language=json
+  """
+    [
+      {
+          "emailAddressId": 201,
+          "emailAddress": "foo@bar.com"
+      },
+      {
+          "emailAddressId": 202,
+          "emailAddress": "bar@foo.com"
+      }
+    ]
+  """
+
+internal const val EMAIL_ADDRESS =
+  //language=json
+  """
+    {
+        "emailAddressId": 203,
+        "emailAddress": "foo@bar.com"
+    }
+  """
+
+internal const val EMAIL_ADDRESS_ID = 203
+
 class PrisonApiMockServer : WireMockServer(8082) {
   fun stubHealthPing(status: Int) {
     stubFor(
@@ -675,6 +730,64 @@ class PrisonApiMockServer : WireMockServer(8082) {
       ),
     )
   }
+
+  fun stubContactEndpoints() {
+    // Phones
+    // GET
+    stubFor(
+      get(urlPathMatching("/api/offenders/$PRISONER_NUMBER/phone-numbers")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.OK.value())
+          .withBody(PHONE_NUMBERS.trimIndent()),
+      ),
+    )
+
+    // POST
+    stubFor(
+      post(urlPathMatching("/api/offenders/$PRISONER_NUMBER/phone-numbers")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.OK.value())
+          .withBody(PHONE_NUMBER.trimIndent()),
+      ),
+    )
+
+    // PUT
+    stubFor(
+      put(urlPathMatching("/api/offenders/$PRISONER_NUMBER/phone-numbers/$PHONE_NUMBER_ID")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.OK.value())
+          .withBody(PHONE_NUMBER.trimIndent()),
+      ),
+    )
+
+    // Emails
+    // GET
+    stubFor(
+      get(urlPathMatching("/api/offenders/$PRISONER_NUMBER/email-addresses")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.OK.value())
+          .withBody(EMAIL_ADDRESSES.trimIndent()),
+      ),
+    )
+
+    // POST
+    stubFor(
+      post(urlPathMatching("/api/offenders/$PRISONER_NUMBER/email-addresses")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.OK.value())
+          .withBody(EMAIL_ADDRESS.trimIndent()),
+      ),
+    )
+
+    // PUT
+    stubFor(
+      put(urlPathMatching("/api/offenders/$PRISONER_NUMBER/email-addresses/$EMAIL_ADDRESS_ID")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.OK.value())
+          .withBody(EMAIL_ADDRESS.trimIndent()),
+      ),
+    )
+  }
 }
 
 class PrisonApiExtension :
@@ -715,6 +828,7 @@ class PrisonApiExtension :
     prisonApi.stubUpdateAlias()
 
     prisonApi.stubUpdatePrisonerProfileImage()
+    prisonApi.stubContactEndpoints()
   }
 
   override fun afterAll(context: ExtensionContext): Unit = prisonApi.stop()
