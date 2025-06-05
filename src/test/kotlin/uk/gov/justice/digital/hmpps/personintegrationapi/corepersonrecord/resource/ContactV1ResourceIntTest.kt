@@ -33,10 +33,14 @@ class ContactV1ResourceIntTest : IntegrationTestBase() {
     @Nested
     inner class HappyPath {
       @Test
-      fun `can post new contact`() {
+      fun `can get contacts`() {
         webTestClient.get().uri(READ_URL)
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
           .exchange().expectStatus().isOk.expectBody().jsonPath("$.size()").isEqualTo(4)
+          .jsonPath("$[0].contactId").isEqualTo("101").jsonPath("$[0].contactValue").isEqualTo("09876 543 210").jsonPath("$[0].contactType").isEqualTo("HOME")
+          .jsonPath("$[1].contactId").isEqualTo("102").jsonPath("$[1].contactValue").isEqualTo("01234 567890").jsonPath("$[1].contactType").isEqualTo("BUS").jsonPath("$[1].contactPhoneExtension").isEqualTo("111")
+          .jsonPath("$[2].contactId").isEqualTo("201").jsonPath("$[2].contactValue").isEqualTo("foo@bar.com").jsonPath("$[2].contactType").isEqualTo("EMAIL")
+          .jsonPath("$[3].contactId").isEqualTo("202").jsonPath("$[3].contactValue").isEqualTo("bar@foo.com").jsonPath("$[3].contactType").isEqualTo("EMAIL")
       }
     }
   }
@@ -207,7 +211,7 @@ class ContactV1ResourceIntTest : IntegrationTestBase() {
     const val VALID_PUT_REQUEST_BODY =
       //language=json
       """
-        { "contactType": "BUS", "contactValue": "12312 123 123" }
+        { "contactType": "BUS", "contactValue": "12312 123 123", "contactExtension": "123" }
       """
   }
 }

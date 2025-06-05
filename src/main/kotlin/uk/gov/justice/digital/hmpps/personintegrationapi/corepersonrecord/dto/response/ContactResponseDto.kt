@@ -31,4 +31,12 @@ data class ContactResponseDto(
   @field:Size(max = 240)
   @field:NotNull
   val contactValue: String,
+
+  @Schema(
+    description = "Contact phone extension. For contacts with type EMAIL this has no effect." +
+      "For contacts of any other type this has a maximum length of 7 characters.",
+    example = "123",
+  )
+  @field:Size(max = 7)
+  val contactPhoneExtension: String? = null,
 )

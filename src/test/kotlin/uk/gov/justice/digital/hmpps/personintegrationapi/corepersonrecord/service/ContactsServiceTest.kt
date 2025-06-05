@@ -192,6 +192,7 @@ class ContactsServiceTest {
       assertThat(responseBody.contactId).isEqualTo(PRISON_PHONE_NUMBER_ONE.phoneId)
       assertThat(responseBody.contactType).isEqualTo(PRISON_PHONE_NUMBER_ONE.type)
       assertThat(responseBody.contactValue).isEqualTo(PRISON_PHONE_NUMBER_ONE.number)
+      assertThat(responseBody.contactPhoneExtension).isEqualTo(PRISON_PHONE_NUMBER_ONE.extension)
     }
 
     @Test
@@ -344,7 +345,8 @@ class ContactsServiceTest {
     const val PHONE_NUMBER_ID = 567L
     const val EMAIL_ADDRESS_ID = 765L
 
-    val PRISON_PHONE_NUMBER_ONE = PhoneNumberPrisonDto(phoneId = 123L, number = "01234 567 890", type = "BUS")
+    val PRISON_PHONE_NUMBER_ONE =
+      PhoneNumberPrisonDto(phoneId = 123L, number = "01234 567 890", type = "BUS", extension = "123")
     val PRISON_EMAIL_ADDRESS_ONE = EmailAddressPrisonDto(emailAddressId = 321L, emailAddress = "prisoner@home.com")
   }
 }
