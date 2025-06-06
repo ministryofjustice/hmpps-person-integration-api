@@ -19,4 +19,8 @@ data class CreatePhoneNumber(
   @field:Size(max = 40)
   @field:NotNull
   val phoneNumber: String,
+
+  @Schema(description = "Phone number extension", example = "789")
+  @field:Size(max = 7)
+  val phoneNumberExtension: String? = null,
 )

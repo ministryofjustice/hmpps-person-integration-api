@@ -340,7 +340,8 @@ internal const val PHONE_NUMBERS =
       {
           "phoneId": 102,
           "number": "01234 567890",
-          "type": "BUS"
+          "type": "BUS",
+          "extension": "111"
       }
     ]
   """
@@ -351,7 +352,8 @@ internal const val PHONE_NUMBER =
     {
         "phoneId": 103,
         "number": "09876 543 210",
-        "type": "HOME"
+        "type": "HOME",
+        "extension": "321"
     }
   """
 
