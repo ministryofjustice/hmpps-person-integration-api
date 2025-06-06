@@ -31,7 +31,7 @@ class ContactsService(
         ContactResponseDto(
           contactId = body.emailAddressId,
           contactType = "EMAIL",
-          contactValue = body.emailAddress,
+          contactValue = body.email,
         )
       }
     } else {
@@ -79,7 +79,7 @@ class ContactsService(
         ContactResponseDto(
           email.emailAddressId,
           "EMAIL",
-          email.emailAddress,
+          email.email,
         ),
       )
     }
@@ -109,7 +109,7 @@ class ContactsService(
         ContactResponseDto(
           contactId = body.emailAddressId,
           contactType = "EMAIL",
-          contactValue = body.emailAddress,
+          contactValue = body.email,
         )
       }
     } else {

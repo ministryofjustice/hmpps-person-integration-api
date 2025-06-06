@@ -363,11 +363,11 @@ internal const val EMAIL_ADDRESSES =
     [
       {
           "emailAddressId": 201,
-          "emailAddress": "foo@bar.com"
+          "email": "foo@bar.com"
       },
       {
           "emailAddressId": 202,
-          "emailAddress": "bar@foo.com"
+          "email": "bar@foo.com"
       }
     ]
   """
@@ -377,7 +377,7 @@ internal const val EMAIL_ADDRESS =
   """
     {
         "emailAddressId": 203,
-        "emailAddress": "foo@bar.com"
+        "email": "foo@bar.com"
     }
   """
 
