@@ -79,7 +79,7 @@ class ContactsServiceTest {
       assertThat(responseBody[0].contactValue).isEqualTo(PRISON_PHONE_NUMBER_ONE.number)
       assertThat(responseBody[1].contactId).isEqualTo(PRISON_EMAIL_ADDRESS_ONE.emailAddressId)
       assertThat(responseBody[1].contactType).isEqualTo("EMAIL")
-      assertThat(responseBody[1].contactValue).isEqualTo(PRISON_EMAIL_ADDRESS_ONE.emailAddress)
+      assertThat(responseBody[1].contactValue).isEqualTo(PRISON_EMAIL_ADDRESS_ONE.email)
     }
 
     @Test
@@ -104,7 +104,7 @@ class ContactsServiceTest {
       assertThat(responseBody.size).isEqualTo(1)
       assertThat(responseBody[0].contactId).isEqualTo(PRISON_EMAIL_ADDRESS_ONE.emailAddressId)
       assertThat(responseBody[0].contactType).isEqualTo("EMAIL")
-      assertThat(responseBody[0].contactValue).isEqualTo(PRISON_EMAIL_ADDRESS_ONE.emailAddress)
+      assertThat(responseBody[0].contactValue).isEqualTo(PRISON_EMAIL_ADDRESS_ONE.email)
     }
 
     @Test
@@ -216,7 +216,7 @@ class ContactsServiceTest {
       val responseBody = response.body!!
       assertThat(responseBody.contactId).isEqualTo(PRISON_EMAIL_ADDRESS_ONE.emailAddressId)
       assertThat(responseBody.contactType).isEqualTo("EMAIL")
-      assertThat(responseBody.contactValue).isEqualTo(PRISON_EMAIL_ADDRESS_ONE.emailAddress)
+      assertThat(responseBody.contactValue).isEqualTo(PRISON_EMAIL_ADDRESS_ONE.email)
     }
 
     @Test
@@ -322,7 +322,7 @@ class ContactsServiceTest {
       val responseBody = response.body!!
       assertThat(responseBody.contactId).isEqualTo(PRISON_EMAIL_ADDRESS_ONE.emailAddressId)
       assertThat(responseBody.contactType).isEqualTo("EMAIL")
-      assertThat(responseBody.contactValue).isEqualTo(PRISON_EMAIL_ADDRESS_ONE.emailAddress)
+      assertThat(responseBody.contactValue).isEqualTo(PRISON_EMAIL_ADDRESS_ONE.email)
     }
 
     @Test
@@ -347,6 +347,6 @@ class ContactsServiceTest {
 
     val PRISON_PHONE_NUMBER_ONE =
       PhoneNumberPrisonDto(phoneId = 123L, number = "01234 567 890", type = "BUS", extension = "123")
-    val PRISON_EMAIL_ADDRESS_ONE = EmailAddressPrisonDto(emailAddressId = 321L, emailAddress = "prisoner@home.com")
+    val PRISON_EMAIL_ADDRESS_ONE = EmailAddressPrisonDto(emailAddressId = 321L, email = "prisoner@home.com")
   }
 }
