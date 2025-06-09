@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.service.annotation.GetExchange
@@ -14,6 +15,7 @@ import org.springframework.web.service.annotation.PostExchange
 import org.springframework.web.service.annotation.PutExchange
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateAlias
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateEmailAddress
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateIdentifier
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreatePhoneNumber
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.DistinguishingMarkCreateRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.DistinguishingMarkUpdateRequest
@@ -22,12 +24,14 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.P
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateAlias
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthCountry
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateIdentifier
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateReligion
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateSexualOrientation
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.CorePersonRecordAlias
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.DistinguishingMarkPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.EmailAddressPrisonDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.IdentifierPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.ImageDetailPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecordPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PhoneNumberPrisonDto
@@ -195,4 +199,23 @@ interface PrisonApiClient {
     @PathVariable emailAddressId: Long,
     @RequestBody request: CreateEmailAddress,
   ): ResponseEntity<EmailAddressPrisonDto>
+
+  @GetExchange("/offenders/{offenderNo}/offender-identifiers")
+  fun getAllIdentifiers(
+    @PathVariable offenderNo: String,
+    @RequestParam includeAliases: Boolean = true,
+  ): ResponseEntity<List<IdentifierPrisonDto>>
+
+  @PutExchange("/offenders/{offenderNo}/offender-identifiers/{seqId}")
+  fun updateIdentifier(
+    @PathVariable offenderNo: String,
+    @PathVariable seqId: Long,
+    @RequestBody request: UpdateIdentifier,
+  ): ResponseEntity<Void>
+
+  @PostExchange("/offenders/{offenderNo}/offender-identifiers")
+  fun addIdentifiers(
+    @PathVariable offenderNo: String,
+    @RequestBody request: List<CreateIdentifier>,
+  ): ResponseEntity<Void>
 }

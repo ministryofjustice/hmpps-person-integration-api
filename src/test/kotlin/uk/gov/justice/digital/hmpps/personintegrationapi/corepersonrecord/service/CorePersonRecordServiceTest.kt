@@ -22,10 +22,13 @@ import org.springframework.web.multipart.MultipartFile
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.DocumentApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.ReferenceDataClient
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateIdentifier
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.MilitaryRecordRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthCountry
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateIdentifier
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.IdentifierPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.ImageDetailPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecord
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecordPrisonDto
@@ -33,6 +36,8 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.VirusScanResult
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.VirusScanStatus
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.CreateIdentifierRequestDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.UpdateIdentifierRequestDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.BirthplaceUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.CountryOfBirthUpdateDto
@@ -260,25 +265,25 @@ class CorePersonRecordServiceTest {
 
   @Nested
   inner class UpdateNationality {
-    private val prisonerNumber = "A1234AA"
+    private val incomingRequest = UpdateNationality("BRIT", "French")
 
     @Test
     fun `can update the nationality field`() {
-      whenever(prisonApiClient.updateNationalityForWorkingName(PRISONER_NUMBER, UPDATE_NATIONALITY))
+      whenever(prisonApiClient.updateNationalityForWorkingName(PRISONER_NUMBER, incomingRequest))
         .thenReturn(ResponseEntity.noContent().build())
 
-      val response = underTest.updateNationality(PRISONER_NUMBER, UPDATE_NATIONALITY)
+      val response = underTest.updateNationality(PRISONER_NUMBER, incomingRequest)
       assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
     }
 
     @ParameterizedTest(name = "{0}")
     @ValueSource(ints = [400, 401, 403, 404, 422, 500])
     fun `propagates non-2xx status codes`(status: Int) {
-      whenever(prisonApiClient.updateNationalityForWorkingName(prisonerNumber, UPDATE_NATIONALITY)).thenReturn(
+      whenever(prisonApiClient.updateNationalityForWorkingName(PRISONER_NUMBER, incomingRequest)).thenReturn(
         ResponseEntity.status(status).build(),
       )
 
-      val response = underTest.updateNationality(prisonerNumber, UPDATE_NATIONALITY)
+      val response = underTest.updateNationality(PRISONER_NUMBER, incomingRequest)
       assertThat(response.statusCode.value()).isEqualTo(status)
     }
   }
@@ -345,6 +350,84 @@ class CorePersonRecordServiceTest {
     }
   }
 
+  @Nested
+  inner class UpdateExistingIdentifier {
+    private val idSeq = 1L
+    private val incomingRequest = UpdateIdentifierRequestDto("6697/56U", "Some comments")
+    private val prisonApiRequest = UpdateIdentifier("006697/56U", "Some comments")
+
+    @BeforeEach
+    fun setup() {
+      whenever(prisonApiClient.getAllIdentifiers(PRISONER_NUMBER))
+        .thenReturn(ResponseEntity.ok(listOf(IdentifierPrisonDto("CRO", "SF81/58924V", null, 1))))
+    }
+
+    @Test
+    fun `can update an existing identifier`() {
+      whenever(prisonApiClient.updateIdentifier(PRISONER_NUMBER, idSeq, prisonApiRequest))
+        .thenReturn(ResponseEntity.noContent().build())
+
+      val response = underTest.updateIdentifier(PRISONER_NUMBER, idSeq, incomingRequest)
+      assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(ints = [400, 401, 403, 404, 422, 500])
+    fun `propagates non-2xx status codes`(status: Int) {
+      whenever(prisonApiClient.updateIdentifier(PRISONER_NUMBER, idSeq, prisonApiRequest)).thenReturn(
+        ResponseEntity.status(status).build(),
+      )
+
+      val response = underTest.updateIdentifier(PRISONER_NUMBER, idSeq, incomingRequest)
+      assertThat(response.statusCode.value()).isEqualTo(status)
+    }
+  }
+
+  @Nested
+  inner class AddIdentifiers {
+    private val domain = "ID_TYPE"
+    private val incomingRequest = listOf(
+      CreateIdentifierRequestDto("CRO", "6697/56U", "Some comments"),
+      CreateIdentifierRequestDto("HOREF", "1234", "Some more comments"),
+    )
+    private val prisonApiRequest = listOf(
+      CreateIdentifier("CRO", "006697/56U", "Some comments"),
+      CreateIdentifier("HOREF", "1234", "Some more comments"),
+    )
+
+    @BeforeEach
+    fun setup() {
+      val referenceCodes = listOf(
+        ReferenceDataCode(domain, "CRO", "CRO", "Y", 1),
+        ReferenceDataCode(domain, "HOREF", "Home office reference", "Y", 2),
+      )
+      whenever(referenceDataClient.getReferenceDataByDomain(domain))
+        .thenReturn(ResponseEntity.ok(referenceCodes))
+      whenever(prisonApiClient.getAllIdentifiers(PRISONER_NUMBER))
+        .thenReturn(ResponseEntity.ok(listOf(IdentifierPrisonDto("CRO", "SF81/58924V", null, 1))))
+    }
+
+    @Test
+    fun `can add new identifiers`() {
+      whenever(prisonApiClient.addIdentifiers(PRISONER_NUMBER, prisonApiRequest))
+        .thenReturn(ResponseEntity.status(HttpStatus.CREATED).build())
+
+      val response = underTest.addIdentifiers(PRISONER_NUMBER, incomingRequest)
+      assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(ints = [400, 401, 403, 404, 422, 500])
+    fun `propagates non-2xx status codes`(status: Int) {
+      whenever(prisonApiClient.addIdentifiers(PRISONER_NUMBER, prisonApiRequest)).thenReturn(
+        ResponseEntity.status(status).build(),
+      )
+
+      val response = underTest.addIdentifiers(PRISONER_NUMBER, incomingRequest)
+      assertThat(response.statusCode.value()).isEqualTo(status)
+    }
+  }
+
   private companion object {
     const val PRISONER_NUMBER = "A1234AA"
     const val TEST_BIRTHPLACE_VALUE = "London"
@@ -372,8 +455,6 @@ class CorePersonRecordServiceTest {
       militaryBranchCode = "NAV",
       selectiveServicesFlag = false,
     )
-
-    val UPDATE_NATIONALITY = UpdateNationality("BRIT", "French")
 
     val DOCUMENT_API_VIRUS_SCAN_PASSED_RESPONSE = VirusScanResult(
       VirusScanStatus.PASSED,
