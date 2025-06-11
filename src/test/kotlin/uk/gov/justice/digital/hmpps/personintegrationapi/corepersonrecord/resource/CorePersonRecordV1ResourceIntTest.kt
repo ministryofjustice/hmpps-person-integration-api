@@ -14,8 +14,16 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.M
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePersonRecordRoleConstants
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.CreateIdentifierRequestDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.UpdateIdentifierRequestDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.DUPLICATE_IDENTIFIER_RESPONSE
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.EXISTING_IDENTIFIER_NOT_FOUND_RESPONSE
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.EXISTING_IDENTIFIER_SEQ
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.INVALID_IDENTIFIER_RESPONSE
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.INVALID_IDENTIFIER_TYPE_RESPONSE
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.NOT_FOUND_IDENTIFIER_SEQ
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER_NOT_FOUND
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISON_API_NOT_FOUND_RESPONSE
@@ -431,7 +439,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
         webTestClient.put().uri("/v1/core-person-record/nationality?prisonerNumber=$PRISONER_NUMBER")
           .contentType(MediaType.APPLICATION_JSON)
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
-          .bodyValue(CREATE_MILITARY_RECORD)
+          .bodyValue(UPDATE_NATIONALITY)
           .exchange()
           .expectStatus().isNoContent
       }
@@ -452,10 +460,208 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
 
       @Test
       fun `handles a 404 not found response from downstream api`() {
-        webTestClient.post().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER_NOT_FOUND")
+        webTestClient.put().uri("/v1/core-person-record/nationality?prisonerNumber=$PRISONER_NUMBER_NOT_FOUND")
           .contentType(MediaType.APPLICATION_JSON)
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
-          .bodyValue(CREATE_MILITARY_RECORD)
+          .bodyValue(UPDATE_NATIONALITY)
+          .exchange()
+          .expectStatus().isNotFound
+          .expectBody().json(PRISON_API_NOT_FOUND_RESPONSE.trimIndent())
+      }
+    }
+  }
+
+  @DisplayName("PUT v1/core-person-record/identifiers")
+  @Nested
+  inner class UpdateIdentifier {
+
+    @Nested
+    inner class Security {
+      @Test
+      fun `access forbidden when no authority`() {
+        webTestClient.put()
+          .uri("/v1/core-person-record/identifiers?prisonerNumber=$PRISONER_NUMBER&seqId=$EXISTING_IDENTIFIER_SEQ")
+          .contentType(MediaType.APPLICATION_JSON)
+          .bodyValue(UPDATE_IDENTIFIER)
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `access forbidden with wrong role`() {
+        webTestClient.put()
+          .uri("/v1/core-person-record/identifiers?prisonerNumber=$PRISONER_NUMBER&seqId=$EXISTING_IDENTIFIER_SEQ")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf("ROLE_IS_WRONG")))
+          .bodyValue(UPDATE_IDENTIFIER)
+          .exchange()
+          .expectStatus().isForbidden
+      }
+    }
+
+    @Nested
+    inner class HappyPath {
+
+      @Test
+      fun `update existing identifier`() {
+        webTestClient.put()
+          .uri("/v1/core-person-record/identifiers?prisonerNumber=$PRISONER_NUMBER&seqId=$EXISTING_IDENTIFIER_SEQ")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(UPDATE_IDENTIFIER)
+          .exchange()
+          .expectStatus().isNoContent
+      }
+    }
+
+    @Nested
+    inner class Validation {
+      @Test
+      fun `invalid identifier value`() {
+        webTestClient.put()
+          .uri("/v1/core-person-record/identifiers?prisonerNumber=$PRISONER_NUMBER&seqId=$EXISTING_IDENTIFIER_SEQ")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(UPDATE_IDENTIFIER_INVALID)
+          .exchange()
+          .expectStatus().isBadRequest
+          .expectBody().json(INVALID_IDENTIFIER_RESPONSE.trimIndent())
+      }
+
+      @Test
+      fun `duplicate identifier value`() {
+        webTestClient.put()
+          .uri("/v1/core-person-record/identifiers?prisonerNumber=$PRISONER_NUMBER&seqId=$EXISTING_IDENTIFIER_SEQ")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(UPDATE_IDENTIFIER_DUPLICATE)
+          .exchange()
+          .expectStatus().isBadRequest
+          .expectBody().json(DUPLICATE_IDENTIFIER_RESPONSE.trimIndent())
+      }
+    }
+
+    @Nested
+    inner class NotFound {
+
+      @Test
+      fun `Prisoner not found`() {
+        webTestClient.put()
+          .uri("/v1/core-person-record/identifiers?prisonerNumber=$PRISONER_NUMBER_NOT_FOUND&seqId=$EXISTING_IDENTIFIER_SEQ")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(UPDATE_IDENTIFIER)
+          .exchange()
+          .expectStatus().isNotFound
+          .expectBody().json(PRISON_API_NOT_FOUND_RESPONSE.trimIndent())
+      }
+
+      @Test
+      fun `Existing identifier not found`() {
+        webTestClient.put()
+          .uri("/v1/core-person-record/identifiers?prisonerNumber=$PRISONER_NUMBER&seqId=$NOT_FOUND_IDENTIFIER_SEQ")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(UPDATE_IDENTIFIER)
+          .exchange()
+          .expectStatus().isNotFound
+          .expectBody().json(EXISTING_IDENTIFIER_NOT_FOUND_RESPONSE.trimIndent())
+      }
+    }
+  }
+
+  @DisplayName("POST v1/core-person-record/identifiers")
+  @Nested
+  inner class AddIdentifiers {
+
+    @Nested
+    inner class Security {
+      @Test
+      fun `access forbidden when no authority`() {
+        webTestClient.post()
+          .uri("/v1/core-person-record/identifiers?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.APPLICATION_JSON)
+          .bodyValue(ADD_IDENTIFIERS)
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `access forbidden with wrong role`() {
+        webTestClient.post()
+          .uri("/v1/core-person-record/identifiers?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf("ROLE_IS_WRONG")))
+          .bodyValue(ADD_IDENTIFIERS)
+          .exchange()
+          .expectStatus().isForbidden
+      }
+    }
+
+    @Nested
+    inner class HappyPath {
+
+      @Test
+      fun `Add identifiers`() {
+        webTestClient.post()
+          .uri("/v1/core-person-record/identifiers?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(ADD_IDENTIFIERS)
+          .exchange()
+          .expectStatus().isCreated
+      }
+    }
+
+    @Nested
+    inner class Validation {
+      @Test
+      fun `invalid identifier value`() {
+        webTestClient.post()
+          .uri("/v1/core-person-record/identifiers?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(ADD_IDENTIFIERS_INVALID)
+          .exchange()
+          .expectStatus().isBadRequest
+          .expectBody().json(INVALID_IDENTIFIER_RESPONSE.trimIndent())
+      }
+
+      @Test
+      fun `invalid identifier type`() {
+        webTestClient.post()
+          .uri("/v1/core-person-record/identifiers?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(ADD_IDENTIFIERS_INVALID_TYPE)
+          .exchange()
+          .expectStatus().isBadRequest
+          .expectBody().json(INVALID_IDENTIFIER_TYPE_RESPONSE.trimIndent())
+      }
+
+      @Test
+      fun `duplicate identifier value`() {
+        webTestClient.post()
+          .uri("/v1/core-person-record/identifiers?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(ADD_IDENTIFIERS_DUPLICATE)
+          .exchange()
+          .expectStatus().isBadRequest
+          .expectBody().json(DUPLICATE_IDENTIFIER_RESPONSE.trimIndent())
+      }
+    }
+
+    @Nested
+    inner class NotFound {
+
+      @Test
+      fun `Prisoner not found`() {
+        webTestClient.post()
+          .uri("/v1/core-person-record/identifiers?prisonerNumber=$PRISONER_NUMBER_NOT_FOUND")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(ADD_IDENTIFIERS)
           .exchange()
           .expectStatus().isNotFound
           .expectBody().json(PRISON_API_NOT_FOUND_RESPONSE.trimIndent())
@@ -558,5 +764,26 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
     )
 
     val UPDATE_NATIONALITY = UpdateNationality("BRIT", "French")
+
+    val UPDATE_IDENTIFIER = UpdateIdentifierRequestDto("6697/56U", "Some comments")
+    val UPDATE_IDENTIFIER_INVALID = UpdateIdentifierRequestDto("BAD", "Some comments")
+    val UPDATE_IDENTIFIER_DUPLICATE = UpdateIdentifierRequestDto("42400/52A", "Some comments")
+
+    val ADD_IDENTIFIERS = listOf(
+      CreateIdentifierRequestDto("CRO", "6697/56U", "Some comments"),
+      CreateIdentifierRequestDto("PNC", "1992/0299695E", "Some more comments"),
+    )
+    val ADD_IDENTIFIERS_INVALID = listOf(
+      CreateIdentifierRequestDto("CRO", "BAD", "Some comments"),
+      CreateIdentifierRequestDto("PNC", "1992/0299695E", "Some more comments"),
+    )
+    val ADD_IDENTIFIERS_INVALID_TYPE = listOf(
+      CreateIdentifierRequestDto("MADEUP", "6697/56U", "Some comments"),
+      CreateIdentifierRequestDto("PNC", "1992/0299695E", "Some more comments"),
+    )
+    val ADD_IDENTIFIERS_DUPLICATE = listOf(
+      CreateIdentifierRequestDto("CRO", "42400/52A", "Some comments"),
+      CreateIdentifierRequestDto("PNC", "1992/0299695E", "Some more comments"),
+    )
   }
 }

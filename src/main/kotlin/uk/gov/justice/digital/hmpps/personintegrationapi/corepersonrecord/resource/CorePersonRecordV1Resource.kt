@@ -30,6 +30,8 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.P
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePersonRecordRoleConstants
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.CreateIdentifierRequestDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.UpdateIdentifierRequestDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.PhysicalAttributesDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.CorePersonRecordV1UpdateRequestDto
@@ -470,4 +472,103 @@ class CorePersonRecordV1Resource(
     @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
     @RequestBody(required = true) @Valid physicalAttributesRequest: PhysicalAttributesRequest,
   ): ResponseEntity<Void> = corePersonRecordService.updatePhysicalAttributes(prisonerNumber, physicalAttributesRequest)
+
+  @PutMapping("/identifiers")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(
+    summary = "Update an identifier for the given prisoner number and sequence id",
+    description = "Updates the identifier for the prisoner. " +
+      "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}`",
+    responses = [
+      ApiResponse(
+        responseCode = "204",
+        description = "Identifier successfully updated.",
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized to access this endpoint",
+        content = [
+          Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Missing required role. Requires ${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}",
+        content = [
+          Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Identifier not found",
+        content = [
+          Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
+  fun updateIdentifier(
+    @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
+    @RequestParam(required = true) seqId: Long,
+    @RequestBody(required = true) @Valid request: UpdateIdentifierRequestDto,
+  ): ResponseEntity<Void> = corePersonRecordService.updateIdentifier(prisonerNumber, seqId, request)
+
+  @PostMapping("/identifiers")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(
+    summary = "Adds one or more identifiers to the prisoner with the given prisoner number",
+    description = "Adds identifiers to the prisoner. " +
+      "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}`",
+    responses = [
+      ApiResponse(
+        responseCode = "201",
+        description = "Identifiers successfully added.",
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized to access this endpoint",
+        content = [
+          Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Missing required role. Requires ${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}",
+        content = [
+          Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Prisoner not found",
+        content = [
+          Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
+  fun addIdentifiers(
+    @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
+    @RequestBody(required = true) @Valid createRequests: List<CreateIdentifierRequestDto>,
+  ): ResponseEntity<Void> = corePersonRecordService.addIdentifiers(prisonerNumber, createRequests)
 }

@@ -19,6 +19,10 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.servlet.resource.NoResourceFoundException
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.DuplicateIdentifierException
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.IdentifierNotFoundException
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.InvalidIdentifierException
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.InvalidIdentifierTypeException
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.VirusScanException
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.VirusScanFailureException
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
@@ -157,6 +161,50 @@ class HmppsPersonIntegrationApiExceptionHandler {
         developerMessage = e.message,
       ),
     ).also { log.debug("Bad request (400) returned due to virus scan: {}", e.message) }
+
+  @ExceptionHandler(IdentifierNotFoundException::class)
+  fun handleIdentifierNotFoundException(e: IdentifierNotFoundException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(NOT_FOUND)
+    .body(
+      ErrorResponse(
+        status = NOT_FOUND,
+        userMessage = e.message,
+        developerMessage = e.message,
+      ),
+    ).also { log.debug("Not found (404) returned due to existing identifier not found: {}", e.message) }
+
+  @ExceptionHandler(InvalidIdentifierException::class)
+  fun handleInvalidIdentifierException(e: InvalidIdentifierException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(BAD_REQUEST)
+    .body(
+      ErrorResponse(
+        status = BAD_REQUEST,
+        userMessage = e.message,
+        developerMessage = e.message,
+      ),
+    ).also { log.debug("Bad request (400) returned due to invalid identifier value: {}", e.message) }
+
+  @ExceptionHandler(DuplicateIdentifierException::class)
+  fun handleDuplicateIdentifierException(e: DuplicateIdentifierException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(BAD_REQUEST)
+    .body(
+      ErrorResponse(
+        status = BAD_REQUEST,
+        userMessage = e.message,
+        developerMessage = e.message,
+      ),
+    ).also { log.debug("Bad request (400) returned due to duplicate identifier value: {}", e.message) }
+
+  @ExceptionHandler(InvalidIdentifierTypeException::class)
+  fun handleInvalidIdentifierTypeException(e: InvalidIdentifierTypeException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(BAD_REQUEST)
+    .body(
+      ErrorResponse(
+        status = BAD_REQUEST,
+        userMessage = e.message,
+        developerMessage = e.message,
+      ),
+    ).also { log.debug("Bad request (400) returned due to invalid identifier type value: {}", e.message) }
 
   @ExceptionHandler(Exception::class)
   fun handleException(e: Exception): ResponseEntity<ErrorResponse> = ResponseEntity

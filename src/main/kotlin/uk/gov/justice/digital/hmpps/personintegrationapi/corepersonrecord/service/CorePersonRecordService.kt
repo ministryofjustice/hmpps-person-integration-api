@@ -6,22 +6,33 @@ import org.springframework.web.multipart.MultipartFile
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.DocumentApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.ReferenceDataClient
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateIdentifier
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.MilitaryRecordRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.PhysicalAttributesRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthCountry
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateIdentifier
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateSexualOrientation
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.IdentifierPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.mapper.mapRefDataDescription
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.util.virusScan
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.CreateIdentifierRequestDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.UpdateIdentifierRequestDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.PhysicalAttributesDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.BirthplaceUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.CorePersonRecordV1UpdateRequestDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.CountryOfBirthUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.SexualOrientationUpdateDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.DuplicateIdentifierException
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.IdentifierNotFoundException
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.InvalidIdentifierException
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.InvalidIdentifierTypeException
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.exception.UnknownCorePersonFieldException
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.identifiers.CROIdentifier
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.identifiers.PNCIdentifier
 
 @Service
 class CorePersonRecordService(
@@ -111,7 +122,11 @@ class CorePersonRecordService(
     }
   }
 
-  fun updateMilitaryRecord(prisonerNumber: String, militarySeq: Int, militaryRecordRequest: MilitaryRecordRequest): ResponseEntity<Void> = prisonApiClient.updateMilitaryRecord(prisonerNumber, militarySeq, militaryRecordRequest)
+  fun updateMilitaryRecord(
+    prisonerNumber: String,
+    militarySeq: Int,
+    militaryRecordRequest: MilitaryRecordRequest,
+  ): ResponseEntity<Void> = prisonApiClient.updateMilitaryRecord(prisonerNumber, militarySeq, militaryRecordRequest)
 
   fun createMilitaryRecord(prisonerNumber: String, militaryRecordRequest: MilitaryRecordRequest): ResponseEntity<Void> = prisonApiClient.createMilitaryRecord(prisonerNumber, militaryRecordRequest)
 
@@ -139,7 +154,10 @@ class CorePersonRecordService(
     return ResponseEntity.ok(mappedResponse)
   }
 
-  fun updatePhysicalAttributes(prisonerNumber: String, physicalAttributesRequest: PhysicalAttributesRequest): ResponseEntity<Void> = prisonApiClient.updatePhysicalAttributes(prisonerNumber, physicalAttributesRequest)
+  fun updatePhysicalAttributes(
+    prisonerNumber: String,
+    physicalAttributesRequest: PhysicalAttributesRequest,
+  ): ResponseEntity<Void> = prisonApiClient.updatePhysicalAttributes(prisonerNumber, physicalAttributesRequest)
 
   fun updateProfileImage(file: MultipartFile, prisonerNumber: String): ResponseEntity<Void> {
     virusScan(file, documentApiClient)
@@ -150,6 +168,111 @@ class CorePersonRecordService(
     return ResponseEntity.noContent().build()
   }
 
+  fun addIdentifiers(prisonerNumber: String, createRequests: List<CreateIdentifierRequestDto>): ResponseEntity<Void> {
+    val idTypesResponse = referenceDataClient.getReferenceDataByDomain(ID_TYPE)
+    if (idTypesResponse.statusCode.isError) {
+      return ResponseEntity.status(idTypesResponse.statusCode).build()
+    }
+    val activeIdTypes = idTypesResponse.body
+      ?.filter { it.activeFlag == "Y" }
+      ?.map { it.code }
+      ?: emptyList()
+
+    val identifiersResponse = prisonApiClient.getAllIdentifiers(prisonerNumber)
+    if (identifiersResponse.statusCode.isError) {
+      return ResponseEntity.status(identifiersResponse.statusCode).build()
+    }
+    val existingIdentifiers = identifiersResponse.body
+      ?.groupBy(keySelector = { it.type }, valueTransform = { convertIdToCanonicalForm(it.value, it.type) })
+      ?: mapOf()
+
+    val mappedRequests = createRequests.map {
+      CreateIdentifier(
+        identifierType = it.type,
+        identifier = convertIdToCanonicalForm(it.value, it.type),
+        issuedAuthorityText = it.comments,
+      )
+    }.onEach {
+      it.validate(prisonerNumber, existingIdentifiers, activeIdTypes)
+    }
+
+    val response = prisonApiClient.addIdentifiers(
+      prisonerNumber,
+      mappedRequests,
+    )
+    return ResponseEntity.status(response.statusCode).build()
+  }
+
+  fun updateIdentifier(
+    prisonerNumber: String,
+    id: Long,
+    updateRequest: UpdateIdentifierRequestDto,
+  ): ResponseEntity<Void> {
+    val identifiersResponse = prisonApiClient.getAllIdentifiers(prisonerNumber)
+    if (identifiersResponse.statusCode.isError) {
+      return ResponseEntity.status(identifiersResponse.statusCode).build()
+    }
+
+    val identifierType = identifiersResponse.body
+      ?.firstOrNull { it.offenderIdSeq == id }
+      ?.type
+      ?: throw IdentifierNotFoundException(prisonerNumber, id)
+
+    val request = UpdateIdentifier(
+      identifier = convertIdToCanonicalForm(updateRequest.value, identifierType),
+      issuedAuthorityText = updateRequest.comments,
+    ).also { it.validate(prisonerNumber, identifierType, id, identifiersResponse.body) }
+
+    val response = prisonApiClient.updateIdentifier(
+      prisonerNumber,
+      id,
+      request,
+    )
+    return ResponseEntity.status(response.statusCode).build()
+  }
+
+  private fun convertIdToCanonicalForm(value: String, type: String): String = when (type) {
+    "PNC" -> PNCIdentifier.from(value).pncId
+    "CRO" -> CROIdentifier.from(value).croId
+    else -> value
+  }
+
+  private fun CreateIdentifier.validate(prisonerNumber: String, existingIdentifiers: Map<String, List<String>>, activeTypes: List<String>) {
+    if (!activeTypes.contains(this.identifierType)) {
+      throw InvalidIdentifierTypeException(this.identifierType)
+    }
+
+    if (this.identifier.isEmpty()) {
+      throw InvalidIdentifierException(this.identifierType)
+    }
+
+    if (
+      existingIdentifiers.containsKey(this.identifierType) &&
+      existingIdentifiers[this.identifierType]?.contains(this.identifier) == true
+    ) {
+      throw DuplicateIdentifierException(prisonerNumber, this.identifierType)
+    }
+  }
+
+  private fun UpdateIdentifier.validate(
+    prisonerNumber: String,
+    type: String,
+    id: Long,
+    existingIdentifiers: List<IdentifierPrisonDto>?,
+  ) {
+    if (this.identifier.isEmpty()) {
+      throw InvalidIdentifierException(type)
+    }
+
+    if (existingIdentifiers
+        ?.filter { it.type == type && it.offenderIdSeq != id }
+        ?.map { convertIdToCanonicalForm(it.value, type) }
+        ?.any { it == this.identifier } == true
+    ) {
+      throw DuplicateIdentifierException(prisonerNumber, type)
+    }
+  }
+
   companion object {
     val excludedCodes = setOf(
       Pair("FACIAL_HAIR", "NA"),
@@ -157,11 +280,6 @@ class CorePersonRecordService(
       Pair("R_EYE_C", "MISSING"),
     )
 
-    const val HAIR = "HAIR"
-    const val FACIAL_HAIR = "FACIAL_HAIR"
-    const val FACE = "FACE"
-    const val BUILD = "BUILD"
-    const val L_EYE_C = "L_EYE_C"
-    const val R_EYE_C = "R_EYE_C"
+    const val ID_TYPE = "ID_TYPE"
   }
 }

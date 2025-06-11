@@ -385,6 +385,91 @@ internal const val EMAIL_ADDRESS =
 
 internal const val EMAIL_ADDRESS_ID = 203
 
+internal const val EXISTING_IDENTIFIER_SEQ = 1
+internal const val NOT_FOUND_IDENTIFIER_SEQ = 99
+
+internal const val IDENTIFIER_TYPE_REFERENCE_CODES =
+  // language=json
+  """
+  [
+    {
+      "domain": "ID_TYPE",
+      "code": "PNC",
+      "description": "PNC",
+      "activeFlag": "Y",
+      "listSeq": 99,
+      "subCodes": []
+    },
+    {
+      "domain": "ID_TYPE",
+      "code": "CRO",
+      "description": "CRO",
+      "activeFlag": "Y",
+      "listSeq": 99,
+      "subCodes": []
+    }
+  ]
+  """
+
+internal const val IDENTIFIERS_RESPONSE =
+  // language=json
+  """
+  [
+    {
+      "type": "CRO",
+      "value": "097501/98T",
+      "issuedAuthorityText": "comment",
+      "offenderIdSeq": 1
+    },
+    {
+      "type": "CRO",
+      "value": "42400/52A",
+      "issuedAuthorityText": "comment",
+      "offenderIdSeq": 2
+    }
+  ]
+  """
+
+internal const val EXISTING_IDENTIFIER_NOT_FOUND_RESPONSE =
+  // language=json
+  """
+  {
+    "status": 404,
+    "userMessage": "An existing identifier for prisoner $PRISONER_NUMBER with id $NOT_FOUND_IDENTIFIER_SEQ was not found",
+    "developerMessage": "An existing identifier for prisoner $PRISONER_NUMBER with id $NOT_FOUND_IDENTIFIER_SEQ was not found"
+  }
+  """
+
+internal const val INVALID_IDENTIFIER_RESPONSE =
+  // language=json
+  """
+  {
+    "status": 400,
+    "userMessage": "An invalid CRO identifier value was provided",
+    "developerMessage": "An invalid CRO identifier value was provided"
+  }
+  """
+
+internal const val INVALID_IDENTIFIER_TYPE_RESPONSE =
+  // language=json
+  """
+  {
+    "status": 400,
+    "userMessage": "Identifier type MADEUP is invalid",
+    "developerMessage": "Identifier type MADEUP is invalid"
+  }
+  """
+
+internal const val DUPLICATE_IDENTIFIER_RESPONSE =
+  // language=json
+  """
+  {
+    "status": 400,
+    "userMessage": "Prisoner $PRISONER_NUMBER already has a CRO identifier with the same value",
+    "developerMessage": "Prisoner $PRISONER_NUMBER already has a CRO identifier with the same value"
+  }
+  """
+
 class PrisonApiMockServer : WireMockServer(8082) {
   fun stubHealthPing(status: Int) {
     stubFor(
@@ -790,6 +875,38 @@ class PrisonApiMockServer : WireMockServer(8082) {
       ),
     )
   }
+
+  fun stubIdentifiersEndpoints() {
+    val endpoint = "offender-identifiers"
+
+    stubReferenceDataCodes("ID_TYPE", IDENTIFIER_TYPE_REFERENCE_CODES)
+
+    // GET
+    stubOffenderGetEndpoint(endpoint, HttpStatus.OK, PRISONER_NUMBER, IDENTIFIERS_RESPONSE.trimIndent())
+    stubOffenderGetEndpoint(endpoint, HttpStatus.NOT_FOUND, PRISONER_NUMBER_NOT_FOUND, PRISON_API_NOT_FOUND_RESPONSE)
+
+    // POST
+    stubOffenderPostEndpoint(endpoint, HttpStatus.CREATED, PRISONER_NUMBER)
+    stubOffenderPostEndpoint(endpoint, HttpStatus.INTERNAL_SERVER_ERROR, PRISONER_NUMBER_THROW_EXCEPTION)
+    stubOffenderPostEndpoint(endpoint, HttpStatus.NOT_FOUND, PRISONER_NUMBER_NOT_FOUND)
+
+    // PUT
+    stubOffenderPutEndpoint("$endpoint/$EXISTING_IDENTIFIER_SEQ", HttpStatus.NO_CONTENT, PRISONER_NUMBER)
+    stubOffenderPutEndpoint("$endpoint/$EXISTING_IDENTIFIER_SEQ", HttpStatus.INTERNAL_SERVER_ERROR, PRISONER_NUMBER_THROW_EXCEPTION)
+    stubOffenderPutEndpoint(
+      "$endpoint/$EXISTING_IDENTIFIER_SEQ",
+      HttpStatus.NOT_FOUND,
+      PRISONER_NUMBER_NOT_FOUND,
+      PRISON_API_NOT_FOUND_RESPONSE.trimIndent(),
+    )
+
+    stubOffenderPutEndpoint(
+      "$endpoint/$NOT_FOUND_IDENTIFIER_SEQ",
+      HttpStatus.NOT_FOUND,
+      PRISONER_NUMBER,
+      PRISON_API_NOT_FOUND_RESPONSE.trimIndent(),
+    )
+  }
 }
 
 class PrisonApiExtension :
@@ -831,6 +948,7 @@ class PrisonApiExtension :
 
     prisonApi.stubUpdatePrisonerProfileImage()
     prisonApi.stubContactEndpoints()
+    prisonApi.stubIdentifiersEndpoints()
   }
 
   override fun afterAll(context: ExtensionContext): Unit = prisonApi.stop()
