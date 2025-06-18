@@ -518,10 +518,10 @@ class CorePersonRecordV1Resource(
   )
   @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun updateIdentifier(
-    @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
+    @RequestParam(required = true) offenderId: Long,
     @RequestParam(required = true) seqId: Long,
     @RequestBody(required = true) @Valid request: UpdateIdentifierRequestDto,
-  ): ResponseEntity<Void> = corePersonRecordService.updateIdentifier(prisonerNumber, seqId, request)
+  ): ResponseEntity<Void> = corePersonRecordService.updateIdentifier(offenderId, seqId, request)
 
   @PostMapping("/identifiers")
   @ResponseStatus(HttpStatus.NO_CONTENT)

@@ -141,6 +141,11 @@ interface PrisonApiClient {
     @PathVariable markId: Int,
   ): ResponseEntity<DistinguishingMarkPrisonDto>
 
+  @GetExchange("/aliases/{offenderId}")
+  fun getAlias(
+    @PathVariable offenderId: Long,
+  ): ResponseEntity<CorePersonRecordAlias>
+
   @GetExchange("/offenders/{offenderNo}/aliases")
   fun getAliases(
     @PathVariable offenderNo: String,
@@ -206,9 +211,9 @@ interface PrisonApiClient {
     @RequestParam includeAliases: Boolean = true,
   ): ResponseEntity<List<IdentifierPrisonDto>>
 
-  @PutExchange("/offenders/{offenderNo}/offender-identifiers/{seqId}")
+  @PutExchange("/aliases/{offenderId}/offender-identifiers/{seqId}")
   fun updateIdentifier(
-    @PathVariable offenderNo: String,
+    @PathVariable offenderId: Long,
     @PathVariable seqId: Long,
     @RequestBody request: UpdateIdentifier,
   ): ResponseEntity<Void>
