@@ -293,6 +293,7 @@ internal val IMAGE = "image".toByteArray()
 
 internal const val OFFENDER_ID = "12345"
 internal const val OFFENDER_ID_NOT_FOUND = "54321"
+internal const val OFFENDER_ID_THROW_EXCEPTION = "99999"
 internal const val ALIAS_RESPONSE =
   // language=json
   """
@@ -435,8 +436,8 @@ internal const val EXISTING_IDENTIFIER_NOT_FOUND_RESPONSE =
   """
   {
     "status": 404,
-    "userMessage": "An existing identifier for prisoner $PRISONER_NUMBER with id $NOT_FOUND_IDENTIFIER_SEQ was not found",
-    "developerMessage": "An existing identifier for prisoner $PRISONER_NUMBER with id $NOT_FOUND_IDENTIFIER_SEQ was not found"
+    "userMessage": "An existing identifier for alias (offenderId) $OFFENDER_ID with id $NOT_FOUND_IDENTIFIER_SEQ was not found",
+    "developerMessage": "An existing identifier for alias (offenderId) $OFFENDER_ID with id $NOT_FOUND_IDENTIFIER_SEQ was not found"
   }
   """
 
@@ -705,6 +706,23 @@ class PrisonApiMockServer : WireMockServer(8082) {
     )
   }
 
+  fun stubGetAlias() {
+    stubFor(
+      get(urlPathMatching("/api/aliases/$OFFENDER_ID")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.OK.value())
+          .withBody(ALIAS_RESPONSE.trimIndent()),
+      ),
+    )
+    stubFor(
+      get(urlPathMatching("/api/aliases/$OFFENDER_ID_NOT_FOUND")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.NOT_FOUND.value())
+          .withBody(PRISON_API_NOT_FOUND_RESPONSE),
+      ),
+    )
+  }
+
   fun stubGetAliases() {
     stubFor(
       get(urlPathMatching("/api/offenders/$PRISONER_NUMBER/aliases")).willReturn(
@@ -881,30 +899,39 @@ class PrisonApiMockServer : WireMockServer(8082) {
 
     stubReferenceDataCodes("ID_TYPE", IDENTIFIER_TYPE_REFERENCE_CODES)
 
-    // GET
     stubOffenderGetEndpoint(endpoint, HttpStatus.OK, PRISONER_NUMBER, IDENTIFIERS_RESPONSE.trimIndent())
     stubOffenderGetEndpoint(endpoint, HttpStatus.NOT_FOUND, PRISONER_NUMBER_NOT_FOUND, PRISON_API_NOT_FOUND_RESPONSE)
 
-    // POST
     stubOffenderPostEndpoint(endpoint, HttpStatus.CREATED, PRISONER_NUMBER)
     stubOffenderPostEndpoint(endpoint, HttpStatus.INTERNAL_SERVER_ERROR, PRISONER_NUMBER_THROW_EXCEPTION)
     stubOffenderPostEndpoint(endpoint, HttpStatus.NOT_FOUND, PRISONER_NUMBER_NOT_FOUND)
 
     // PUT
-    stubOffenderPutEndpoint("$endpoint/$EXISTING_IDENTIFIER_SEQ", HttpStatus.NO_CONTENT, PRISONER_NUMBER)
-    stubOffenderPutEndpoint("$endpoint/$EXISTING_IDENTIFIER_SEQ", HttpStatus.INTERNAL_SERVER_ERROR, PRISONER_NUMBER_THROW_EXCEPTION)
-    stubOffenderPutEndpoint(
-      "$endpoint/$EXISTING_IDENTIFIER_SEQ",
-      HttpStatus.NOT_FOUND,
-      PRISONER_NUMBER_NOT_FOUND,
-      PRISON_API_NOT_FOUND_RESPONSE.trimIndent(),
+    stubFor(
+      put(urlPathMatching("/api/aliases/$OFFENDER_ID/$endpoint/$EXISTING_IDENTIFIER_SEQ")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.NO_CONTENT.value()),
+      ),
     )
-
-    stubOffenderPutEndpoint(
-      "$endpoint/$NOT_FOUND_IDENTIFIER_SEQ",
-      HttpStatus.NOT_FOUND,
-      PRISONER_NUMBER,
-      PRISON_API_NOT_FOUND_RESPONSE.trimIndent(),
+    stubFor(
+      put(urlPathMatching("/api/aliases/$OFFENDER_ID_THROW_EXCEPTION/$endpoint/$EXISTING_IDENTIFIER_SEQ")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value()),
+      ),
+    )
+    stubFor(
+      put(urlPathMatching("/api/aliases/$OFFENDER_ID_NOT_FOUND/$endpoint/$EXISTING_IDENTIFIER_SEQ")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.NOT_FOUND.value())
+          .withBody(PRISON_API_NOT_FOUND_RESPONSE.trimIndent()),
+      ),
+    )
+    stubFor(
+      put(urlPathMatching("/api/aliases/$OFFENDER_ID/$endpoint/$NOT_FOUND_IDENTIFIER_SEQ")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.NOT_FOUND.value())
+          .withBody(PRISON_API_NOT_FOUND_RESPONSE.trimIndent()),
+      ),
     )
   }
 }
@@ -942,6 +969,7 @@ class PrisonApiExtension :
     prisonApi.stubUpdateDistinguishingMarkImage()
     prisonApi.stubAddDistinguishingMarkImage()
 
+    prisonApi.stubGetAlias()
     prisonApi.stubGetAliases()
     prisonApi.stubCreateAlias()
     prisonApi.stubUpdateAlias()

@@ -24,6 +24,8 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.EX
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.INVALID_IDENTIFIER_RESPONSE
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.INVALID_IDENTIFIER_TYPE_RESPONSE
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.NOT_FOUND_IDENTIFIER_SEQ
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.OFFENDER_ID
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.OFFENDER_ID_NOT_FOUND
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER_NOT_FOUND
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISON_API_NOT_FOUND_RESPONSE
@@ -480,7 +482,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
       @Test
       fun `access forbidden when no authority`() {
         webTestClient.put()
-          .uri("/v1/core-person-record/identifiers?prisonerNumber=$PRISONER_NUMBER&seqId=$EXISTING_IDENTIFIER_SEQ")
+          .uri("/v1/core-person-record/identifiers?offenderId=$OFFENDER_ID&seqId=$EXISTING_IDENTIFIER_SEQ")
           .contentType(MediaType.APPLICATION_JSON)
           .bodyValue(UPDATE_IDENTIFIER)
           .exchange()
@@ -490,7 +492,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
       @Test
       fun `access forbidden with wrong role`() {
         webTestClient.put()
-          .uri("/v1/core-person-record/identifiers?prisonerNumber=$PRISONER_NUMBER&seqId=$EXISTING_IDENTIFIER_SEQ")
+          .uri("/v1/core-person-record/identifiers?offenderId=$OFFENDER_ID&seqId=$EXISTING_IDENTIFIER_SEQ")
           .contentType(MediaType.APPLICATION_JSON)
           .headers(setAuthorisation(roles = listOf("ROLE_IS_WRONG")))
           .bodyValue(UPDATE_IDENTIFIER)
@@ -505,7 +507,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
       @Test
       fun `update existing identifier`() {
         webTestClient.put()
-          .uri("/v1/core-person-record/identifiers?prisonerNumber=$PRISONER_NUMBER&seqId=$EXISTING_IDENTIFIER_SEQ")
+          .uri("/v1/core-person-record/identifiers?offenderId=$OFFENDER_ID&seqId=$EXISTING_IDENTIFIER_SEQ")
           .contentType(MediaType.APPLICATION_JSON)
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
           .bodyValue(UPDATE_IDENTIFIER)
@@ -519,7 +521,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
       @Test
       fun `invalid identifier value`() {
         webTestClient.put()
-          .uri("/v1/core-person-record/identifiers?prisonerNumber=$PRISONER_NUMBER&seqId=$EXISTING_IDENTIFIER_SEQ")
+          .uri("/v1/core-person-record/identifiers?offenderId=$OFFENDER_ID&seqId=$EXISTING_IDENTIFIER_SEQ")
           .contentType(MediaType.APPLICATION_JSON)
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
           .bodyValue(UPDATE_IDENTIFIER_INVALID)
@@ -531,7 +533,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
       @Test
       fun `duplicate identifier value`() {
         webTestClient.put()
-          .uri("/v1/core-person-record/identifiers?prisonerNumber=$PRISONER_NUMBER&seqId=$EXISTING_IDENTIFIER_SEQ")
+          .uri("/v1/core-person-record/identifiers?offenderId=$OFFENDER_ID&seqId=$EXISTING_IDENTIFIER_SEQ")
           .contentType(MediaType.APPLICATION_JSON)
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
           .bodyValue(UPDATE_IDENTIFIER_DUPLICATE)
@@ -547,7 +549,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
       @Test
       fun `Prisoner not found`() {
         webTestClient.put()
-          .uri("/v1/core-person-record/identifiers?prisonerNumber=$PRISONER_NUMBER_NOT_FOUND&seqId=$EXISTING_IDENTIFIER_SEQ")
+          .uri("/v1/core-person-record/identifiers?offenderId=$OFFENDER_ID_NOT_FOUND&seqId=$EXISTING_IDENTIFIER_SEQ")
           .contentType(MediaType.APPLICATION_JSON)
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
           .bodyValue(UPDATE_IDENTIFIER)
@@ -559,7 +561,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
       @Test
       fun `Existing identifier not found`() {
         webTestClient.put()
-          .uri("/v1/core-person-record/identifiers?prisonerNumber=$PRISONER_NUMBER&seqId=$NOT_FOUND_IDENTIFIER_SEQ")
+          .uri("/v1/core-person-record/identifiers?offenderId=$OFFENDER_ID&seqId=$NOT_FOUND_IDENTIFIER_SEQ")
           .contentType(MediaType.APPLICATION_JSON)
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
           .bodyValue(UPDATE_IDENTIFIER)

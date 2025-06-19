@@ -12,6 +12,7 @@ import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.mock
 import org.mockito.kotlin.reset
 import org.mockito.kotlin.whenever
 import org.springframework.http.HttpStatus
@@ -28,6 +29,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.U
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateIdentifier
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.CorePersonRecordAlias
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.IdentifierPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.ImageDetailPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecord
@@ -135,7 +137,6 @@ class CorePersonRecordServiceTest {
 
   @Nested
   inner class GetMilitaryRecords {
-    private val prisonerNumber = "A1234AA"
     private val militaryRecordsPrisonDto = MilitaryRecordPrisonDto(
       militaryRecords = listOf(
         MilitaryRecord(
@@ -189,11 +190,11 @@ class CorePersonRecordServiceTest {
 
     @Test
     fun `can retrieve military records`() {
-      whenever(prisonApiClient.getMilitaryRecords(prisonerNumber)).thenReturn(
+      whenever(prisonApiClient.getMilitaryRecords(PRISONER_NUMBER)).thenReturn(
         ResponseEntity.ok(militaryRecordsPrisonDto),
       )
 
-      val response = underTest.getMilitaryRecords(prisonerNumber)
+      val response = underTest.getMilitaryRecords(PRISONER_NUMBER)
       assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
       assertThat(response.body).isEqualTo(militaryRecords)
     }
@@ -201,64 +202,61 @@ class CorePersonRecordServiceTest {
     @ParameterizedTest(name = "{0}")
     @ValueSource(ints = [400, 401, 403, 404, 422, 500])
     fun `propagates non-2xx status codes`(status: Int) {
-      whenever(prisonApiClient.getMilitaryRecords(prisonerNumber)).thenReturn(
+      whenever(prisonApiClient.getMilitaryRecords(PRISONER_NUMBER)).thenReturn(
         ResponseEntity.status(status).build(),
       )
 
-      val response = underTest.getMilitaryRecords(prisonerNumber)
+      val response = underTest.getMilitaryRecords(PRISONER_NUMBER)
       assertThat(response.statusCode.value()).isEqualTo(status)
     }
   }
 
   @Nested
   inner class MilitaryRecordRequest {
-    private val prisonerNumber = "A1234AA"
-
     @Test
     fun `can create military records`() {
-      whenever(prisonApiClient.createMilitaryRecord(prisonerNumber, CREATE_MILITARY_RECORD)).thenReturn(
+      whenever(prisonApiClient.createMilitaryRecord(PRISONER_NUMBER, CREATE_MILITARY_RECORD)).thenReturn(
         ResponseEntity.status(HttpStatus.CREATED).build(),
       )
 
-      val response = underTest.createMilitaryRecord(prisonerNumber, CREATE_MILITARY_RECORD)
+      val response = underTest.createMilitaryRecord(PRISONER_NUMBER, CREATE_MILITARY_RECORD)
       assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
     }
 
     @ParameterizedTest(name = "{0}")
     @ValueSource(ints = [400, 401, 403, 404, 422, 500])
     fun `propagates non-2xx status codes`(status: Int) {
-      whenever(prisonApiClient.createMilitaryRecord(prisonerNumber, CREATE_MILITARY_RECORD)).thenReturn(
+      whenever(prisonApiClient.createMilitaryRecord(PRISONER_NUMBER, CREATE_MILITARY_RECORD)).thenReturn(
         ResponseEntity.status(status).build(),
       )
 
-      val response = underTest.createMilitaryRecord(prisonerNumber, CREATE_MILITARY_RECORD)
+      val response = underTest.createMilitaryRecord(PRISONER_NUMBER, CREATE_MILITARY_RECORD)
       assertThat(response.statusCode.value()).isEqualTo(status)
     }
   }
 
   @Nested
   inner class UpdateMilitaryRecord {
-    private val prisonerNumber = "A1234AA"
     private val militarySeq = 1
 
     @Test
     fun `can update military records`() {
-      whenever(prisonApiClient.updateMilitaryRecord(prisonerNumber, militarySeq, UPDATE_MILITARY_RECORD)).thenReturn(
+      whenever(prisonApiClient.updateMilitaryRecord(PRISONER_NUMBER, militarySeq, UPDATE_MILITARY_RECORD)).thenReturn(
         ResponseEntity.noContent().build(),
       )
 
-      val response = underTest.updateMilitaryRecord(prisonerNumber, militarySeq, UPDATE_MILITARY_RECORD)
+      val response = underTest.updateMilitaryRecord(PRISONER_NUMBER, militarySeq, UPDATE_MILITARY_RECORD)
       assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
     }
 
     @ParameterizedTest(name = "{0}")
     @ValueSource(ints = [400, 401, 403, 404, 422, 500])
     fun `propagates non-2xx status codes`(status: Int) {
-      whenever(prisonApiClient.updateMilitaryRecord(prisonerNumber, militarySeq, UPDATE_MILITARY_RECORD)).thenReturn(
+      whenever(prisonApiClient.updateMilitaryRecord(PRISONER_NUMBER, militarySeq, UPDATE_MILITARY_RECORD)).thenReturn(
         ResponseEntity.status(status).build(),
       )
 
-      val response = underTest.updateMilitaryRecord(prisonerNumber, militarySeq, UPDATE_MILITARY_RECORD)
+      val response = underTest.updateMilitaryRecord(PRISONER_NUMBER, militarySeq, UPDATE_MILITARY_RECORD)
       assertThat(response.statusCode.value()).isEqualTo(status)
     }
   }
@@ -360,25 +358,29 @@ class CorePersonRecordServiceTest {
     fun setup() {
       whenever(prisonApiClient.getAllIdentifiers(PRISONER_NUMBER))
         .thenReturn(ResponseEntity.ok(listOf(IdentifierPrisonDto("CRO", "SF81/58924V", null, 1))))
+
+      val aliasMock: CorePersonRecordAlias = mock()
+      whenever(aliasMock.prisonerNumber).thenReturn(PRISONER_NUMBER)
+      whenever(prisonApiClient.getAlias(OFFENDER_ID)).thenReturn(ResponseEntity.ok(aliasMock))
     }
 
     @Test
     fun `can update an existing identifier`() {
-      whenever(prisonApiClient.updateIdentifier(PRISONER_NUMBER, idSeq, prisonApiRequest))
+      whenever(prisonApiClient.updateIdentifier(OFFENDER_ID, idSeq, prisonApiRequest))
         .thenReturn(ResponseEntity.noContent().build())
 
-      val response = underTest.updateIdentifier(PRISONER_NUMBER, idSeq, incomingRequest)
+      val response = underTest.updateIdentifier(OFFENDER_ID, idSeq, incomingRequest)
       assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
     }
 
     @ParameterizedTest(name = "{0}")
     @ValueSource(ints = [400, 401, 403, 404, 422, 500])
     fun `propagates non-2xx status codes`(status: Int) {
-      whenever(prisonApiClient.updateIdentifier(PRISONER_NUMBER, idSeq, prisonApiRequest)).thenReturn(
+      whenever(prisonApiClient.updateIdentifier(OFFENDER_ID, idSeq, prisonApiRequest)).thenReturn(
         ResponseEntity.status(status).build(),
       )
 
-      val response = underTest.updateIdentifier(PRISONER_NUMBER, idSeq, incomingRequest)
+      val response = underTest.updateIdentifier(OFFENDER_ID, idSeq, incomingRequest)
       assertThat(response.statusCode.value()).isEqualTo(status)
     }
   }
@@ -430,6 +432,7 @@ class CorePersonRecordServiceTest {
 
   private companion object {
     const val PRISONER_NUMBER = "A1234AA"
+    const val OFFENDER_ID = 1L
     const val TEST_BIRTHPLACE_VALUE = "London"
     const val TEST_COUNTRY_OF_BIRTH_VALUE = "ENG"
     val TEST_BIRTHPLACE_BODY = UpdateBirthPlace("London")
