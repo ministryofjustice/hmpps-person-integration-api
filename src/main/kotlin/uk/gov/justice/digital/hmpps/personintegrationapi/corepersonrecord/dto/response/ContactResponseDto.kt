@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 
-@Schema(description = "Contact response object containing phone number or email contact details for a person.")
+@Schema(description = "Contact response object containing phone number or email contact details.")
 data class ContactResponseDto(
 
   @Schema(

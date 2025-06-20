@@ -28,6 +28,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.U
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateReligion
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateSexualOrientation
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.AddressPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.CorePersonRecordAlias
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.DistinguishingMarkPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.EmailAddressPrisonDto
@@ -223,4 +224,7 @@ interface PrisonApiClient {
     @PathVariable offenderNo: String,
     @RequestBody request: List<CreateIdentifier>,
   ): ResponseEntity<Void>
+
+  @GetExchange("/offenders/{offenderNo}/addresses")
+  fun getAddresses(@PathVariable offenderNo: String): ResponseEntity<List<AddressPrisonDto>>
 }
