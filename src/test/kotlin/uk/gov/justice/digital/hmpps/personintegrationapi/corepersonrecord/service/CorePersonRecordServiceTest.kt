@@ -357,7 +357,7 @@ class CorePersonRecordServiceTest {
     @BeforeEach
     fun setup() {
       whenever(prisonApiClient.getAllIdentifiers(PRISONER_NUMBER))
-        .thenReturn(ResponseEntity.ok(listOf(IdentifierPrisonDto("CRO", "SF81/58924V", null, 1))))
+        .thenReturn(ResponseEntity.ok(listOf(IdentifierPrisonDto("CRO", "SF81/58924V", null, 1, 1))))
 
       val aliasMock: CorePersonRecordAlias = mock()
       whenever(aliasMock.prisonerNumber).thenReturn(PRISONER_NUMBER)
@@ -406,7 +406,7 @@ class CorePersonRecordServiceTest {
       whenever(referenceDataClient.getReferenceDataByDomain(domain))
         .thenReturn(ResponseEntity.ok(referenceCodes))
       whenever(prisonApiClient.getAllIdentifiers(PRISONER_NUMBER))
-        .thenReturn(ResponseEntity.ok(listOf(IdentifierPrisonDto("CRO", "SF81/58924V", null, 1))))
+        .thenReturn(ResponseEntity.ok(listOf(IdentifierPrisonDto("CRO", "SF81/58924V", null, 1, 1))))
     }
 
     @Test

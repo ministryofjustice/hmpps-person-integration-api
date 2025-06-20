@@ -4,5 +4,6 @@ data class IdentifierPrisonDto(
   val type: String,
   val value: String,
   val issuedAuthorityText: String?,
+  val offenderId: Long,
   val offenderIdSeq: Long,
 )

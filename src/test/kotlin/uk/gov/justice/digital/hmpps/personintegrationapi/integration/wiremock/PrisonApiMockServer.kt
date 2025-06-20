@@ -420,15 +420,29 @@ internal const val IDENTIFIERS_RESPONSE =
       "type": "CRO",
       "value": "097501/98T",
       "issuedAuthorityText": "comment",
+      "offenderId": 12345,
       "offenderIdSeq": 1
     },
     {
       "type": "CRO",
       "value": "42400/52A",
       "issuedAuthorityText": "comment",
+      "offenderId": 12345,
       "offenderIdSeq": 2
     }
   ]
+  """
+
+internal const val IDENTIFIER_RESPONSE =
+  // language=json
+  """
+  {
+    "type": "NINO",
+    "value": "AB123456C",
+    "issuedAuthorityText": "comment",
+    "offenderId": 12345,
+    "offenderIdSeq": 1
+  }
   """
 
 internal const val EXISTING_IDENTIFIER_NOT_FOUND_RESPONSE =
@@ -905,6 +919,15 @@ class PrisonApiMockServer : WireMockServer(8082) {
     stubOffenderPostEndpoint(endpoint, HttpStatus.CREATED, PRISONER_NUMBER)
     stubOffenderPostEndpoint(endpoint, HttpStatus.INTERNAL_SERVER_ERROR, PRISONER_NUMBER_THROW_EXCEPTION)
     stubOffenderPostEndpoint(endpoint, HttpStatus.NOT_FOUND, PRISONER_NUMBER_NOT_FOUND)
+
+    // GET
+    stubFor(
+      get(urlPathMatching("/api/aliases/$OFFENDER_ID/$endpoint/$EXISTING_IDENTIFIER_SEQ")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.OK.value())
+          .withBody(IDENTIFIER_RESPONSE),
+      ),
+    )
 
     // PUT
     stubFor(
