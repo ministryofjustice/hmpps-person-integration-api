@@ -220,14 +220,14 @@ class CorePersonRecordService(
     }
 
     val identifierType = identifiersResponse.body
-      ?.firstOrNull { it.offenderIdSeq == id }
+      ?.firstOrNull { it.offenderId == offenderId && it.offenderIdSeq == id }
       ?.type
       ?: throw IdentifierNotFoundException(offenderId, id)
 
     val request = UpdateIdentifier(
       identifier = convertIdToCanonicalForm(updateRequest.value, identifierType),
       issuedAuthorityText = updateRequest.comments,
-    ).also { it.validate(prisonerNumber, identifierType, id, identifiersResponse.body) }
+    ).also { it.validate(prisonerNumber, identifierType, offenderId, id, identifiersResponse.body) }
 
     val response = prisonApiClient.updateIdentifier(
       offenderId,
@@ -263,6 +263,7 @@ class CorePersonRecordService(
   private fun UpdateIdentifier.validate(
     prisonerNumber: String,
     type: String,
+    offenderId: Long,
     id: Long,
     existingIdentifiers: List<IdentifierPrisonDto>?,
   ) {
@@ -271,7 +272,7 @@ class CorePersonRecordService(
     }
 
     if (existingIdentifiers
-        ?.filter { it.type == type && it.offenderIdSeq != id }
+        ?.filter { it.type == type && !(it.offenderId == offenderId && it.offenderIdSeq == id) }
         ?.map { convertIdToCanonicalForm(it.value, type) }
         ?.any { it == this.identifier } == true
     ) {
