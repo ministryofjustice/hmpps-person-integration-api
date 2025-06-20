@@ -71,7 +71,7 @@ data class AddressResponseDto(
     description = "Country",
     nullable = false,
   )
-  val country: ReferenceDataValue,
+  val country: ReferenceDataValue? = null,
 
   @Schema(description = "Postcode", example = "A123BC", nullable = true)
   val postCode: String? = null,
@@ -81,7 +81,7 @@ data class AddressResponseDto(
     example = "2025-01-01",
     nullable = false,
   )
-  val fromDate: LocalDate,
+  val fromDate: LocalDate? = null,
 
   @Schema(
     description = "Date address is in use to.",
@@ -109,4 +109,17 @@ data class AddressResponseDto(
     nullable = true,
   )
   val primaryAddress: Boolean? = null,
+
+  @Schema(
+    description = "User entered comment describing the address",
+    example = "Some comment",
+    nullable = true,
+  )
+  val comment: String? = null,
+
+  @Schema(
+    description = "Phone numbers associated directly with the address",
+    nullable = false,
+  )
+  @field:NotNull val addressPhoneNumbers: Collection<ContactResponseDto>,
 )
