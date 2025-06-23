@@ -50,7 +50,7 @@ class ContactsService(
           contactId = body.phoneId,
           contactType = body.type,
           contactValue = body.number,
-          contactPhoneExtension = body.extension,
+          contactPhoneExtension = body.ext,
         )
       }
     }
@@ -72,7 +72,7 @@ class ContactsService(
         number.phoneId,
         number.type,
         number.number,
-        number.extension,
+        number.ext,
       )
     }.toMutableList()
 
@@ -131,7 +131,7 @@ class ContactsService(
           contactId = body.phoneId,
           contactType = body.type,
           contactValue = body.number,
-          contactPhoneExtension = body.extension,
+          contactPhoneExtension = body.ext,
         )
       }
     }
