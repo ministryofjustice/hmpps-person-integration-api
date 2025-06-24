@@ -228,7 +228,7 @@ class HmppsPersonIntegrationApiExceptionHandler {
             status = LOCKED,
             userMessage = "Resource locked: ${e.message}",
             developerMessage = e.message,
-          )
+          ),
         )
     } else {
       ResponseEntity
