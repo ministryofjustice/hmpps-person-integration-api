@@ -219,23 +219,21 @@ class HmppsPersonIntegrationApiExceptionHandler {
     ).also { log.error("Unexpected exception", e) }
 
   @ExceptionHandler(WebClientResponseException::class)
-  fun handleException(e: WebClientResponseException): ResponseEntity<ErrorResponse> {
-    return if (e.statusCode == LOCKED) {
-      ResponseEntity
-        .status(LOCKED)
-        .body(
-          ErrorResponse(
-            status = LOCKED,
-            userMessage = "Resource locked: ${e.message}",
-            developerMessage = e.message,
-          ),
-        )
-    } else {
-      ResponseEntity
-        .status(e.statusCode)
-        .body(e.getResponseBodyAs(ErrorResponse::class.java))
-        .also { log.debug("Exception during call to client", e) }
-    }
+  fun handleException(e: WebClientResponseException): ResponseEntity<ErrorResponse> = if (e.statusCode == LOCKED) {
+    ResponseEntity
+      .status(LOCKED)
+      .body(
+        ErrorResponse(
+          status = LOCKED,
+          userMessage = "Resource locked: ${e.message}",
+          developerMessage = e.message,
+        ),
+      )
+  } else {
+    ResponseEntity
+      .status(e.statusCode)
+      .body(e.getResponseBodyAs(ErrorResponse::class.java))
+      .also { log.debug("Exception during call to client", e) }
   }
 
   private companion object {
