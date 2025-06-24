@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
+import org.springframework.http.HttpStatus.LOCKED
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -218,11 +219,24 @@ class HmppsPersonIntegrationApiExceptionHandler {
     ).also { log.error("Unexpected exception", e) }
 
   @ExceptionHandler(WebClientResponseException::class)
-  fun handleException(e: WebClientResponseException): ResponseEntity<ErrorResponse> = ResponseEntity
-    .status(e.statusCode)
-    .body(
-      e.getResponseBodyAs(ErrorResponse::class.java),
-    ).also { log.debug("Exception during call to client", e) }
+  fun handleException(e: WebClientResponseException): ResponseEntity<ErrorResponse> {
+    return if (e.statusCode == LOCKED) {
+      ResponseEntity
+        .status(LOCKED)
+        .body(
+          ErrorResponse(
+            status = LOCKED,
+            userMessage = "Resource locked: ${e.message}",
+            developerMessage = e.message,
+          )
+        )
+    } else {
+      ResponseEntity
+        .status(e.statusCode)
+        .body(e.getResponseBodyAs(ErrorResponse::class.java))
+        .also { log.debug("Exception during call to client", e) }
+    }
+  }
 
   private companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
