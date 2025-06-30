@@ -6,16 +6,22 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.reset
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateEmailAddress
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreatePhoneNumber
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.EmailAddressPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PhoneNumberPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.ContactRequestDto
@@ -162,20 +168,21 @@ class ContactsServiceTest {
 
     @Nested
     inner class Validations {
-      @Test
-      fun `Phone - Does not allow a phone number longer than 40 characters`() {
-        val phoneNumber = "1".repeat(41)
-        val response =
-          underTest.createContact(PERSON_ID, ContactRequestDto(contactType = "MOB", contactValue = phoneNumber))
-        assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-      }
+      @ParameterizedTest
+      @MethodSource("uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.service.ContactsServiceTest#validationTestCases")
+      fun `Phone and email validations`(type: String, value: String, extensionValue: String?, valid: Boolean) {
+        stubEmail(ResponseEntity.ok(PRISON_EMAIL_ADDRESS_ONE))
+        stubPhone(ResponseEntity.ok(PRISON_PHONE_NUMBER_ONE))
 
-      @Test
-      fun `Email - Does not allow a phone number longer than 240 characters`() {
-        val emailAddress = "1".repeat(241)
-        val response =
-          underTest.createContact(PERSON_ID, ContactRequestDto(contactType = "EMAIL", contactValue = emailAddress))
-        assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        val response = underTest.createContact(
+          PERSON_ID,
+          ContactRequestDto(contactType = type, contactValue = value, contactPhoneExtension = extensionValue),
+        )
+        if (valid) {
+          assertThat(response.statusCode.is2xxSuccessful).isTrue()
+        } else {
+          assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        }
       }
     }
 
@@ -184,7 +191,17 @@ class ContactsServiceTest {
       stubPhone(ResponseEntity.ok(PRISON_PHONE_NUMBER_ONE))
 
       val response =
-        underTest.createContact(PERSON_ID, ContactRequestDto(contactType = "MOB", contactValue = "01234321"))
+        underTest.createContact(
+          PERSON_ID,
+          ContactRequestDto(contactType = "MOB", contactValue = "01234321", contactPhoneExtension = "1234"),
+        )
+
+      verify(
+        prisonApiClient,
+      ).createPhoneNumber(
+        PERSON_ID,
+        CreatePhoneNumber("MOB", "01234321", "1234"),
+      )
 
       assertThat(response.statusCode.is2xxSuccessful).isTrue()
 
@@ -211,6 +228,13 @@ class ContactsServiceTest {
 
       val response =
         underTest.createContact(PERSON_ID, ContactRequestDto(contactType = "EMAIL", contactValue = "prisoner@home.com"))
+
+      verify(
+        prisonApiClient,
+      ).createEmailAddress(
+        PERSON_ID,
+        CreateEmailAddress("prisoner@home.com"),
+      )
 
       assertThat(response.statusCode.is2xxSuccessful).isTrue()
       val responseBody = response.body!!
@@ -250,28 +274,27 @@ class ContactsServiceTest {
 
     @Nested
     inner class Validations {
-      @Test
-      fun `Phone - Does not allow a phone number longer than 40 characters`() {
-        val phoneNumber = "1".repeat(41)
-        val response =
-          underTest.updateContact(
-            PERSON_ID,
-            PHONE_NUMBER_ID,
-            ContactRequestDto(contactType = "MOB", contactValue = phoneNumber),
-          )
-        assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-      }
+      @ParameterizedTest
+      @MethodSource("uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.service.ContactsServiceTest#validationTestCases")
+      fun `Phone and email validations`(type: String, value: String, extensionValue: String?, valid: Boolean) {
+        val contactId = if (type == "EMAIL") {
+          stubEmail(ResponseEntity.ok(PRISON_EMAIL_ADDRESS_ONE))
+          EMAIL_ADDRESS_ID
+        } else {
+          stubPhone(ResponseEntity.ok(PRISON_PHONE_NUMBER_ONE))
+          PHONE_NUMBER_ID
+        }
 
-      @Test
-      fun `Email - Does not allow a phone number longer than 240 characters`() {
-        val emailAddress = "1".repeat(241)
-        val response =
-          underTest.updateContact(
-            PERSON_ID,
-            EMAIL_ADDRESS_ID,
-            ContactRequestDto(contactType = "EMAIL", contactValue = emailAddress),
-          )
-        assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        val response = underTest.updateContact(
+          PERSON_ID,
+          contactId,
+          ContactRequestDto(contactType = type, contactValue = value, contactPhoneExtension = extensionValue),
+        )
+        if (valid) {
+          assertThat(response.statusCode.is2xxSuccessful).isTrue()
+        } else {
+          assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        }
       }
     }
 
@@ -282,10 +305,18 @@ class ContactsServiceTest {
       val response = underTest.updateContact(
         PERSON_ID,
         PHONE_NUMBER_ID,
-        ContactRequestDto(contactType = "MOB", contactValue = "01234321"),
+        ContactRequestDto(contactType = "MOB", contactValue = "01234321", contactPhoneExtension = "1234"),
       )
 
       assertThat(response.statusCode.is2xxSuccessful).isTrue()
+
+      verify(
+        prisonApiClient,
+      ).updatePhoneNumber(
+        PERSON_ID,
+        PHONE_NUMBER_ID,
+        CreatePhoneNumber("MOB", "01234321", "1234"),
+      )
 
       val responseBody = response.body!!
       assertThat(responseBody.contactId).isEqualTo(PRISON_PHONE_NUMBER_ONE.phoneId)
@@ -297,12 +328,11 @@ class ContactsServiceTest {
     fun `Phone - returns the status from the API when it returns unsuccessful`() {
       stubPhone(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build())
 
-      val response =
-        underTest.updateContact(
-          PERSON_ID,
-          PHONE_NUMBER_ID,
-          ContactRequestDto(contactType = "MOB", contactValue = "01234321"),
-        )
+      val response = underTest.updateContact(
+        PERSON_ID,
+        PHONE_NUMBER_ID,
+        ContactRequestDto(contactType = "MOB", contactValue = "01234321"),
+      )
 
       assertThat(response.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
     }
@@ -317,6 +347,14 @@ class ContactsServiceTest {
         ContactRequestDto(contactType = "EMAIL", contactValue = "foo@bar.com"),
       )
 
+      verify(
+        prisonApiClient,
+      ).updateEmailAddress(
+        PERSON_ID,
+        EMAIL_ADDRESS_ID,
+        CreateEmailAddress("foo@bar.com"),
+      )
+
       assertThat(response.statusCode.is2xxSuccessful).isTrue()
 
       val responseBody = response.body!!
@@ -329,12 +367,11 @@ class ContactsServiceTest {
     fun `Email - returns the status from the API when it returns unsuccessful`() {
       stubEmail(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build())
 
-      val response =
-        underTest.updateContact(
-          PERSON_ID,
-          EMAIL_ADDRESS_ID,
-          ContactRequestDto(contactType = "EMAIL", contactValue = "foo@bar.com"),
-        )
+      val response = underTest.updateContact(
+        PERSON_ID,
+        EMAIL_ADDRESS_ID,
+        ContactRequestDto(contactType = "EMAIL", contactValue = "foo@bar.com"),
+      )
 
       assertThat(response.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
     }
@@ -348,5 +385,20 @@ class ContactsServiceTest {
     val PRISON_PHONE_NUMBER_ONE =
       PhoneNumberPrisonDto(phoneId = 123L, number = "01234 567 890", type = "BUS", ext = "123")
     val PRISON_EMAIL_ADDRESS_ONE = EmailAddressPrisonDto(emailAddressId = 321L, email = "prisoner@home.com")
+
+    @JvmStatic
+    fun validationTestCases(): List<Arguments> = listOf(
+      // Emails
+      Arguments.of("EMAIL", "1".repeat(241), null, false),
+      Arguments.of("EMAIL", "1".repeat(240), null, true),
+
+      // Phones without extensions
+      Arguments.of("MOB", "1".repeat(41), null, false),
+      Arguments.of("MOB", "1".repeat(40), null, true),
+
+      // Phones with extensions
+      Arguments.of("MOB", "1".repeat(40), "1".repeat(8), false),
+      Arguments.of("MOB", "1".repeat(40), "1".repeat(7), true),
+    )
   }
 }
