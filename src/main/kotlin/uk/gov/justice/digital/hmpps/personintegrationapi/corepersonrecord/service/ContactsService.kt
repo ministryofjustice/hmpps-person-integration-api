@@ -40,6 +40,7 @@ class ContactsService(
         CreatePhoneNumber(
           phoneNumberType = contactRequest.contactType,
           phoneNumber = contactRequest.contactValue,
+          phoneNumberExtension = contactRequest.contactPhoneExtension,
         ),
       )
 
@@ -121,6 +122,7 @@ class ContactsService(
         CreatePhoneNumber(
           phoneNumberType = contactRequest.contactType,
           phoneNumber = contactRequest.contactValue,
+          phoneNumberExtension = contactRequest.contactPhoneExtension,
         ),
       )
 
@@ -142,6 +144,14 @@ class ContactsService(
   private fun isValidContact(request: ContactRequestDto): Boolean = if (request.contactType == "EMAIL") {
     request.contactValue.length <= 240
   } else {
-    request.contactValue.length <= 40
+    if (request.contactValue.length > 40) {
+      false
+    } else {
+      if (request.contactPhoneExtension.isNullOrEmpty()) {
+        true
+      } else {
+        request.contactPhoneExtension.length <= 7
+      }
+    }
   }
 }

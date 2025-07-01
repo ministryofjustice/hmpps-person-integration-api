@@ -25,4 +25,11 @@ data class ContactRequestDto(
   @field:NotNull
   @field:NotBlank
   val contactValue: String,
+
+  @Schema(
+    description = "Contact phone extension. This is only used when creating a contact with a type other than 'EMAIL'.",
+    example = "1234",
+  )
+  @field:Size(max = 7)
+  val contactPhoneExtension: String? = null,
 )
