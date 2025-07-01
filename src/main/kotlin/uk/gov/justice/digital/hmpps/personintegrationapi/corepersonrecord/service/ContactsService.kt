@@ -40,7 +40,7 @@ class ContactsService(
         CreatePhoneNumber(
           phoneNumberType = contactRequest.contactType,
           phoneNumber = contactRequest.contactValue,
-          phoneNumberExtension = contactRequest.contactPhoneExtension,
+          extension = contactRequest.contactPhoneExtension,
         ),
       )
 
@@ -122,7 +122,7 @@ class ContactsService(
         CreatePhoneNumber(
           phoneNumberType = contactRequest.contactType,
           phoneNumber = contactRequest.contactValue,
-          phoneNumberExtension = contactRequest.contactPhoneExtension,
+          extension = contactRequest.contactPhoneExtension,
         ),
       )
 
