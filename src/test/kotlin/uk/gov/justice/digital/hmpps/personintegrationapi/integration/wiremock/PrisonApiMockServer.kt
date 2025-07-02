@@ -485,47 +485,51 @@ internal const val DUPLICATE_IDENTIFIER_RESPONSE =
   }
   """
 
+internal const val ADDRESS =
+  //language=json
+  """
+    {
+      "addressId": 123,
+      "flat": "1",
+      "premise": "The Building",
+      "street": "The Road",
+      "locality": "The Locality",
+      "town": "My Town",
+      "townCode": "TOWN1",
+      "county": "My County",
+      "countyCode": "COUNTY1",
+      "country": "My Country",
+      "countryCode": "COUNTRY1",
+      "postalCode": "A1 2BC",
+      "primary": true,
+      "mail": true,
+      "noFixedAddress": true,
+      "comment": "Some comment",
+      "startDate": "2021-01-02",
+      "endDate": "2022-03-04",
+      "phones": [
+        {
+          "phoneId": 111,
+          "number": "012345678",
+          "type": "HOME",
+          "ext": "567"
+        }
+      ],
+      "addressUsages": [
+        {
+          "addressId": 222,
+          "addressUsage": "HOME",
+          "addressUsageDescription": "Home",
+          "activeFlag": true
+        }
+      ]
+    }
+  """
+
 internal const val ADDRESSES =
   //language=json
   """
-    [
-      {
-        "addressId": 123,
-        "flat": "1",
-        "premise": "The Building",
-        "street": "The Road",
-        "locality": "The Locality",
-        "town": "My Town",
-        "townCode": "TOWN1",
-        "county": "My County",
-        "countyCode": "COUNTY1",
-        "country": "My Country",
-        "countryCode": "COUNTRY1",
-        "postalCode": "A1 2BC",
-        "primary": true,
-        "mail": true,
-        "noFixedAddress": true,
-        "comment": "Some comment",
-        "startDate": "2021-01-02",
-        "endDate": "2022-03-04",
-        "phones": [
-          {
-            "phoneId": 111,
-            "number": "012345678",
-            "type": "HOME",
-            "ext": "567"
-          }
-        ],
-        "addressUsages": [
-          {
-            "addressId": 222,
-            "addressUsage": "HOME",
-            "addressUsageDescription": "Home",
-            "activeFlag": true
-          }
-        ]
-      }
-    ]
+    [ $ADDRESS ]
   """
 
 class PrisonApiMockServer : WireMockServer(8082) {
@@ -958,6 +962,15 @@ class PrisonApiMockServer : WireMockServer(8082) {
         aResponse().withHeader("Content-Type", "application/json")
           .withStatus(HttpStatus.OK.value())
           .withBody(ADDRESSES.trimIndent()),
+      ),
+    )
+
+    // POST
+    stubFor(
+      post(urlPathMatching("/api/offenders/$PRISONER_NUMBER/addresses")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.OK.value())
+          .withBody(ADDRESS.trimIndent()),
       ),
     )
   }

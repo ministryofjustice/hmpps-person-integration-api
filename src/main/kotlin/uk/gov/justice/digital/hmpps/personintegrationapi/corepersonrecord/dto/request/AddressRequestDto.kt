@@ -20,7 +20,7 @@ data class AddressRequestDto(
   ) val noFixedAbode: Boolean? = null,
 
   @Schema(
-    description = "Building name",
+    description = "Building number",
     example = "1",
   ) @field:Size(max = 4) val buildingNumber: String? = null,
 
@@ -79,7 +79,7 @@ data class AddressRequestDto(
   @Schema(
     description = "Collection of address types applied to this address e.g. HOME (From ADDRESS_TYPE reference data).",
     requiredMode = REQUIRED,
-  ) @field:NotNull val addressTypes: Collection<String>,
+  ) @field:NotNull val addressTypes: Collection<String>? = emptyList(),
 
   @Schema(
     description = "Boolean indicating whether to use this as the postal address",
