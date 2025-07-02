@@ -13,6 +13,7 @@ import org.springframework.web.service.annotation.GetExchange
 import org.springframework.web.service.annotation.HttpExchange
 import org.springframework.web.service.annotation.PostExchange
 import org.springframework.web.service.annotation.PutExchange
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateAddress
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateAlias
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateEmailAddress
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateIdentifier
@@ -227,4 +228,10 @@ interface PrisonApiClient {
 
   @GetExchange("/offenders/{offenderNo}/addresses")
   fun getAddresses(@PathVariable offenderNo: String): ResponseEntity<List<AddressPrisonDto>>
+
+  @PostExchange("/offenders/{offenderNo}/addresses")
+  fun createAddress(
+    @PathVariable offenderNo: String,
+    @RequestBody request: CreateAddress,
+  ): ResponseEntity<AddressPrisonDto>
 }

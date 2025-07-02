@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.any
 import org.mockito.kotlin.reset
 import org.mockito.kotlin.whenever
 import org.springframework.http.HttpStatus
@@ -17,6 +18,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApi
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.AddressPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.AddressUsage
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.Telephone
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.AddressRequestDto
 import java.time.LocalDate
 
 @ExtendWith(MockitoExtension::class)
@@ -99,6 +101,35 @@ class AddressServiceTest {
 
       val response = underTest.getAddresses(PERSON_ID)
       assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_GATEWAY)
+    }
+  }
+
+  @Nested
+  inner class CreateAddress {
+    private fun stubAddressApi(address: ResponseEntity<AddressPrisonDto>) {
+      whenever(prisonApiClient.createAddress(PERSON_ID, any())).thenReturn(address)
+    }
+
+    @Test
+    fun `Creates and returns address`() {
+      stubAddressApi(ResponseEntity.ok(PRISON_ADDRESS_1))
+
+      val response =
+        underTest.createAddress(PERSON_ID, AddressRequestDto(countryCode = "ENG", fromDate = LocalDate.now()))
+
+      assertThat(response.statusCode.is2xxSuccessful).isTrue()
+      val responseBody = response.body!!
+      assertThat(responseBody.addressId).isEqualTo(PRISON_ADDRESS_1.addressId)
+    }
+
+    @Test
+    fun `Returns the status from the API when it returns unsuccessful`() {
+      stubAddressApi(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build())
+
+      val response =
+        underTest.createAddress(PERSON_ID, AddressRequestDto(countryCode = "ENG", fromDate = LocalDate.now()))
+
+      assertThat(response.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
     }
   }
 
