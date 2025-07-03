@@ -12,10 +12,12 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.reset
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateAddress
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.AddressPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.AddressUsage
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.Telephone
@@ -116,11 +118,69 @@ class AddressServiceTest {
       stubAddressApi(ResponseEntity.ok(PRISON_ADDRESS_1))
 
       val response =
-        underTest.createAddress(PERSON_ID, AddressRequestDto(countryCode = "ENG", fromDate = LocalDate.now()))
+        underTest.createAddress(
+          PERSON_ID,
+          AddressRequestDto(
+            buildingNumber = "1",
+            subBuildingName = "Flat 1",
+            buildingName = "The Building",
+            thoroughfareName = "The Road",
+            dependantLocality = "The Locality",
+            postTownCode = "TOWN1",
+            countyCode = "COUNTY1",
+            countryCode = "COUNTRY1",
+            postCode = "A1 2BC",
+            primaryAddress = true,
+            postalAddress = true,
+            noFixedAbode = true,
+            fromDate = LocalDate.parse("2021-01-01"),
+            toDate = LocalDate.parse("2022-02-02"),
+            addressTypes = listOf("HOME"),
+          ),
+        )
 
       assertThat(response.statusCode.is2xxSuccessful).isTrue()
-      val responseBody = response.body!!
-      assertThat(responseBody.addressId).isEqualTo(PRISON_ADDRESS_1.addressId)
+      assertThat(response.body!!.addressId).isEqualTo(PRISON_ADDRESS_1.addressId)
+
+      verify(prisonApiClient).createAddress(
+        PERSON_ID,
+        CreateAddress(
+          flat = "1",
+          premise = "Flat 1 The Building",
+          street = "The Road",
+          locality = "The Locality",
+          townCode = "TOWN1",
+          countyCode = "COUNTY1",
+          countryCode = "COUNTRY1",
+          postalCode = "A1 2BC",
+          primary = true,
+          mail = true,
+          noFixedAddress = true,
+          startDate = LocalDate.parse("2021-01-01"),
+          endDate = LocalDate.parse("2022-02-02"),
+          addressUsages = listOf("HOME"),
+        ),
+      )
+    }
+
+    @Test
+    fun `Handles null address fields correctly`() {
+      stubAddressApi(ResponseEntity.ok(PRISON_ADDRESS_1))
+
+      val response =
+        underTest.createAddress(PERSON_ID, AddressRequestDto(countryCode = "ENG", fromDate = LocalDate.parse("2021-01-01")))
+
+      assertThat(response.statusCode.is2xxSuccessful).isTrue()
+      assertThat(response.body!!.addressId).isEqualTo(PRISON_ADDRESS_1.addressId)
+
+      verify(prisonApiClient).createAddress(
+        PERSON_ID,
+        CreateAddress(
+          startDate = LocalDate.parse("2021-01-01"),
+          countryCode = "ENG",
+          addressUsages = emptyList(),
+        ),
+      )
     }
 
     @Test

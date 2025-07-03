@@ -45,22 +45,30 @@ class AddressService(
     addressRequestDto: AddressRequestDto,
   ): ResponseEntity<AddressResponseDto> = throw NotImplementedException("Address update is not yet implemented.")
 
-  private fun AddressRequestDto.toPrisonApiRequest() = CreateAddress(
-    noFixedAddress = this.noFixedAbode,
-    flat = this.buildingNumber,
-    premise = "${this.subBuildingName.let { "$it " }}${this.buildingName}",
-    street = this.thoroughfareName,
-    locality = this.dependantLocality,
-    townCode = this.postTownCode,
-    countyCode = this.countyCode,
-    countryCode = this.countryCode,
-    postalCode = this.postCode,
-    startDate = this.fromDate,
-    endDate = this.toDate,
-    addressUsages = this.addressTypes ?: emptyList(),
-    primary = this.primaryAddress,
-    mail = this.postalAddress,
-  )
+  private fun AddressRequestDto.toPrisonApiRequest(): CreateAddress {
+    val premise = if (subBuildingName == null && buildingName == null) {
+      null
+    } else {
+      "${this.subBuildingName?.let { "$it " }}${this.buildingName ?: ""}"
+    }
+
+    return CreateAddress(
+      noFixedAddress = noFixedAbode,
+      flat = buildingNumber,
+      premise = premise,
+      street = thoroughfareName,
+      locality = dependantLocality,
+      townCode = postTownCode,
+      countyCode = countyCode,
+      countryCode = countryCode,
+      postalCode = postCode,
+      startDate = fromDate,
+      endDate = toDate,
+      addressUsages = addressTypes ?: emptyList(),
+      primary = primaryAddress,
+      mail = postalAddress,
+    )
+  }
 
   private fun AddressPrisonDto.toAddressResponseDto(personId: String) = AddressResponseDto(
     addressId = this.addressId,
