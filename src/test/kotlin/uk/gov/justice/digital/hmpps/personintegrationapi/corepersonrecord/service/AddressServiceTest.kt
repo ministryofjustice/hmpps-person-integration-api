@@ -60,8 +60,8 @@ class AddressServiceTest {
       assertThat(responseBody[0].personId).isEqualTo(PERSON_ID)
       assertThat(responseBody[0].uprn).isNull()
       assertThat(responseBody[0].noFixedAbode).isTrue()
-      assertThat(responseBody[0].buildingNumber).isEqualTo(PRISON_ADDRESS_1.flat)
-      assertThat(responseBody[0].subBuildingName).isNull()
+      assertThat(responseBody[0].buildingNumber).isNull()
+      assertThat(responseBody[0].subBuildingName).isEqualTo(PRISON_ADDRESS_1.flat)
       assertThat(responseBody[0].buildingName).isEqualTo(PRISON_ADDRESS_1.premise)
       assertThat(responseBody[0].thoroughfareName).isEqualTo(PRISON_ADDRESS_1.street)
       assertThat(responseBody[0].dependantLocality).isEqualTo(PRISON_ADDRESS_1.locality)
@@ -145,8 +145,8 @@ class AddressServiceTest {
       verify(prisonApiClient).createAddress(
         PERSON_ID,
         CreateAddress(
-          flat = "1",
-          premise = "Flat 1 The Building",
+          flat = null,
+          premise = "Flat 1, The Building, 1",
           street = "The Road",
           locality = "The Locality",
           townCode = "TOWN1",
@@ -200,7 +200,7 @@ class AddressServiceTest {
     val PRISON_ADDRESS_1 = AddressPrisonDto(
       addressId = 123,
       addressType = null,
-      flat = "1",
+      flat = "Flat 1",
       premise = "The Building",
       street = "The Road",
       locality = "The Locality",
