@@ -46,15 +46,17 @@ class AddressService(
   ): ResponseEntity<AddressResponseDto> = throw NotImplementedException("Address update is not yet implemented.")
 
   private fun AddressRequestDto.toPrisonApiRequest(): CreateAddress {
-    val premise = if (subBuildingName == null && buildingName == null) {
-      null
-    } else {
-      "${this.subBuildingName?.let { "$it " }}${this.buildingName ?: ""}"
-    }
+    val premiseConstituents = listOf(
+      subBuildingName,
+      buildingName,
+      buildingNumber,
+    ).filter { !it.isNullOrBlank() }
+
+    val premise = premiseConstituents.joinToString(separator = ", ").ifBlank { null }
 
     return CreateAddress(
       noFixedAddress = noFixedAbode,
-      flat = buildingNumber,
+      flat = null,
       premise = premise,
       street = thoroughfareName,
       locality = dependantLocality,
@@ -75,8 +77,8 @@ class AddressService(
     personId = personId,
     uprn = null, // Not stored in NOMIS
     noFixedAbode = this.noFixedAddress,
-    buildingNumber = this.flat,
-    subBuildingName = null, // In NOMIS this is combined with buildingName and stored under 'premise'
+    subBuildingName = this.flat,
+    buildingNumber = null, // In NOMIS this is combined with buildingName and stored under 'premise'
     buildingName = this.premise,
     thoroughfareName = this.street,
     dependantLocality = this.locality,
