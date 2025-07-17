@@ -687,7 +687,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
       """
         {
           "fieldName": "BIRTHPLACE",
-          "value": null 
+          "value": null
         }
       """.trimIndent()
 
@@ -705,7 +705,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
       """
         {
           "fieldName": "COUNTRY_OF_BIRTH",
-          "value": null 
+          "value": null
         }
       """.trimIndent()
 
@@ -723,7 +723,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
       """
         {
           "fieldName": "SEXUAL_ORIENTATION",
-          "value": null 
+          "value": null
         }
       """.trimIndent()
 

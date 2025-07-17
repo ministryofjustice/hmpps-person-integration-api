@@ -11,9 +11,9 @@ Date: 2024-11-21
 
 ## Context
 
-The HMPPS Person integration API provides an interface to access data from two different domains. 
-The `Core Person Record` domain and the `Person Protected Characteristics` domain. These domains are 
-related but may be separated out into separate services in the future.  
+The HMPPS Person integration API provides an interface to access data from two different domains.
+The `Core Person Record` domain and the `Person Protected Characteristics` domain. These domains are
+related but may be separated out into separate services in the future.
 
 ## Decision
 
@@ -28,7 +28,7 @@ project/
 │   │   │   ├── common/                         # Common code shared across domains
 │   │   │   ├── corepersonrecord/               # Core person record package
 │   │   │   ├── personprotectedcharacteristics/ # Person protected characteristics package
-│   │   └── resources/                
+│   │   └── resources/
 ```
 
 ## Consequences

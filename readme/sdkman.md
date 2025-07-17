@@ -3,7 +3,7 @@
 
 ## sdkman
 
-It is recommended to use [sdkman](https://sdkman.io/) to ensure that you are running the same version of Java that is 
+It is recommended to use [sdkman](https://sdkman.io/) to ensure that you are running the same version of Java that is
 used in CI and in production.
 
 To do this on a mac:
