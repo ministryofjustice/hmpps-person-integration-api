@@ -358,10 +358,26 @@ class PseudonymV1ResourceIntTest : IntegrationTestBase() {
       middleName2 = MIDDLE_NAME_2,
       lastName = LAST_NAME,
       dateOfBirth = DATE_OF_BIRTH,
-      nameType = ReferenceDataValue("NAME_TYPE_$NAME_TYPE", NAME_TYPE, "Name type"),
-      title = ReferenceDataValue("TITLE_$TITLE", TITLE, "Title"),
-      sex = ReferenceDataValue("SEX_$SEX", SEX, "Sex"),
-      ethnicity = ReferenceDataValue("ETHNICITY_$ETHNICITY", ETHNICITY, "Ethnicity"),
+      nameType = ReferenceDataValue(
+//        "NAME_TYPE_$NAME_TYPE",
+        NAME_TYPE,
+        "Name type",
+      ),
+      title = ReferenceDataValue(
+//        "TITLE_$TITLE",
+        TITLE,
+        "Title",
+      ),
+      sex = ReferenceDataValue(
+//        "SEX_$SEX",
+        SEX,
+        "Sex",
+      ),
+      ethnicity = ReferenceDataValue(
+//        "ETHNICITY_$ETHNICITY",
+        ETHNICITY,
+        "Ethnicity",
+      ),
       isWorkingName = true,
     )
   }
