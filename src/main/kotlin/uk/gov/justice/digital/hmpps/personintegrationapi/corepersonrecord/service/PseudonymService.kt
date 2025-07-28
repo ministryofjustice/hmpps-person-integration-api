@@ -112,5 +112,9 @@ class PseudonymService(
     isWorkingName = isWorkingName,
   )
 
-  private fun CorePersonRecordReferenceDataValue.toReferenceDataValue() = ReferenceDataValue(id = "${domain}_$code", code, description)
+  private fun CorePersonRecordReferenceDataValue.toReferenceDataValue() = ReferenceDataValue(
+//    id = "${domain}_$code",
+    code,
+    description,
+  )
 }

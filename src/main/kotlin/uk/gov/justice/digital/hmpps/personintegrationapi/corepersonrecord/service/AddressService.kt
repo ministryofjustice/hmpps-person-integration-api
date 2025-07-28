@@ -84,21 +84,21 @@ class AddressService(
     dependantLocality = this.locality,
     postTown = this.townCode?.let {
       ReferenceDataValue(
-        id = "CITY_${this.townCode}",
+//        id = "CITY_${this.townCode}",
         code = this.townCode,
         description = this.town!!,
       )
     },
     county = this.countyCode?.let {
       ReferenceDataValue(
-        id = "COUNTY_${this.countyCode}",
+//        id = "COUNTY_${this.countyCode}",
         code = this.countyCode,
         description = this.county!!,
       )
     },
     country = this.countryCode?.let {
       ReferenceDataValue(
-        id = "COUNTRY_${this.countryCode}",
+//        id = "COUNTRY_${this.countryCode}",
         code = this.countryCode,
         description = this.country!!,
       )
@@ -110,7 +110,7 @@ class AddressService(
       AddressTypeDto(
         active = usage.activeFlag,
         addressUsageType = ReferenceDataValue(
-          id = "ADDRESS_TYPE_${usage.addressUsage}",
+//          id = "ADDRESS_TYPE_${usage.addressUsage}",
           code = usage.addressUsage,
           description = usage.addressUsageDescription,
         ),
