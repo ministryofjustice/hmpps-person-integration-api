@@ -12,7 +12,7 @@ data class ReferenceDataCode(
   val parentDomain: String? = null,
 ) {
   fun toReferenceDataValue(): ReferenceDataValue = ReferenceDataValue(
-//    id = "${domain}_$code",
+    id = "${domain}_$code",
     code = code,
     description = description,
   )
