@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import io.swagger.v3.oas.annotations.media.Schema
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataValue
 
 @JsonInclude(NON_NULL)
 @Schema(description = "Physical Attributes")
@@ -15,22 +14,22 @@ data class PhysicalAttributesPrisonDto(
   val weight: Int? = null,
 
   @Schema(description = "Hair type or colour")
-  val hair: ReferenceDataValue? = null,
+  val hair: ReferenceDataValuePrisonDto? = null,
 
   @Schema(description = "Facial hair type")
-  val facialHair: ReferenceDataValue? = null,
+  val facialHair: ReferenceDataValuePrisonDto? = null,
 
   @Schema(description = "Face shape")
-  val face: ReferenceDataValue? = null,
+  val face: ReferenceDataValuePrisonDto? = null,
 
   @Schema(description = "Build")
-  val build: ReferenceDataValue? = null,
+  val build: ReferenceDataValuePrisonDto? = null,
 
   @Schema(description = "Left eye colour")
-  val leftEyeColour: ReferenceDataValue? = null,
+  val leftEyeColour: ReferenceDataValuePrisonDto? = null,
 
   @Schema(description = "Right eye colour")
-  val rightEyeColour: ReferenceDataValue? = null,
+  val rightEyeColour: ReferenceDataValuePrisonDto? = null,
 
   @Schema(description = "Shoe size", example = "9")
   val shoeSize: String? = null,

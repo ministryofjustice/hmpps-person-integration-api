@@ -141,12 +141,12 @@ class CorePersonRecordService(
       PhysicalAttributesDto(
         height = body.height,
         weight = body.weight,
-        hair = body.hair,
-        facialHair = body.facialHair,
-        face = body.face,
-        build = body.build,
-        leftEyeColour = body.leftEyeColour,
-        rightEyeColour = body.rightEyeColour,
+        hair = body.hair?.toReferenceDataValue(),
+        facialHair = body.facialHair?.toReferenceDataValue(),
+        face = body.face?.toReferenceDataValue(),
+        build = body.build?.toReferenceDataValue(),
+        leftEyeColour = body.leftEyeColour?.toReferenceDataValue(),
+        rightEyeColour = body.rightEyeColour?.toReferenceDataValue(),
         shoeSize = body.shoeSize,
       )
     }
