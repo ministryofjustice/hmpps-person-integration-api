@@ -8,10 +8,10 @@ import io.swagger.v3.oas.annotations.media.Schema
 @JsonInclude(NON_NULL)
 data class ReferenceDataValue(
   @Schema(description = "Id", example = "id")
-  val id: String?,
+  val id: String,
 
   @Schema(description = "Code", example = "code")
-  val code: String?,
+  val code: String,
 
   @Schema(description = "Description of the reference data code", example = "Code description")
   val description: String,
