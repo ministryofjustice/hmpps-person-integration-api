@@ -32,16 +32,16 @@ import java.time.Duration
 
 @Configuration
 class WebClientConfiguration(
-  @Value("\${hmpps-auth.url}") private val authBaseUri: String,
-  @Value("\${hmpps-auth.health.timeout:20s}") private val authHealthTimeout: Duration,
+  @param:Value("\${hmpps-auth.url}") private val authBaseUri: String,
+  @param:Value("\${hmpps-auth.health.timeout:20s}") private val authHealthTimeout: Duration,
 
-  @Value("\${prison-api.base_url}") private val prisonApiBaseUri: String,
-  @Value("\${prison-api.health_timeout:20s}") private val prisonApiHealthTimeout: Duration,
-  @Value("\${prison-api.timeout:30s}") private val prisonApiTimeout: Duration,
+  @param:Value("\${prison-api.base_url}") private val prisonApiBaseUri: String,
+  @param:Value("\${prison-api.health_timeout:20s}") private val prisonApiHealthTimeout: Duration,
+  @param:Value("\${prison-api.timeout:30s}") private val prisonApiTimeout: Duration,
 
-  @Value("\${document-api.base_url}") private val documentApiBaseUri: String,
-  @Value("\${document-api.health_timeout:20s}") private val documentApiHealthTimeout: Duration,
-  @Value("\${document-api.timeout:30s}") private val documentApiTimeout: Duration,
+  @param:Value("\${document-api.base_url}") private val documentApiBaseUri: String,
+  @param:Value("\${document-api.health_timeout:20s}") private val documentApiHealthTimeout: Duration,
+  @param:Value("\${document-api.timeout:30s}") private val documentApiTimeout: Duration,
 ) {
   @Bean
   fun authHealthWebClient(builder: WebClient.Builder): WebClient = builder.healthWebClient(authBaseUri, authHealthTimeout)
