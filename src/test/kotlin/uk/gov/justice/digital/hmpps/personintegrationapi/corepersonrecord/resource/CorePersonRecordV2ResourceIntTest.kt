@@ -33,7 +33,7 @@ import java.time.LocalDate
 
 class CorePersonRecordV2ResourceIntTest : IntegrationTestBase() {
 
-  @DisplayName("PATCH v1/person/$PRISONER_NUMBER")
+  @DisplayName("PATCH v2/person/$PRISONER_NUMBER")
   @Nested
   inner class PatchCorePersonRecordByPrisonerNumberTest {
 
