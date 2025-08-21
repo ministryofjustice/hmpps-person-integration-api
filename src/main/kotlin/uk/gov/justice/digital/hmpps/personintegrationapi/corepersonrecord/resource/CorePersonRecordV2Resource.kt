@@ -48,6 +48,7 @@ class CorePersonRecordV2Resource(
   private val corePersonRecordService: CorePersonRecordService,
 ) {
 
+  // Should this have a path? It's for arbitrary updates to CPR...
   @PatchMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(
