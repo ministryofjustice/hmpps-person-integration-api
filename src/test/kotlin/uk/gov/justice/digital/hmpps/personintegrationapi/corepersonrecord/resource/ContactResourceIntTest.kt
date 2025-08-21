@@ -10,7 +10,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.integration.Integration
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PHONE_NUMBER_ID
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER
 
-class ContactV1ResourceIntTest : IntegrationTestBase() {
+class ContactResourceIntTest : IntegrationTestBase() {
   @DisplayName("GET v1/person/{personId}/contacts")
   @Nested
   inner class ReadContactsByPersonIdTest {

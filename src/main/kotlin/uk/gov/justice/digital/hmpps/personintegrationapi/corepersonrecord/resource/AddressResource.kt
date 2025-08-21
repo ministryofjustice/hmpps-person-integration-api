@@ -31,8 +31,8 @@ import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
   description = "Addresses for a HMPPS person.",
 )
 @Validated
-@RequestMapping(value = ["v1/person/{personId}"], produces = [APPLICATION_JSON_VALUE])
-class AddressV1Resource(
+@RequestMapping(value = ["v1/person/{personId}", "v2/person/{personId}"], produces = [APPLICATION_JSON_VALUE])
+class AddressResource(
   private val addressService: AddressService,
 ) {
 

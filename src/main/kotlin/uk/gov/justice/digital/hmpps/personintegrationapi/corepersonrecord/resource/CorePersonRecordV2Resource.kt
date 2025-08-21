@@ -40,12 +40,11 @@ import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
 @RestController
 @Tag(
-  name = "Core Person Record V1",
+  name = "Core Person Record V2",
   description = "Core information for a HMPPS person.",
 )
-@RequestMapping(value = ["v1/core-person-record"])
-@Deprecated("Use V2 endpoint: v2/person/{personId}")
-class CorePersonRecordV1Resource(
+@RequestMapping(value = ["v2/person/{personId}"])
+class CorePersonRecordV2Resource(
   private val corePersonRecordService: CorePersonRecordService,
 ) {
 
@@ -93,10 +92,10 @@ class CorePersonRecordV1Resource(
   )
   @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun patchByPrisonerNumber(
-    @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
+    @PathVariable("personId", required = true) @Valid @ValidPrisonerNumber personId: String,
     @RequestBody(required = true) @Valid corePersonRecordUpdateRequest: CorePersonRecordV1UpdateRequestDto,
   ): ResponseEntity<Void> {
-    corePersonRecordService.updateCorePersonRecordField(prisonerNumber, corePersonRecordUpdateRequest)
+    corePersonRecordService.updateCorePersonRecordField(personId, corePersonRecordUpdateRequest)
     return noContent().build()
   }
 
@@ -152,10 +151,11 @@ class CorePersonRecordV1Resource(
   )
   @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun putProfileImageByPrisonerNumber(
-    @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
+    @PathVariable("personId", required = true) @Valid @ValidPrisonerNumber personId: String,
     @RequestPart(name = "imageFile", required = true) profileImage: MultipartFile,
-  ): ResponseEntity<Void> = corePersonRecordService.updateProfileImage(profileImage, prisonerNumber)
+  ): ResponseEntity<Void> = corePersonRecordService.updateProfileImage(profileImage, personId)
 
+  // What about this? it doesn't use the personId.
   @GetMapping("reference-data/domain/{domain}/codes")
   @ResponseStatus(HttpStatus.OK)
   @Operation(
@@ -235,8 +235,8 @@ class CorePersonRecordV1Resource(
   )
   @PreAuthorize("hasAnyRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}', '${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun getMilitaryRecords(
-    @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
-  ): ResponseEntity<List<MilitaryRecordDto>> = corePersonRecordService.getMilitaryRecords(prisonerNumber)
+    @PathVariable("personId", required = true) @Valid @ValidPrisonerNumber personId: String,
+    ): ResponseEntity<List<MilitaryRecordDto>> = corePersonRecordService.getMilitaryRecords(personId)
 
   @PutMapping("/military-records")
   @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -283,10 +283,10 @@ class CorePersonRecordV1Resource(
   )
   @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun putMilitaryRecord(
-    @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
+    @PathVariable("personId", required = true) @Valid @ValidPrisonerNumber personId: String,
     @RequestParam(required = true) militarySeq: Int,
     @RequestBody(required = true) @Valid militaryRecordRequest: MilitaryRecordRequest,
-  ): ResponseEntity<Void> = corePersonRecordService.updateMilitaryRecord(prisonerNumber, militarySeq, militaryRecordRequest)
+  ): ResponseEntity<Void> = corePersonRecordService.updateMilitaryRecord(personId, militarySeq, militaryRecordRequest)
 
   @PostMapping("/military-records")
   @ResponseStatus(HttpStatus.CREATED)
@@ -333,9 +333,9 @@ class CorePersonRecordV1Resource(
   )
   @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun postMilitaryRecord(
-    @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
+    @PathVariable("personId", required = true) @Valid @ValidPrisonerNumber personId: String,
     @RequestBody(required = true) @Valid militaryRecordRequest: MilitaryRecordRequest,
-  ): ResponseEntity<Void> = corePersonRecordService.createMilitaryRecord(prisonerNumber, militaryRecordRequest)
+  ): ResponseEntity<Void> = corePersonRecordService.createMilitaryRecord(personId, militaryRecordRequest)
 
   @PutMapping("/nationality")
   @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -382,9 +382,9 @@ class CorePersonRecordV1Resource(
   )
   @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun updateNationality(
-    @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
+    @PathVariable("personId", required = true) @Valid @ValidPrisonerNumber personId: String,
     @RequestBody(required = true) @Valid updateNationality: UpdateNationality,
-  ): ResponseEntity<Void> = corePersonRecordService.updateNationality(prisonerNumber, updateNationality)
+  ): ResponseEntity<Void> = corePersonRecordService.updateNationality(personId, updateNationality)
 
   @GetMapping("/physical-attributes")
   @ResponseStatus(HttpStatus.OK)
@@ -422,8 +422,8 @@ class CorePersonRecordV1Resource(
   )
   @PreAuthorize("hasAnyRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}', '${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun getPhysicalAttributes(
-    @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
-  ): ResponseEntity<PhysicalAttributesDto> = corePersonRecordService.getPhysicalAttributes(prisonerNumber)
+    @PathVariable("personId", required = true) @Valid @ValidPrisonerNumber personId: String,
+    ): ResponseEntity<PhysicalAttributesDto> = corePersonRecordService.getPhysicalAttributes(personId)
 
   @PutMapping("/physical-attributes")
   @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -470,10 +470,11 @@ class CorePersonRecordV1Resource(
   )
   @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun updatePhysicalAttributes(
-    @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
+    @PathVariable("personId", required = true) @Valid @ValidPrisonerNumber personId: String,
     @RequestBody(required = true) @Valid physicalAttributesRequest: PhysicalAttributesRequest,
-  ): ResponseEntity<Void> = corePersonRecordService.updatePhysicalAttributes(prisonerNumber, physicalAttributesRequest)
+  ): ResponseEntity<Void> = corePersonRecordService.updatePhysicalAttributes(personId, physicalAttributesRequest)
 
+  // What do I do with this? OffenderID is a long, it isn't the personId
   @PutMapping("/identifiers")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(
@@ -569,7 +570,7 @@ class CorePersonRecordV1Resource(
   )
   @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun addIdentifiers(
-    @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
+    @PathVariable("personId", required = true) @Valid @ValidPrisonerNumber personId: String,
     @RequestBody(required = true) @Valid createRequests: List<CreateIdentifierRequestDto>,
-  ): ResponseEntity<Void> = corePersonRecordService.addIdentifiers(prisonerNumber, createRequests)
+  ): ResponseEntity<Void> = corePersonRecordService.addIdentifiers(personId, createRequests)
 }

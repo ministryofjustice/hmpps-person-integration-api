@@ -10,7 +10,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePe
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER
 
-class AddressV1ResourceIntTest : IntegrationTestBase() {
+class AddressResourceIntTest : IntegrationTestBase() {
 
   @DisplayName("GET v1/person/{personId}/addresses")
   @Nested
