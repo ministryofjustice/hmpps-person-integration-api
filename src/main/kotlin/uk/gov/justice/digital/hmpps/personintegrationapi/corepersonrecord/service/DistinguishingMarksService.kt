@@ -7,8 +7,6 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.DocumentA
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.DistinguishingMarkCreateRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.DistinguishingMarkUpdateRequest
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.SourceSystem.NOMIS
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.toSourceSystem
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.DistinguishingMarkPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.util.virusScan
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.DistinguishingMarkDto
@@ -20,79 +18,60 @@ class DistinguishingMarksService(
   private val documentApiClient: DocumentApiClient,
 ) {
   fun getDistinguishingMarks(
-    prisonerNumber: String,
-    sourceSystem: String,
+    personId: String,
+    sourceSystem: String = "REMOVE_ME_FOR_V2",
   ): ResponseEntity<List<DistinguishingMarkDto>> {
-    when (sourceSystem.toSourceSystem()) {
-      NOMIS -> {
-        val response = prisonApiClient.getDistinguishingMarks(prisonerNumber)
-
-        return if (response.statusCode.is2xxSuccessful) {
-          ResponseEntity.ok(response.body?.map { toDto(it) })
-        } else {
-          ResponseEntity.status(response.statusCode).build()
-        }
-      }
+    val response = prisonApiClient.getDistinguishingMarks(personId)
+    return if (response.statusCode.is2xxSuccessful) {
+      ResponseEntity.ok(response.body?.map { toDto(it) })
+    } else {
+      ResponseEntity.status(response.statusCode).build()
     }
   }
 
-  fun getDistinguishingMark(markId: String, sourceSystem: String): ResponseEntity<DistinguishingMarkDto> = when (sourceSystem.toSourceSystem()) {
-    NOMIS -> {
-      val (prisonerNumber, sequenceId) = parseMarkId(markId)
-      mappedResponse(prisonApiClient.getDistinguishingMark(prisonerNumber, sequenceId))
-    }
+  fun getDistinguishingMark(markId: String, sourceSystem: String = "REMOVE_ME_FOR_V2"): ResponseEntity<DistinguishingMarkDto> {
+    val (personId, sequenceId) = parseMarkId(markId)
+    return mappedResponse(prisonApiClient.getDistinguishingMark(personId, sequenceId))
   }
 
   fun updateDistinguishingMark(
     request: DistinguishingMarkUpdateRequest,
     markId: String,
-    sourceSystem: String,
-  ): ResponseEntity<DistinguishingMarkDto> = when (sourceSystem.toSourceSystem()) {
-    NOMIS -> {
-      val (prisonerNumber, sequenceId) = parseMarkId(markId)
-      mappedResponse(prisonApiClient.updateDistinguishingMark(request, prisonerNumber, sequenceId))
-    }
+    sourceSystem: String = "REMOVE_ME_FOR_V2",
+  ): ResponseEntity<DistinguishingMarkDto> {
+    val (personId, sequenceId) = parseMarkId(markId)
+    return mappedResponse(prisonApiClient.updateDistinguishingMark(request, personId, sequenceId))
   }
 
   fun createDistinguishingMark(
     file: MultipartFile?,
     request: DistinguishingMarkCreateRequest,
-    prisonerNumber: String,
-    sourceSystem: String,
+    personId: String,
+    sourceSystem: String = "REMOVE_ME_FOR_V2",
   ): ResponseEntity<DistinguishingMarkDto> {
     virusScan(file, documentApiClient)
-    return when (sourceSystem.toSourceSystem()) {
-      NOMIS -> mappedResponse(prisonApiClient.createDistinguishingMark(file, request, prisonerNumber))
-    }
+    return mappedResponse(prisonApiClient.createDistinguishingMark(file, request, personId))
   }
 
-  fun getDistinguishingMarkImage(imageId: String, sourceSystem: String): ResponseEntity<ByteArray> = when (sourceSystem.toSourceSystem()) {
-    NOMIS -> prisonApiClient.getDistinguishingMarkImage(imageId.toLong())
-  }
+  fun getDistinguishingMarkImage(imageId: String, sourceSystem: String = "REMOVE_ME_FOR_V2"): ResponseEntity<ByteArray> = prisonApiClient.getDistinguishingMarkImage(imageId.toLong())
 
   fun updateDistinguishingMarkImage(
     file: MultipartFile,
     imageId: String,
-    sourceSystem: String,
+    sourceSystem: String = "REMOVE_ME_FOR_V2",
   ): ResponseEntity<ByteArray> {
     virusScan(file, documentApiClient)
-    return when (sourceSystem.toSourceSystem()) {
-      NOMIS -> prisonApiClient.updateDistinguishingMarkImage(file, imageId.toLong())
-    }
+    return prisonApiClient.updateDistinguishingMarkImage(file, imageId.toLong())
   }
 
   fun addDistinguishingMarkImage(
     file: MultipartFile,
     markId: String,
-    sourceSystem: String,
+    sourceSystem: String = "REMOVE_ME_FOR_V2",
   ): ResponseEntity<DistinguishingMarkDto> {
     virusScan(file, documentApiClient)
-    return when (sourceSystem.toSourceSystem()) {
-      NOMIS -> {
-        val (prisonerNumber, sequenceId) = parseMarkId(markId)
-        mappedResponse(prisonApiClient.addDistinguishingMarkImage(file, prisonerNumber, sequenceId))
-      }
-    }
+    val (personId, sequenceId) = parseMarkId(markId)
+    return mappedResponse(prisonApiClient.addDistinguishingMarkImage(file, personId, sequenceId))
   }
 
   private fun parseMarkId(markId: String): Pair<String, Int> {

@@ -32,7 +32,7 @@ import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
   description = "Contact details for (Phone/Email) for a HMPPS person.",
 )
 @RequestMapping(value = ["v1/person/{personId}", "v2/person/{personId}"], produces = [APPLICATION_JSON_VALUE])
-class ContactResource(
+class ContactV1Resource(
   private val contactsService: ContactsService,
 ) {
 

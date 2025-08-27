@@ -44,7 +44,7 @@ import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
   description = "Core information for a HMPPS person.",
 )
 @RequestMapping(value = ["v1/core-person-record"])
-@Deprecated("Use V2 endpoint: v2/person/{personId}")
+@Deprecated("Use V2 endpoint: v2/person/{personId} ...")
 class CorePersonRecordV1Resource(
   private val corePersonRecordService: CorePersonRecordService,
 ) {

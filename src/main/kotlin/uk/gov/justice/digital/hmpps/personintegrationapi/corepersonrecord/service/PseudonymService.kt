@@ -7,7 +7,6 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApi
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateAlias
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.SourceSystem.NOMIS
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateAlias
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.toSourceSystem
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.CorePersonRecordAlias
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.CorePersonRecordReferenceDataValue
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataValue
@@ -20,54 +19,39 @@ class PseudonymService(
 ) {
   fun getPseudonyms(
     prisonerNumber: String,
-    sourceSystem: String,
+    sourceSystem: String = "REMOVE_ME_FOR_V2",
   ): ResponseEntity<List<PseudonymResponseDto>> {
-    when (sourceSystem.toSourceSystem()) {
-      NOMIS -> {
-        val response = prisonApiClient.getAliases(prisonerNumber)
-
-        return if (response.statusCode.is2xxSuccessful) {
-          ResponseEntity.ok(response.body?.map { it.toResponseDto() })
-        } else {
-          ResponseEntity.status(response.statusCode).build()
-        }
-      }
+    val response = prisonApiClient.getAliases(prisonerNumber)
+    return if (response.statusCode.is2xxSuccessful) {
+      ResponseEntity.ok(response.body?.map { it.toResponseDto() })
+    } else {
+      ResponseEntity.status(response.statusCode).build()
     }
   }
 
   fun createPseudonym(
     prisonerNumber: String,
-    sourceSystem: String,
+    sourceSystem: String = "REMOVE_ME_FOR_V2",
     createRequest: PseudonymRequestDto,
   ): ResponseEntity<PseudonymResponseDto> {
-    when (sourceSystem.toSourceSystem()) {
-      NOMIS -> {
-        val response = prisonApiClient.createAlias(prisonerNumber, createRequest.toCreateAlias())
-
-        return if (response.statusCode.is2xxSuccessful) {
-          ResponseEntity.status(HttpStatus.CREATED).body(response.body?.toResponseDto())
-        } else {
-          ResponseEntity.status(response.statusCode).build()
-        }
-      }
+    val response = prisonApiClient.createAlias(prisonerNumber, createRequest.toCreateAlias())
+    return if (response.statusCode.is2xxSuccessful) {
+      ResponseEntity.status(HttpStatus.CREATED).body(response.body?.toResponseDto())
+    } else {
+      ResponseEntity.status(response.statusCode).build()
     }
   }
 
   fun updatePseudonym(
     pseudonymId: Long,
-    sourceSystem: String,
+    sourceSystem: String = "REMOVE_ME_FOR_V2",
     updateRequest: PseudonymRequestDto,
   ): ResponseEntity<PseudonymResponseDto> {
-    when (sourceSystem.toSourceSystem()) {
-      NOMIS -> {
-        val response = prisonApiClient.updateAlias(pseudonymId, updateRequest.toUpdateAlias())
-
-        return if (response.statusCode.is2xxSuccessful) {
-          ResponseEntity.ok(response.body?.toResponseDto())
-        } else {
-          ResponseEntity.status(response.statusCode).build()
-        }
-      }
+    val response = prisonApiClient.updateAlias(pseudonymId, updateRequest.toUpdateAlias())
+    return if (response.statusCode.is2xxSuccessful) {
+      ResponseEntity.ok(response.body?.toResponseDto())
+    } else {
+      ResponseEntity.status(response.statusCode).build()
     }
   }
 

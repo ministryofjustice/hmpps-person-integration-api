@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.resource
 
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -18,37 +17,29 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.annotation.ValidPrisonerNumber
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePersonRecordRoleConstants
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.AddressRequestDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.AddressResponseDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.service.AddressService
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.PseudonymRequestDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.PseudonymResponseDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.service.PseudonymService
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
 @RestController
 @Tag(
-  name = "Address V1",
-  description = "Addresses for a HMPPS person.",
+  name = "Pseudonym V2",
+  description = "Pseudonyms for a HMPPS person.",
 )
 @Validated
-@RequestMapping(value = ["v1/person/{personId}", "v2/person/{personId}"], produces = [APPLICATION_JSON_VALUE])
-class AddressResource(
-  private val addressService: AddressService,
+@RequestMapping(value = ["v2/person/{personId}"], produces = [APPLICATION_JSON_VALUE])
+class PseudonymV2Resource(
+  private val pseudonymService: PseudonymService,
 ) {
 
-  @GetMapping("/addresses")
+  @GetMapping("/pseudonyms")
   @Operation(
-    summary = "Returns list of addresses for the given person.",
-    description = "Get addresses. " +
+    summary = "Returns list of pseudonyms for the given prisoner number.",
+    description = "Get pseudonyms. " +
       "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}` or " +
       "`${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}` ",
-    parameters = [
-      Parameter(
-        name = "personId",
-        description = "The identifier for the person. While NOMIS is the underlying datasource this is the prisoner number",
-        example = "A1234AA",
-      ),
-    ],
     responses = [
       ApiResponse(responseCode = "200", description = "Successful response."),
       ApiResponse(
@@ -74,7 +65,7 @@ class AddressResource(
       ),
       ApiResponse(
         responseCode = "404",
-        description = "Person not found",
+        description = "Prisoner number not found",
         content = [
           Content(
             mediaType = APPLICATION_JSON_VALUE,
@@ -85,24 +76,17 @@ class AddressResource(
     ],
   )
   @PreAuthorize("hasAnyRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}', '${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
-  fun getAddresses(
-    @PathVariable @Valid @ValidPrisonerNumber personId: String,
-  ): ResponseEntity<Collection<AddressResponseDto>> = addressService.getAddresses(personId)
+  fun getPseudonyms(
+    @PathVariable personId: String,
+  ): ResponseEntity<List<PseudonymResponseDto>> = pseudonymService.getPseudonyms(personId)
 
-  @PostMapping("/addresses")
+  @PostMapping("/pseudonym")
   @Operation(
-    summary = "Create a new address for the given person.",
-    description = "Creates an address. " +
+    summary = "Create a new pseudonym for the given prisoner number.",
+    description = "Creates a pseudonym. " +
       "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}`",
-    parameters = [
-      Parameter(
-        name = "personId",
-        description = "The identifier for the person. While NOMIS is the underlying datasource this is the prisoner number",
-        example = "A1234AA",
-      ),
-    ],
     responses = [
-      ApiResponse(responseCode = "201", description = "Address successfully created."),
+      ApiResponse(responseCode = "201", description = "Pseudonym successfully created."),
       ApiResponse(
         responseCode = "401",
         description = "Unauthorized to access this endpoint",
@@ -136,30 +120,18 @@ class AddressResource(
     ],
   )
   @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
-  fun createAddress(
-    @PathVariable @Valid @ValidPrisonerNumber personId: String,
-    @RequestBody(required = true) @Valid addressRequestDto: AddressRequestDto,
-  ): ResponseEntity<AddressResponseDto> = addressService.createAddress(personId, addressRequestDto)
+  fun createPseudonym(
+    @PathVariable personId: String,
+    @RequestBody(required = true) @Valid pseudonymRequest: PseudonymRequestDto,
+  ): ResponseEntity<PseudonymResponseDto> = pseudonymService.createPseudonym(personId, "REMOVE_ME_FOR_V2", pseudonymRequest)
 
-  @PutMapping("/addresses/{addressId}")
+  @PutMapping("/pseudonym/{pseudonymId}")
   @Operation(
-    summary = "Update an address for the given person.",
-    description = "Updates an address. " +
+    summary = "Update a pseudonym for the given pseudonym ID. Whilst proxying, this will be the `offenderId` in NOMIS.",
+    description = "Updates a pseudonym. " +
       "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}`",
-    parameters = [
-      Parameter(
-        name = "personId",
-        description = "The identifier for the person. While NOMIS is the underlying datasource this is the prisoner number",
-        example = "A1234AA",
-      ),
-      Parameter(
-        name = "addressId",
-        description = "The address Id value.",
-        example = "12345",
-      ),
-    ],
     responses = [
-      ApiResponse(responseCode = "200", description = "Address successfully updated."),
+      ApiResponse(responseCode = "200", description = "Pseudonym successfully updated."),
       ApiResponse(
         responseCode = "401",
         description = "Unauthorized to access this endpoint",
@@ -182,7 +154,7 @@ class AddressResource(
       ),
       ApiResponse(
         responseCode = "404",
-        description = "Address not found",
+        description = "Pseudonym not found",
         content = [
           Content(
             mediaType = APPLICATION_JSON_VALUE,
@@ -193,9 +165,9 @@ class AddressResource(
     ],
   )
   @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
-  fun updateAddress(
-    @PathVariable @Valid @ValidPrisonerNumber personId: String,
-    @PathVariable addressId: Long,
-    @RequestBody(required = true) @Valid addressRequestDto: AddressRequestDto,
-  ): ResponseEntity<AddressResponseDto> = addressService.updateAddress(personId, addressId, addressRequestDto)
+  fun updatePseudonym(
+    @PathVariable personId: String,
+    @PathVariable pseudonymId: Long,
+    @RequestBody(required = true) @Valid pseudonymRequest: PseudonymRequestDto,
+  ): ResponseEntity<PseudonymResponseDto> = pseudonymService.updatePseudonym(pseudonymId, "REMOVE_ME_FOR_V2", pseudonymRequest)
 }

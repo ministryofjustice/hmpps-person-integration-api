@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
@@ -35,12 +34,11 @@ import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
 @RestController
 @Tag(
-  name = "Distinguishing Marks V1",
+  name = "Distinguishing Marks V2",
   description = "Distinguishing marks information and images for a HMPPS person.",
 )
-@RequestMapping(value = ["v1"])
-@Deprecated("Use V2 endpoint: v2/person/{personId} ...")
-class DistinguishingMarksV1Resource(
+@RequestMapping(value = ["v2/person/{personId}"])
+class DistinguishingMarksV2Resource(
   private val distinguishingMarksService: DistinguishingMarksService,
 ) {
 
@@ -55,14 +53,9 @@ class DistinguishingMarksV1Resource(
       "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}` or `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}`",
     parameters = [
       Parameter(
-        name = "prisonerNumber",
-        description = "The unique prisoner reference code.",
+        name = "personId",
+        description = "The identifier for the person. While NOMIS is the underlying datasource this is the prisoner number",
         example = "A1234AA",
-      ),
-      Parameter(
-        name = "sourceSystem",
-        description = "The source system which should be used to query the data.",
-        example = "NOMIS",
       ),
     ],
     responses = [
@@ -90,9 +83,8 @@ class DistinguishingMarksV1Resource(
   )
   @PreAuthorize("hasAnyRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}', '${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun getDistinguishingMark(
-    @RequestParam(required = true) prisonerNumber: String,
-    @RequestParam(required = true) sourceSystem: String,
-  ): ResponseEntity<List<DistinguishingMarkDto>> = distinguishingMarksService.getDistinguishingMarks(prisonerNumber, sourceSystem)
+    @PathVariable personId: String,
+  ): ResponseEntity<List<DistinguishingMarkDto>> = distinguishingMarksService.getDistinguishingMarks(personId)
 
   @GetMapping(
     "/distinguishing-mark/{markId}",
@@ -108,11 +100,6 @@ class DistinguishingMarksV1Resource(
         name = "markId",
         description = "The mark identifier, which is a combination of the prisoner number and mark sequence id separated with a hyphen.",
         example = "A1234AA-1",
-      ),
-      Parameter(
-        name = "sourceSystem",
-        description = "The source system which should be used to query the data.",
-        example = "NOMIS",
       ),
     ],
     responses = [
@@ -140,9 +127,9 @@ class DistinguishingMarksV1Resource(
   )
   @PreAuthorize("hasAnyRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}', '${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun getDistinguishingMarks(
+    @PathVariable personId: String,
     @PathVariable(required = true) markId: String,
-    @RequestParam(required = true) sourceSystem: String,
-  ): ResponseEntity<DistinguishingMarkDto> = distinguishingMarksService.getDistinguishingMark(markId, sourceSystem)
+  ): ResponseEntity<DistinguishingMarkDto> = distinguishingMarksService.getDistinguishingMark(markId)
 
   @PutMapping(
     "/distinguishing-mark/{markId}",
@@ -159,11 +146,6 @@ class DistinguishingMarksV1Resource(
         name = "markId",
         description = "The mark identifier, which is a combination of the prisoner number and mark sequence id separated with a hyphen.",
         example = "A1234AA-1",
-      ),
-      Parameter(
-        name = "sourceSystem",
-        description = "The source system which should be used to query the data.",
-        example = "NOMIS",
       ),
     ],
     responses = [
@@ -191,10 +173,10 @@ class DistinguishingMarksV1Resource(
   )
   @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun updateDistinguishingMark(
+    @PathVariable personId: String,
     @RequestBody(required = true) @Valid request: DistinguishingMarkUpdateRequest,
     @PathVariable(required = true) markId: String,
-    @RequestParam(required = true) sourceSystem: String,
-  ): ResponseEntity<DistinguishingMarkDto> = distinguishingMarksService.updateDistinguishingMark(request, markId, sourceSystem)
+  ): ResponseEntity<DistinguishingMarkDto> = distinguishingMarksService.updateDistinguishingMark(request, markId)
 
   @PostMapping(
     "/distinguishing-mark",
@@ -208,14 +190,9 @@ class DistinguishingMarksV1Resource(
       "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}`",
     parameters = [
       Parameter(
-        name = "prisonerNumber",
-        description = "The unique prisoner reference code.",
+        name = "personId",
+        description = "The identifier for the person. While NOMIS is the underlying datasource this is the prisoner number",
         example = "A1234AA",
-      ),
-      Parameter(
-        name = "sourceSystem",
-        description = "The source system which should be used to query the data.",
-        example = "NOMIS",
       ),
     ],
     responses = [
@@ -245,9 +222,8 @@ class DistinguishingMarksV1Resource(
   fun createDistinguishingMark(
     @RequestPart(name = "file", required = false) file: MultipartFile? = null,
     @ModelAttribute request: DistinguishingMarkCreateRequest,
-    @RequestParam(required = true) prisonerNumber: String,
-    @RequestParam(required = true) sourceSystem: String,
-  ): ResponseEntity<DistinguishingMarkDto> = distinguishingMarksService.createDistinguishingMark(file, request, prisonerNumber, sourceSystem)
+    @PathVariable personId: String,
+  ): ResponseEntity<DistinguishingMarkDto> = distinguishingMarksService.createDistinguishingMark(file, request, personId)
 
   @GetMapping("/distinguishing-mark/image/{imageId}")
   @ResponseStatus(HttpStatus.OK)
@@ -260,11 +236,6 @@ class DistinguishingMarksV1Resource(
         name = "imageId",
         description = "The image identifier.",
         example = "1",
-      ),
-      Parameter(
-        name = "sourceSystem",
-        description = "The source system which should be used to query the data.",
-        example = "NOMIS",
       ),
     ],
     responses = [
@@ -307,9 +278,9 @@ class DistinguishingMarksV1Resource(
   )
   @PreAuthorize("hasAnyRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}', '${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun getDistinguishingMarkImage(
+    @PathVariable personId: String,
     @PathVariable(required = true) imageId: String,
-    @RequestParam(required = true) sourceSystem: String,
-  ): ResponseEntity<ByteArray> = distinguishingMarksService.getDistinguishingMarkImage(imageId, sourceSystem)
+  ): ResponseEntity<ByteArray> = distinguishingMarksService.getDistinguishingMarkImage(imageId)
 
   @PutMapping(
     "/distinguishing-mark/image/{imageId}",
@@ -330,11 +301,6 @@ class DistinguishingMarksV1Resource(
         name = "imageId",
         description = "The image identifier.",
         example = "1",
-      ),
-      Parameter(
-        name = "sourceSystem",
-        description = "The source system which should be used to query the data.",
-        example = "NOMIS",
       ),
     ],
     responses = [
@@ -377,10 +343,10 @@ class DistinguishingMarksV1Resource(
   )
   @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun updateDistinguishingMarkImage(
+    @PathVariable personId: String,
     @RequestPart(name = "file", required = true) file: MultipartFile,
     @PathVariable(required = true) imageId: String,
-    @RequestParam(required = true) sourceSystem: String,
-  ): ResponseEntity<ByteArray> = distinguishingMarksService.updateDistinguishingMarkImage(file, imageId, sourceSystem)
+  ): ResponseEntity<ByteArray> = distinguishingMarksService.updateDistinguishingMarkImage(file, imageId)
 
   @PostMapping(
     "/distinguishing-mark/{markId}/image",
@@ -401,11 +367,6 @@ class DistinguishingMarksV1Resource(
         name = "markId",
         description = "The mark identifier, which is a combination of the prisoner number and mark sequence id separated with a hyphen.",
         example = "A1234AA-1",
-      ),
-      Parameter(
-        name = "sourceSystem",
-        description = "The source system which should be used to query the data.",
-        example = "NOMIS",
       ),
     ],
     responses = [
@@ -432,8 +393,8 @@ class DistinguishingMarksV1Resource(
   )
   @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun addDistinguishingMarkImage(
+    @PathVariable personId: String,
     @RequestPart(name = "file", required = true) file: MultipartFile,
     @PathVariable(required = true) markId: String,
-    @RequestParam(required = true) sourceSystem: String,
-  ): ResponseEntity<DistinguishingMarkDto> = distinguishingMarksService.addDistinguishingMarkImage(file, markId, sourceSystem)
+  ): ResponseEntity<DistinguishingMarkDto> = distinguishingMarksService.addDistinguishingMarkImage(file, markId)
 }
