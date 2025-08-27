@@ -1,0 +1,367 @@
+package uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.resource
+
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import org.springframework.http.MediaType
+import org.springframework.test.web.reactive.server.WebTestClient
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.SourceSystem.NOMIS
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataValue
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.PseudonymRequestDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.PseudonymResponseDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.OFFENDER_ID_NOT_FOUND
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER_NOT_FOUND
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISON_API_NOT_FOUND_RESPONSE
+import java.time.LocalDate
+
+class PseudonymV2ResourceIntTest : IntegrationTestBase() {
+
+  @DisplayName("GET v2/person/{personId}/pseudonyms")
+  @Nested
+  inner class GetPseudonyms {
+
+    @DisplayName("Security")
+    @Nested
+    inner class Security {
+      @Test
+      fun `access forbidden when no authority`() {
+        webTestClient.get().uri("/v2/person/$PRISONER_NUMBER/pseudonyms")
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `access forbidden with wrong role`() {
+        webTestClient.get().uri("/v2/person/$PRISONER_NUMBER/pseudonyms")
+          .headers(setAuthorisation(roles = listOf("ROLE_IS_WRONG")))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+    }
+
+    @DisplayName("Happy Path")
+    @Nested
+    inner class HappyPath {
+
+      @Test
+      fun `can retrieve pseudonyms`() {
+        val response =
+          webTestClient.get()
+            .uri("/v2/person/$PRISONER_NUMBER/pseudonyms")
+            .headers(setAuthorisation(roles = listOf(CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+            .exchange()
+            .expectStatus().isOk
+            .expectBodyList(PseudonymResponseDto::class.java)
+            .returnResult().responseBody
+
+        assertThat(response).isEqualTo(listOf(PSEUDONYM_RESPONSE))
+      }
+    }
+  }
+
+  @DisplayName("POST v2/pseudonym")
+  @Nested
+  inner class CreatePseudonym {
+
+    @DisplayName("Security")
+    @Nested
+    inner class Security {
+      @Test
+      fun `access forbidden when no authority`() {
+        webTestClient.post().uri("/v2/person/$PRISONER_NUMBER/pseudonym")
+          .contentType(MediaType.APPLICATION_JSON)
+          .bodyValue(VALID_PSEUDONYM_REQUEST_BODY)
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `access forbidden with wrong role`() {
+        webTestClient.post().uri("/v2/person/$PRISONER_NUMBER/pseudonym")
+          .contentType(MediaType.APPLICATION_JSON)
+          .bodyValue(VALID_PSEUDONYM_REQUEST_BODY)
+          .headers(setAuthorisation(roles = listOf("ROLE_IS_WRONG")))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+    }
+
+    @DisplayName("Not Found")
+    @Nested
+    inner class NotFound {
+
+      @Test
+      fun `handles a 404 not found response from downstream api`() {
+        webTestClient.post()
+          .uri("/v2/person/$PRISONER_NUMBER_NOT_FOUND/pseudonym")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(VALID_PSEUDONYM_REQUEST_BODY)
+          .exchange()
+          .expectStatus().isNotFound
+          .expectBody().json(PRISON_API_NOT_FOUND_RESPONSE.trimIndent())
+      }
+    }
+
+    @Nested
+    @DisplayName("Validation checks")
+    inner class Validation {
+
+      @Nested
+      @DisplayName("First name")
+      inner class FirstName {
+        @Test
+        internal fun `first name must only contain valid characters`() {
+          expectBadRequest(createRequest(firstName = "@@@"))
+            .jsonPath("$.userMessage")
+            .isEqualTo("Field: firstName - First name is not valid")
+        }
+
+        @Test
+        internal fun `first name can not be greater than 35 characters`() {
+          expectBadRequest(createRequest(firstName = "A".repeat(36)))
+            .jsonPath("$.userMessage")
+            .isEqualTo("Field: firstName - size must be between 0 and 35")
+        }
+
+        @Test
+        internal fun `first name can not be blank`() {
+          expectBadRequest(createRequest(firstName = "   "))
+            .jsonPath("$.userMessage")
+            .isEqualTo("Field: firstName - must not be blank")
+        }
+      }
+
+      @Nested
+      @DisplayName("Last name")
+      inner class LastName {
+        @Test
+        internal fun `last name must only contain valid characters`() {
+          expectBadRequest(createRequest(lastName = "###"))
+            .jsonPath("$.userMessage")
+            .isEqualTo("Field: lastName - Last name is not valid")
+        }
+
+        @Test
+        internal fun `last name can not be greater than 35 characters`() {
+          expectBadRequest(createRequest(lastName = "A".repeat(36)))
+            .jsonPath("$.userMessage")
+            .isEqualTo("Field: lastName - size must be between 0 and 35")
+        }
+
+        @Test
+        internal fun `last name can not be blank`() {
+          expectBadRequest(createRequest(lastName = "   "))
+            .jsonPath("$.userMessage")
+            .isEqualTo("Field: lastName - must not be blank")
+        }
+      }
+
+      @Nested
+      @DisplayName("Middle name 1")
+      inner class MiddleName1 {
+
+        @Test
+        internal fun `first middle name must only contain valid characters`() {
+          expectBadRequest(createRequest(middleName1 = "@@@"))
+            .jsonPath("$.userMessage")
+            .isEqualTo("Field: middleName1 - Middle name 1 is not valid")
+        }
+
+        @Test
+        internal fun `first middle can not be greater than 35 characters`() {
+          expectBadRequest(createRequest(middleName1 = "A".repeat(36)))
+            .jsonPath("$.userMessage")
+            .isEqualTo("Field: middleName1 - size must be between 0 and 35")
+        }
+      }
+
+      @Nested
+      @DisplayName("Middle name 2")
+      inner class MiddleName2 {
+
+        @Test
+        internal fun `second middle name must only contain valid characters`() {
+          expectBadRequest(createRequest(middleName2 = "@@@"))
+            .jsonPath("$.userMessage")
+            .isEqualTo("Field: middleName2 - Middle name 2 is not valid")
+        }
+
+        @Test
+        internal fun `second middle can not be greater than 35 characters`() {
+          expectBadRequest(createRequest(middleName2 = "A".repeat(36)))
+            .jsonPath("$.userMessage")
+            .isEqualTo("Field: middleName2 - size must be between 0 and 35")
+        }
+      }
+
+      private fun createRequest(
+        firstName: String = "John",
+        middleName1: String? = "Middleone",
+        middleName2: String? = "Middletwo",
+        lastName: String = "Smith",
+        title: String? = "MR",
+        dateOfBirth: LocalDate = LocalDate.parse("1990-01-02"),
+        sex: String = "M",
+        ethnicity: String? = "M1",
+        nameType: String? = "CN",
+      ) = PseudonymRequestDto(
+        isWorkingName = true,
+        firstName = firstName,
+        middleName1 = middleName1,
+        middleName2 = middleName2,
+        lastName = lastName,
+        dateOfBirth = dateOfBirth,
+        nameType = nameType,
+        title = title,
+        sex = sex,
+        ethnicity = ethnicity,
+      )
+
+      fun expectBadRequest(body: Any): WebTestClient.BodyContentSpec = webTestClient.post()
+        .uri("/v2/person/$PRISONER_NUMBER/pseudonym")
+        .contentType(MediaType.APPLICATION_JSON)
+        .headers(setAuthorisation(roles = listOf(CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+        .bodyValue(body)
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("$.status").isEqualTo(400)
+    }
+
+    @DisplayName("Happy Path")
+    @Nested
+    inner class HappyPath {
+
+      @Test
+      fun `can create a pseudonym`() {
+        val response =
+          webTestClient.post()
+            .uri("/v2/person/$PRISONER_NUMBER/pseudonym")
+            .contentType(MediaType.APPLICATION_JSON)
+            .headers(setAuthorisation(roles = listOf(CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+            .bodyValue(VALID_PSEUDONYM_REQUEST_BODY)
+            .exchange()
+            .expectStatus().isCreated
+            .expectBody(PseudonymResponseDto::class.java)
+            .returnResult().responseBody
+
+        assertThat(response).isEqualTo(PSEUDONYM_RESPONSE)
+      }
+    }
+  }
+
+  @DisplayName("PUT v2/person/{personId}/pseudonym/{pseudonymId}")
+  @Nested
+  inner class UpdatePseudonym {
+
+    @DisplayName("Security")
+    @Nested
+    inner class Security {
+      @Test
+      fun `access forbidden when no authority`() {
+        webTestClient.put().uri("/v2/person/$PRISONER_NUMBER/pseudonym/$OFFENDER_ID")
+          .contentType(MediaType.APPLICATION_JSON)
+          .bodyValue(VALID_PSEUDONYM_REQUEST_BODY)
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `access forbidden with wrong role`() {
+        webTestClient.put().uri("/v2/person/$PRISONER_NUMBER/pseudonym/$OFFENDER_ID")
+          .contentType(MediaType.APPLICATION_JSON)
+          .bodyValue(VALID_PSEUDONYM_REQUEST_BODY)
+          .headers(setAuthorisation(roles = listOf("ROLE_IS_WRONG")))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+    }
+
+    @DisplayName("Not Found")
+    @Nested
+    inner class NotFound {
+
+      @Test
+      fun `handles a 404 not found response from downstream api`() {
+        webTestClient.put().uri("/v2/person/$PRISONER_NUMBER/pseudonym/$OFFENDER_ID_NOT_FOUND")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(VALID_PSEUDONYM_REQUEST_BODY)
+          .exchange()
+          .expectStatus().isNotFound
+          .expectBody().json(PRISON_API_NOT_FOUND_RESPONSE.trimIndent())
+      }
+    }
+
+    @DisplayName("Happy Path")
+    @Nested
+    inner class HappyPath {
+
+      @Test
+      fun `can create a pseudonym`() {
+        val response =
+          webTestClient.put().uri("/v2/person/$PRISONER_NUMBER/pseudonym/$OFFENDER_ID")
+            .contentType(MediaType.APPLICATION_JSON)
+            .headers(setAuthorisation(roles = listOf(CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+            .bodyValue(VALID_PSEUDONYM_REQUEST_BODY)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(PseudonymResponseDto::class.java)
+            .returnResult().responseBody
+
+        assertThat(response).isEqualTo(PSEUDONYM_RESPONSE)
+      }
+    }
+  }
+
+  private companion object {
+    const val PRISONER_NUMBER = "A1234AA"
+    const val OFFENDER_ID = 12345L
+    const val FIRST_NAME = "John"
+    const val MIDDLE_NAME_1 = "Middleone"
+    const val MIDDLE_NAME_2 = "Middletwo"
+    const val LAST_NAME = "Smith"
+    const val NAME_TYPE = "CN"
+    const val TITLE = "MR"
+    const val SEX = "M"
+    const val ETHNICITY = "W1"
+
+    val DATE_OF_BIRTH = LocalDate.of(1980, 1, 1)
+
+    val VALID_PSEUDONYM_REQUEST_BODY =
+      // language=json
+      """
+      {
+        "firstName": "John",
+        "middleName1": "Middleone",
+        "middleName2": "Middletwo",
+        "lastName": "Smith",
+        "dateOfBirth": "1980-01-01",
+        "nameType": "CN",
+        "title": "MR",
+        "sex": "M",
+        "ethnicity": "W1",
+        "isWorkingName": true
+      }
+      """.trimIndent()
+
+    val PSEUDONYM_RESPONSE = PseudonymResponseDto(
+      prisonerNumber = PRISONER_NUMBER,
+      sourceSystem = NOMIS,
+      sourceSystemId = OFFENDER_ID,
+      firstName = FIRST_NAME,
+      middleName1 = MIDDLE_NAME_1,
+      middleName2 = MIDDLE_NAME_2,
+      lastName = LAST_NAME,
+      dateOfBirth = DATE_OF_BIRTH,
+      nameType = ReferenceDataValue("NAME_TYPE_$NAME_TYPE", NAME_TYPE, "Name type"),
+      title = ReferenceDataValue("TITLE_$TITLE", TITLE, "Title"),
+      sex = ReferenceDataValue("SEX_$SEX", SEX, "Sex"),
+      ethnicity = ReferenceDataValue("ETHNICITY_$ETHNICITY", ETHNICITY, "Ethnicity"),
+      isWorkingName = true,
+    )
+  }
+}

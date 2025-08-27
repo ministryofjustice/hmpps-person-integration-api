@@ -68,13 +68,6 @@ class DistinguishingMarksServiceTest {
       assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
       assertThat(response.body).isEqualTo(listOf(DISTINGUISHING_MARK))
     }
-
-    @Test
-    fun `throws an exception if the source system is not supported`() {
-      assertThrows<IllegalArgumentException> {
-        underTest.getDistinguishingMarks(PRISONER_NUMBER, "UNKNOWN_SOURCE")
-      }
-    }
   }
 
   @Nested
@@ -90,13 +83,6 @@ class DistinguishingMarksServiceTest {
       val response = underTest.getDistinguishingMark(MARK_ID, SOURCE_NOMIS)
       assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
       assertThat(response.body).isEqualTo(DISTINGUISHING_MARK)
-    }
-
-    @Test
-    fun `throws an exception if the source system is not supported`() {
-      assertThrows<IllegalArgumentException> {
-        underTest.getDistinguishingMark(MARK_ID, "UNKNOWN_SOURCE")
-      }
     }
 
     @DisplayName("throws an exception if the mark id is in an invalid format")
@@ -122,13 +108,6 @@ class DistinguishingMarksServiceTest {
       val response = underTest.updateDistinguishingMark(DISTINGUISHING_MARK_UPDATE_REQUEST, MARK_ID, SOURCE_NOMIS)
       assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
       assertThat(response.body).isEqualTo(DISTINGUISHING_MARK)
-    }
-
-    @Test
-    fun `throws an exception if the source system is not supported`() {
-      assertThrows<IllegalArgumentException> {
-        underTest.updateDistinguishingMark(DISTINGUISHING_MARK_UPDATE_REQUEST, MARK_ID, "UNKNOWN_SOURCE")
-      }
     }
 
     @DisplayName("throws an exception if the mark id is in an invalid format")
@@ -166,18 +145,6 @@ class DistinguishingMarksServiceTest {
       )
       assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
       assertThat(response.body).isEqualTo(DISTINGUISHING_MARK)
-    }
-
-    @Test
-    fun `throws an exception if the source system is not supported`() {
-      assertThrows<IllegalArgumentException> {
-        underTest.createDistinguishingMark(
-          MULTIPART_FILE,
-          DISTINGUISHING_MARK_CREATE_REQUEST,
-          PRISONER_NUMBER,
-          "UNKNOWN_SOURCE",
-        )
-      }
     }
 
     @Test
@@ -223,13 +190,6 @@ class DistinguishingMarksServiceTest {
       assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
       assertThat(response.body).isEqualTo(IMAGE)
     }
-
-    @Test
-    fun `throws an exception if the source system is not supported`() {
-      assertThrows<IllegalArgumentException> {
-        underTest.getDistinguishingMarkImage("1", "UNKNOWN_SOURCE")
-      }
-    }
   }
 
   @Nested
@@ -247,13 +207,6 @@ class DistinguishingMarksServiceTest {
       val response = underTest.updateDistinguishingMarkImage(MULTIPART_FILE, "1", SOURCE_NOMIS)
       assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
       assertThat(response.body).isEqualTo(IMAGE)
-    }
-
-    @Test
-    fun `throws an exception if the source system is not supported`() {
-      assertThrows<IllegalArgumentException> {
-        underTest.updateDistinguishingMarkImage(MULTIPART_FILE, "1", "UNKNOWN_SOURCE")
-      }
     }
 
     @Test
@@ -298,13 +251,6 @@ class DistinguishingMarksServiceTest {
     fun `throws an exception if the mark id is in an invalid format`(markId: String) {
       assertThrows<IllegalArgumentException> {
         underTest.addDistinguishingMarkImage(MULTIPART_FILE, markId, SOURCE_NOMIS)
-      }
-    }
-
-    @Test
-    fun `throws an exception if the source system is not supported`() {
-      assertThrows<IllegalArgumentException> {
-        underTest.addDistinguishingMarkImage(MULTIPART_FILE, MARK_ID, "UNKNOWN_SOURCE")
       }
     }
 

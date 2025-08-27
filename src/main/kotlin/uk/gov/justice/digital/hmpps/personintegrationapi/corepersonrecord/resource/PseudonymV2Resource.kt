@@ -1,57 +1,45 @@
 package uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.resource
 
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.annotation.ValidPrisonerNumber
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePersonRecordRoleConstants
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.ContactRequestDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.ContactResponseDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.service.ContactsService
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.PseudonymRequestDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.PseudonymResponseDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.service.PseudonymService
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
 @RestController
 @Tag(
-  name = "Contacts V1",
-  description = "Contact details for (Phone/Email) for a HMPPS person.",
+  name = "Pseudonym V2",
+  description = "Pseudonyms for a HMPPS person.",
 )
-@RequestMapping(value = ["v1/person/{personId}", "v2/person/{personId}"], produces = [APPLICATION_JSON_VALUE])
-class ContactV1Resource(
-  private val contactsService: ContactsService,
+@Validated
+@RequestMapping(value = ["v2/person/{personId}"], produces = [APPLICATION_JSON_VALUE])
+class PseudonymV2Resource(
+  private val pseudonymService: PseudonymService,
 ) {
 
-  @GetMapping(
-    "/contacts",
-    produces = [APPLICATION_JSON_VALUE],
-  )
-  @ResponseStatus(HttpStatus.OK)
+  @GetMapping("/pseudonyms")
   @Operation(
-    summary = "Get all contacts details associated with the given person.",
-    description = "Returns the list of contact details for the person. " +
-      "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}` or `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}`",
-    parameters = [
-      Parameter(
-        name = "personId",
-        description = "The identifier for the person. While NOMIS is the underlying datasource this is the prisoner number",
-        example = "A1234AA",
-      ),
-    ],
+    summary = "Returns list of pseudonyms for the given prisoner number.",
+    description = "Get pseudonyms. " +
+      "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}` or " +
+      "`${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}` ",
     responses = [
       ApiResponse(responseCode = "200", description = "Successful response."),
       ApiResponse(
@@ -77,7 +65,7 @@ class ContactV1Resource(
       ),
       ApiResponse(
         responseCode = "404",
-        description = "Person not found",
+        description = "Prisoner number not found",
         content = [
           Content(
             mediaType = APPLICATION_JSON_VALUE,
@@ -88,24 +76,17 @@ class ContactV1Resource(
     ],
   )
   @PreAuthorize("hasAnyRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}', '${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
-  fun getContacts(
-    @PathVariable(required = true) @Valid @ValidPrisonerNumber personId: String,
-  ): ResponseEntity<Collection<ContactResponseDto>> = contactsService.getContacts(personId)
+  fun getPseudonyms(
+    @PathVariable personId: String,
+  ): ResponseEntity<List<PseudonymResponseDto>> = pseudonymService.getPseudonyms(personId)
 
-  @PostMapping("/contacts")
+  @PostMapping("/pseudonym")
   @Operation(
-    summary = "Create new contact details for the given person.",
-    description = "Creates a contact. " +
+    summary = "Create a new pseudonym for the given prisoner number.",
+    description = "Creates a pseudonym. " +
       "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}`",
-    parameters = [
-      Parameter(
-        name = "personId",
-        description = "The identifier for the person. While NOMIS is the underlying datasource this is the prisoner number",
-        example = "A1234AA",
-      ),
-    ],
     responses = [
-      ApiResponse(responseCode = "201", description = "Contact successfully created."),
+      ApiResponse(responseCode = "201", description = "Pseudonym successfully created."),
       ApiResponse(
         responseCode = "401",
         description = "Unauthorized to access this endpoint",
@@ -128,7 +109,7 @@ class ContactV1Resource(
       ),
       ApiResponse(
         responseCode = "404",
-        description = "Person not found",
+        description = "Prisoner number not found",
         content = [
           Content(
             mediaType = APPLICATION_JSON_VALUE,
@@ -139,25 +120,18 @@ class ContactV1Resource(
     ],
   )
   @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
-  fun createContact(
-    @PathVariable(required = true) @Valid @ValidPrisonerNumber personId: String,
-    @RequestBody(required = true) @Valid contactRequest: ContactRequestDto,
-  ): ResponseEntity<ContactResponseDto> = contactsService.createContact(personId, contactRequest)
+  fun createPseudonym(
+    @PathVariable personId: String,
+    @RequestBody(required = true) @Valid pseudonymRequest: PseudonymRequestDto,
+  ): ResponseEntity<PseudonymResponseDto> = pseudonymService.createPseudonym(personId, "REMOVE_ME_FOR_V2", pseudonymRequest)
 
-  @PutMapping("/contacts/{contactId}")
+  @PutMapping("/pseudonym/{pseudonymId}")
   @Operation(
-    summary = "Update a contact for the given person.",
-    description = "Updates a contact. " +
+    summary = "Update a pseudonym for the given pseudonym ID. Whilst proxying, this will be the `offenderId` in NOMIS.",
+    description = "Updates a pseudonym. " +
       "Requires role `${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}`",
-    parameters = [
-      Parameter(
-        name = "personId",
-        description = "The identifier for the person. While NOMIS is the underlying datasource this is the prisoner number",
-        example = "A1234AA",
-      ),
-    ],
     responses = [
-      ApiResponse(responseCode = "200", description = "Contact successfully updated."),
+      ApiResponse(responseCode = "200", description = "Pseudonym successfully updated."),
       ApiResponse(
         responseCode = "401",
         description = "Unauthorized to access this endpoint",
@@ -180,7 +154,7 @@ class ContactV1Resource(
       ),
       ApiResponse(
         responseCode = "404",
-        description = "Person or reference not found",
+        description = "Pseudonym not found",
         content = [
           Content(
             mediaType = APPLICATION_JSON_VALUE,
@@ -191,9 +165,9 @@ class ContactV1Resource(
     ],
   )
   @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
-  fun updateContact(
-    @PathVariable(required = true) @Valid @ValidPrisonerNumber personId: String,
-    @PathVariable(required = true) @Valid contactId: Long,
-    @RequestBody(required = true) @Valid contactRequest: ContactRequestDto,
-  ): ResponseEntity<ContactResponseDto> = contactsService.updateContact(personId, contactId, contactRequest)
+  fun updatePseudonym(
+    @PathVariable personId: String,
+    @PathVariable pseudonymId: Long,
+    @RequestBody(required = true) @Valid pseudonymRequest: PseudonymRequestDto,
+  ): ResponseEntity<PseudonymResponseDto> = pseudonymService.updatePseudonym(pseudonymId, "REMOVE_ME_FOR_V2", pseudonymRequest)
 }

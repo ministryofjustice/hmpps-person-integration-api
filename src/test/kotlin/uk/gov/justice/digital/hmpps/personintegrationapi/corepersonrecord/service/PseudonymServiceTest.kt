@@ -5,7 +5,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
@@ -70,13 +69,6 @@ class PseudonymServiceTest {
     }
 
     @Test
-    fun `throws an exception if the source system is not supported`() {
-      assertThrows<IllegalArgumentException> {
-        underTest.createPseudonym(PRISONER_NUMBER, "UNKNOWN_SOURCE", PSEUDONYM_REQUEST)
-      }
-    }
-
-    @Test
     fun `propagates non 2xx error code`() {
       whenever(prisonApiClient.createAlias(PRISONER_NUMBER, ALIAS_CREATION_REQUEST))
         .thenReturn(ResponseEntity.badRequest().build())
@@ -102,13 +94,6 @@ class PseudonymServiceTest {
 
       assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
       assertThat(response.body).isEqualTo(PSEUDONYM_RESPONSE)
-    }
-
-    @Test
-    fun `throws an exception if the source system is not supported`() {
-      assertThrows<IllegalArgumentException> {
-        underTest.updatePseudonym(OFFENDER_ID, "UNKNOWN_SOURCE", PSEUDONYM_REQUEST)
-      }
     }
 
     @Test
