@@ -33,6 +33,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.CorePersonRecordAlias
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.DistinguishingMarkPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.EmailAddressPrisonDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.FullPersonPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.IdentifierPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.ImageDetailPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecordPrisonDto
@@ -41,6 +42,12 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.
 
 @HttpExchange("/api")
 interface PrisonApiClient {
+
+  @GetExchange("/offenders/{offenderNo}/full-person")
+  fun getFullPerson(
+    @PathVariable offenderNo: String,
+  ): ResponseEntity<FullPersonPrisonDto>
+
   @PutExchange("/offenders/{offenderNo}/birth-place")
   fun updateBirthPlaceForWorkingName(
     @PathVariable offenderNo: String,
