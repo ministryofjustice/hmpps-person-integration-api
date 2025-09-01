@@ -16,8 +16,8 @@ data class FullPersonResponseDto(
   @Schema(description = "List of contact details for the person")
   val contacts: List<ContactResponseDto>,
 
-  @Schema(description = "Military record for the person")
-  val militaryRecord: MilitaryRecordDto,
+  @Schema(description = "List of military records for the person")
+  val militaryRecords: List<MilitaryRecordDto>,
 
   @Schema(description = "Physical attributes for the person")
   val physicalAttributes: PhysicalAttributesDto,
