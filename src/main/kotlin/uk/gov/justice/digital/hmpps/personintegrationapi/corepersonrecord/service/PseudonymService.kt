@@ -5,11 +5,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateAlias
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.SourceSystem.NOMIS
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateAlias
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.CorePersonRecordAlias
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.CorePersonRecordReferenceDataValue
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataValue
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.PseudonymRequestDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.PseudonymResponseDto
 
@@ -55,22 +51,6 @@ class PseudonymService(
     }
   }
 
-  private fun CorePersonRecordAlias.toResponseDto(): PseudonymResponseDto = PseudonymResponseDto(
-    sourceSystemId = offenderId,
-    sourceSystem = NOMIS,
-    prisonerNumber = prisonerNumber,
-    isWorkingName = isWorkingName,
-    firstName = firstName,
-    middleName1 = middleName1,
-    middleName2 = middleName2,
-    lastName = lastName,
-    dateOfBirth = dateOfBirth,
-    nameType = nameType?.toReferenceDataValue(),
-    title = title?.toReferenceDataValue(),
-    sex = sex?.toReferenceDataValue(),
-    ethnicity = ethnicity?.toReferenceDataValue(),
-  )
-
   private fun PseudonymRequestDto.toUpdateAlias() = UpdateAlias(
     firstName = firstName,
     middleName1 = middleName1,
@@ -94,11 +74,5 @@ class PseudonymService(
     sex = sex,
     ethnicity = ethnicity,
     isWorkingName = isWorkingName,
-  )
-
-  private fun CorePersonRecordReferenceDataValue.toReferenceDataValue() = ReferenceDataValue(
-    id = "${domain}_$code",
-    code,
-    description,
   )
 }

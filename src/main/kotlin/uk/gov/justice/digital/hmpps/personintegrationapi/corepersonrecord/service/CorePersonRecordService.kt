@@ -88,35 +88,8 @@ class CorePersonRecordService(
 
   fun getMilitaryRecords(prisonerNumber: String): ResponseEntity<List<MilitaryRecordDto>> {
     val response = prisonApiClient.getMilitaryRecords(prisonerNumber)
-
     if (response.statusCode.is2xxSuccessful) {
-      val rankSuffixList = setOf("\\(Army\\)", "\\(Navy\\)", "\\(RAF\\)", "\\(Royal Marines\\)")
-      val rankSuffixPattern = Regex(rankSuffixList.joinToString("|"), RegexOption.IGNORE_CASE)
-
-      val mappedResponse = response.body?.militaryRecords?.map {
-        MilitaryRecordDto(
-          militarySeq = it.militarySeq,
-          warZoneCode = it.warZoneCode,
-          warZoneDescription = it.warZoneDescription,
-          startDate = it.startDate,
-          endDate = it.endDate,
-          militaryDischargeCode = it.militaryDischargeCode,
-          militaryDischargeDescription = it.militaryDischargeDescription,
-          militaryBranchCode = it.militaryBranchCode,
-          militaryBranchDescription = it.militaryBranchDescription,
-          description = it.description,
-          unitNumber = it.unitNumber,
-          enlistmentLocation = it.enlistmentLocation,
-          dischargeLocation = it.dischargeLocation,
-          selectiveServicesFlag = it.selectiveServicesFlag,
-          militaryRankCode = it.militaryRankCode,
-          militaryRankDescription = it.militaryRankDescription?.replace(rankSuffixPattern, "")?.trim(),
-          serviceNumber = it.serviceNumber,
-          disciplinaryActionCode = it.disciplinaryActionCode,
-          disciplinaryActionDescription = it.disciplinaryActionDescription,
-        )
-      }
-      return ResponseEntity.ok(mappedResponse)
+      return ResponseEntity.ok(response.body?.militaryRecords?.map { it.toResponseDto() })
     } else {
       return ResponseEntity.status(response.statusCode).build()
     }

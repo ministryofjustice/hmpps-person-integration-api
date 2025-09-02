@@ -3,7 +3,7 @@ package uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.servi
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.ResponseDtoMapper
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.ContactResponseDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.FullPersonResponseDto
 
 @Service
@@ -19,15 +19,17 @@ class PersonService(
     }
 
     val mappedResponse = FullPersonResponseDto(
-      addresses = body.addresses.map { ResponseDtoMapper.toAddressResponseDto(it, prisonerNumber) },
-      pseudonyms = body.aliases.map { ResponseDtoMapper.toPseudonymResponseDto(it) },
-      contacts = ResponseDtoMapper.toContactsResponseDto(body.phones, body.emails),
-      militaryRecords = ResponseDtoMapper.toMilitaryRecordDtos(body.militaryRecord),
-      physicalAttributes = ResponseDtoMapper.toPhysicalAttributesDto(body.physicalAttributes),
-      distinguishingMarks = body.distinguishingMarks.map { ResponseDtoMapper.toDistinguishingMarkDto(it) },
+      addresses = body.addresses.map { it.toResponseDto(prisonerNumber) },
+      pseudonyms = body.aliases.map { it.toResponseDto() },
+      contacts = buildList {
+        body.phones.forEach { add(ContactResponseDto(it.phoneId, it.type, it.number, it.ext)) }
+        body.emails.forEach { add(ContactResponseDto(it.emailAddressId, "EMAIL", it.email)) }
+      },
+      militaryRecords = body.militaryRecord.militaryRecords.map { it.toResponseDto() },
+      physicalAttributes = body.physicalAttributes.toResponseDto(),
+      distinguishingMarks = body.distinguishingMarks.map { it.toResponseDto()},
     )
 
     return ResponseEntity.ok(mappedResponse)
   }
-
 }

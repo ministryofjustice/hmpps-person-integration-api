@@ -4,23 +4,17 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
-import jakarta.validation.Valid
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.http.ResponseEntity.noContent
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePersonRecordRoleConstants
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.FullPersonResponseDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.CorePersonRecordV1UpdateRequestDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.service.CorePersonRecordService
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.service.PersonService
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
 @RestController
@@ -30,10 +24,9 @@ import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 )
 @RequestMapping(value = ["v2"])
 class CorePersonRecordV2Resource(
-  private val corePersonRecordService: CorePersonRecordService,
+  private val personService: PersonService,
 ) {
   @GetMapping("/person/{personId}", produces = [MediaType.APPLICATION_JSON_VALUE])
-  @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(
     summary = "Get all information held about a particular prisoner.",
     description = "Returns data available from /person/{personId}/... endpoints exposed by this API. " +
@@ -66,12 +59,10 @@ class CorePersonRecordV2Resource(
       ),
     ],
   )
-  @PreAuthorize("hasRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
-  fun patchByPersonId(
+  @PreAuthorize("hasAnyRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}', '${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
+  fun getPersonById(
     @PathVariable personId: String,
-    @RequestBody(required = true) @Valid corePersonRecordUpdateRequest: CorePersonRecordV1UpdateRequestDto,
-  ): ResponseEntity<Void> {
-    corePersonRecordService.updateCorePersonRecordField(personId, corePersonRecordUpdateRequest)
-    return noContent().build()
+  ): ResponseEntity<FullPersonResponseDto> {
+    return personService.getPerson(personId)
   }
 }

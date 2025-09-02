@@ -2,6 +2,9 @@ package uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.v3.oas.annotations.media.Schema
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.SourceSystem
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataValue
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.PseudonymResponseDto
 import java.time.LocalDate
 
 @Schema(description = "Core Person Record Alias - DTO for use in returning alias data for the Core Person Record proxy")
@@ -43,10 +46,29 @@ data class CorePersonRecordAlias(
 
   @Schema(description = "Ethnicity")
   val ethnicity: CorePersonRecordReferenceDataValue? = null,
-)
+) {
+  fun toResponseDto(): PseudonymResponseDto =
+    PseudonymResponseDto(
+      sourceSystemId = this.offenderId,
+      sourceSystem = SourceSystem.NOMIS,
+      prisonerNumber = this.prisonerNumber,
+      isWorkingName = this.isWorkingName,
+      firstName = this.firstName,
+      middleName1 = this.middleName1,
+      middleName2 = this.middleName2,
+      lastName = this.lastName,
+      dateOfBirth = this.dateOfBirth,
+      nameType = this.nameType?.toReferenceDataValue(),
+      title = this.title?.toReferenceDataValue(),
+      sex = this.sex?.toReferenceDataValue(),
+      ethnicity = this.ethnicity?.toReferenceDataValue(),
+    )
+}
 
 data class CorePersonRecordReferenceDataValue(
   val domain: String?,
   val code: String,
   val description: String,
-)
+) {
+  fun toReferenceDataValue(): ReferenceDataValue = ReferenceDataValue("${domain}_$code", code, description)
+}
