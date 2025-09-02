@@ -532,12 +532,83 @@ internal const val ADDRESSES =
     [ $ADDRESS ]
   """
 
+internal const val PHYSICAL_ATTRIBUTES =
+  //language=json
+  """
+    {
+      "height": 180,
+      "weight": 75,
+      "hair": {
+        "domain": "hairType",
+        "code": "BLK",
+        "description": "Black"
+      },
+      "facialHair": {
+        "domain": "facialHairType",
+        "code": "MST",
+        "description": "Moustache"
+      },
+      "face": {
+        "domain": "faceShape",
+        "code": "OVL",
+        "description": "Oval"
+      },
+      "build": {
+        "domain": "buildType",
+        "code": "MED",
+        "description": "Medium"
+      },
+      "leftEyeColour": {
+        "domain": "eyeColour",
+        "code": "BRN",
+        "description": "Brown"
+      },
+      "rightEyeColour": {
+        "domain": "eyeColour",
+        "code": "BRN",
+        "description": "Brown"
+      },
+      "shoeSize": "9"
+    }
+  """
+
+internal const val FULL_PERSON_RESPONSE =
+  //language=json
+  """
+    {
+      "aliases": [$ALIAS_RESPONSE],
+      "addresses": $ADDRESSES,
+      "phones": $PHONE_NUMBERS,
+      "emails": $EMAIL_ADDRESSES,
+      "militaryRecord": $PRISON_API_MILITARY_RECORDS,
+      "physicalAttributes": $PHYSICAL_ATTRIBUTES,
+      "distinguishingMarks": $DISTINGUISHING_MARKS
+    }
+  """
+
 class PrisonApiMockServer : WireMockServer(8082) {
   fun stubHealthPing(status: Int) {
     stubFor(
       get("/health/ping").willReturn(
         aResponse().withHeader("Content-Type", "application/json")
           .withBody("""{"status":"${if (status == 200) "UP" else "DOWN"}"}""").withStatus(status),
+      ),
+    )
+  }
+
+  fun stubFullPerson() {
+    stubFor(
+      get(urlPathMatching("/api/offenders/$PRISONER_NUMBER/full-person")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.OK.value())
+          .withBody(FULL_PERSON_RESPONSE.trimIndent()),
+      ),
+    )
+    stubFor(
+      get(urlPathMatching("/api/offenders/$PRISONER_NUMBER_NOT_FOUND/full-person")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(HttpStatus.NOT_FOUND.value())
+          .withBody(PRISON_API_NOT_FOUND_RESPONSE.trimIndent()),
       ),
     )
   }
@@ -1068,6 +1139,8 @@ class PrisonApiExtension :
     prisonApi.stubContactEndpoints()
     prisonApi.stubAddressesEndpoints()
     prisonApi.stubIdentifiersEndpoints()
+
+    prisonApi.stubFullPerson()
   }
 
   override fun afterAll(context: ExtensionContext): Unit = prisonApi.stop()

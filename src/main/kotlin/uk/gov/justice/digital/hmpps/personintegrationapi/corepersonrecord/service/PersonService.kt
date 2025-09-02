@@ -10,14 +10,14 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.re
 class PersonService(
   private val prisonApiClient: PrisonApiClient,
 ) {
-  fun getPerson(prisonerNumber: String): ResponseEntity<FullPersonResponseDto> {
+  fun getPerson(prisonerNumber: String): ResponseEntity<FullPersonResponseDto?> {
     val response = prisonApiClient.getFullPerson(prisonerNumber)
-    val body = response.body ?: return ResponseEntity.status(response.statusCode).build()
 
     if (!response.statusCode.is2xxSuccessful) {
       return ResponseEntity.status(response.statusCode).build()
     }
 
+    val body = response.body ?: return ResponseEntity.status(response.statusCode).build()
     val mappedResponse = FullPersonResponseDto(
       addresses = body.addresses.map { it.toResponseDto(prisonerNumber) },
       pseudonyms = body.aliases.map { it.toResponseDto() },
