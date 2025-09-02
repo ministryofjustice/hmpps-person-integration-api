@@ -22,8 +22,8 @@ import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
 @RestController
 @Tag(
-  name = "Core Person Record V2",
-  description = "Core information for a HMPPS person.",
+  name = "Person V2",
+  description = "Complete information held for a person.",
 )
 @RequestMapping(value = ["v2"])
 class PersonV2Resource(
