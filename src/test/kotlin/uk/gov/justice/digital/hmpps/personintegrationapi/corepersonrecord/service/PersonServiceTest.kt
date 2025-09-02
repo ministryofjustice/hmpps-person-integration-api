@@ -15,6 +15,14 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.*
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataValue
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.AddressResponseDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.ContactResponseDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.DistinguishingMarkDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.FullPersonResponseDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.PhysicalAttributesDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.PseudonymResponseDto
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -47,6 +55,8 @@ class PersonServiceTest {
 
       assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
       val body = response.body!!
+
+      // Full assertion covered in other tests already.
       assertThat(body.addresses).hasSize(1)
       assertThat(body.pseudonyms).hasSize(1)
       assertThat(body.contacts).hasSize(2)
