@@ -27,7 +27,7 @@ class PersonService(
       },
       militaryRecords = body.militaryRecord.militaryRecords.map { it.toResponseDto() },
       physicalAttributes = body.physicalAttributes.toResponseDto(),
-      distinguishingMarks = body.distinguishingMarks.map { it.toResponseDto()},
+      distinguishingMarks = body.distinguishingMarks.map { it.toResponseDto() },
     )
 
     return ResponseEntity.ok(mappedResponse)

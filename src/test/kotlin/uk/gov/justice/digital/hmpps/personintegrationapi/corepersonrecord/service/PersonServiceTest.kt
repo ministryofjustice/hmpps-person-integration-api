@@ -14,15 +14,18 @@ import org.mockito.kotlin.whenever
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.*
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataValue
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.AddressResponseDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.ContactResponseDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.DistinguishingMarkDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.FullPersonResponseDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.PhysicalAttributesDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.PseudonymResponseDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.AddressPrisonDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.CorePersonRecordAlias
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.CorePersonRecordReferenceDataValue
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.DistinguishingMarkPrisonDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.EmailAddressPrisonDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.FullPersonPrisonDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecord
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecordPrisonDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PhoneNumberPrisonDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PhysicalAttributesPrisonDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.ReferenceDataCode
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.ReferenceDataValuePrisonDto
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -50,6 +53,16 @@ class PersonServiceTest {
     }
 
     @Test
+    fun `returns status code if response body is null`() {
+      whenever(prisonApiClient.getFullPerson(PRISONER_NUMBER))
+        .thenReturn(ResponseEntity.status(HttpStatus.NOT_FOUND).build())
+
+      val response = underTest.getPerson(PRISONER_NUMBER)
+      assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+      assertThat(response.body).isNull()
+    }
+
+    @Test
     fun `can retrieve full person details`() {
       val response = underTest.getPerson(PRISONER_NUMBER)
 
@@ -66,13 +79,30 @@ class PersonServiceTest {
     }
 
     @Test
-    fun `returns status code if response body is null`() {
+    fun `handles empty collections gracefully when some data is unavailable`() {
+      val dtoWithEmptyCollections = FullPersonPrisonDto(
+        addresses = emptyList(),
+        aliases = emptyList(),
+        phones = emptyList(),
+        emails = emptyList(),
+        militaryRecord = MilitaryRecordPrisonDto(militaryRecords = emptyList()),
+        physicalAttributes = PHYSICAL_ATTRIBUTES_PRISON_DTO,
+        distinguishingMarks = emptyList(),
+      )
+
       whenever(prisonApiClient.getFullPerson(PRISONER_NUMBER))
-        .thenReturn(ResponseEntity.status(HttpStatus.NOT_FOUND).build())
+        .thenReturn(ResponseEntity.ok(dtoWithEmptyCollections))
 
       val response = underTest.getPerson(PRISONER_NUMBER)
-      assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
-      assertThat(response.body).isNull()
+      assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+      val body = response.body!!
+
+      assertThat(body.addresses).isEmpty()
+      assertThat(body.pseudonyms).isEmpty()
+      assertThat(body.contacts).isEmpty()
+      assertThat(body.militaryRecords).isEmpty()
+      assertThat(body.physicalAttributes).isNotNull
+      assertThat(body.distinguishingMarks).isEmpty()
     }
   }
 
@@ -142,7 +172,7 @@ class PersonServiceTest {
           disciplinaryActionCode = "DA1",
           disciplinaryActionDescription = "Disciplinary",
         ),
-      )
+      ),
     )
 
     val PHYSICAL_ATTRIBUTES_PRISON_DTO = PhysicalAttributesPrisonDto(
@@ -154,7 +184,7 @@ class PersonServiceTest {
       build = ReferenceDataValuePrisonDto("DM", "CD", "Desc"),
       leftEyeColour = ReferenceDataValuePrisonDto("DM", "CD", "Desc"),
       rightEyeColour = ReferenceDataValuePrisonDto("DM", "CD", "Desc"),
-      shoeSize = "10"
+      shoeSize = "10",
     )
 
     val DISTINGUISHING_MARK_PRISON_DTO = DistinguishingMarkPrisonDto(
@@ -168,19 +198,19 @@ class PersonServiceTest {
       comment = "Comment",
       createdAt = LocalDateTime.now(),
       createdBy = "USER",
-      photographUuids = listOf()
+      photographUuids = listOf(),
     )
 
     val PHONE_1 = PhoneNumberPrisonDto(
       phoneId = 1L,
       type = "MOBILE",
       number = "07123456789",
-      ext = "123"
+      ext = "123",
     )
 
     val EMAIL_1 = EmailAddressPrisonDto(
       emailAddressId = 2L,
-      email = "test@example.com"
+      email = "test@example.com",
     )
 
     val FULL_PERSON_PRISON_DTO = FullPersonPrisonDto(
@@ -190,7 +220,7 @@ class PersonServiceTest {
       emails = listOf(EMAIL_1),
       militaryRecord = MILITARY_RECORD_PRISON_DTO,
       physicalAttributes = PHYSICAL_ATTRIBUTES_PRISON_DTO,
-      distinguishingMarks = listOf(DISTINGUISHING_MARK_PRISON_DTO)
+      distinguishingMarks = listOf(DISTINGUISHING_MARK_PRISON_DTO),
     )
   }
 }

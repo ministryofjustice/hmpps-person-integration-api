@@ -23,7 +23,7 @@ import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
   description = "Core information for a HMPPS person.",
 )
 @RequestMapping(value = ["v2"])
-class CorePersonRecordV2Resource(
+class PersonV2Resource(
   private val personService: PersonService,
 ) {
   @GetMapping("/person/{personId}", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -62,7 +62,5 @@ class CorePersonRecordV2Resource(
   @PreAuthorize("hasAnyRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}', '${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun getPersonById(
     @PathVariable personId: String,
-  ): ResponseEntity<FullPersonResponseDto> {
-    return personService.getPerson(personId)
-  }
+  ): ResponseEntity<FullPersonResponseDto> = personService.getPerson(personId)
 }

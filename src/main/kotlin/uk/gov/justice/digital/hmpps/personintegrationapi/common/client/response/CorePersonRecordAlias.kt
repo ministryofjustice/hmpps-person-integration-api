@@ -47,22 +47,21 @@ data class CorePersonRecordAlias(
   @Schema(description = "Ethnicity")
   val ethnicity: CorePersonRecordReferenceDataValue? = null,
 ) {
-  fun toResponseDto(): PseudonymResponseDto =
-    PseudonymResponseDto(
-      sourceSystemId = this.offenderId,
-      sourceSystem = SourceSystem.NOMIS,
-      prisonerNumber = this.prisonerNumber,
-      isWorkingName = this.isWorkingName,
-      firstName = this.firstName,
-      middleName1 = this.middleName1,
-      middleName2 = this.middleName2,
-      lastName = this.lastName,
-      dateOfBirth = this.dateOfBirth,
-      nameType = this.nameType?.toReferenceDataValue(),
-      title = this.title?.toReferenceDataValue(),
-      sex = this.sex?.toReferenceDataValue(),
-      ethnicity = this.ethnicity?.toReferenceDataValue(),
-    )
+  fun toResponseDto(): PseudonymResponseDto = PseudonymResponseDto(
+    sourceSystemId = this.offenderId,
+    sourceSystem = SourceSystem.NOMIS,
+    prisonerNumber = this.prisonerNumber,
+    isWorkingName = this.isWorkingName,
+    firstName = this.firstName,
+    middleName1 = this.middleName1,
+    middleName2 = this.middleName2,
+    lastName = this.lastName,
+    dateOfBirth = this.dateOfBirth,
+    nameType = this.nameType?.toReferenceDataValue(),
+    title = this.title?.toReferenceDataValue(),
+    sex = this.sex?.toReferenceDataValue(),
+    ethnicity = this.ethnicity?.toReferenceDataValue(),
+  )
 }
 
 data class CorePersonRecordReferenceDataValue(
