@@ -20,7 +20,7 @@ data class FullPersonResponseDto(
   val militaryRecords: List<MilitaryRecordDto>,
 
   @Schema(description = "Physical attributes for the person")
-  val physicalAttributes: PhysicalAttributesDto,
+  val physicalAttributes: PhysicalAttributesDto?,
 
   @Schema(description = "List of distinguishing marks for the person")
   val distinguishingMarks: List<DistinguishingMarkDto>,

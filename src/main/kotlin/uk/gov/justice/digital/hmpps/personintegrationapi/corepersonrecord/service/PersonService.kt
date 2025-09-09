@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.ContactResponseDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.FullPersonResponseDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
 
 @Service
 class PersonService(
@@ -25,8 +26,8 @@ class PersonService(
         body.phones.forEach { add(ContactResponseDto(it.phoneId, it.type, it.number, it.ext)) }
         body.emails.forEach { add(ContactResponseDto(it.emailAddressId, "EMAIL", it.email)) }
       },
-      militaryRecords = body.militaryRecord.militaryRecords.map { it.toResponseDto() },
-      physicalAttributes = body.physicalAttributes.toResponseDto(),
+      militaryRecords = body.militaryRecord?.militaryRecords?.map { it.toResponseDto() } ?: emptyList(),
+      physicalAttributes = body.physicalAttributes?.toResponseDto(),
       distinguishingMarks = body.distinguishingMarks.map { it.toResponseDto() },
     )
 
