@@ -5,7 +5,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.FullPersonResponseDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.PrisonerProfileSummaryResponseDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER_NOT_FOUND
@@ -67,7 +67,7 @@ class PersonV2ResourceIntTest : IntegrationTestBase() {
           .headers(setAuthorisation(roles = listOf(CORE_PERSON_RECORD_READ_ROLE)))
           .exchange()
           .expectStatus().isOk
-          .expectBody(FullPersonResponseDto::class.java)
+          .expectBody(PrisonerProfileSummaryResponseDto::class.java)
           .returnResult().responseBody
 
         assertThat(response).isNotNull

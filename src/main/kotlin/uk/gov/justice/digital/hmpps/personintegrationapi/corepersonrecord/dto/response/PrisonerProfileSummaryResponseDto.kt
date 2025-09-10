@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 
 @Schema(description = "DTO representing the full details of a person")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class FullPersonResponseDto(
+data class PrisonerProfileSummaryResponseDto(
 
   @Schema(description = "List of pseudonyms for the person")
   val pseudonyms: List<PseudonymResponseDto>,

@@ -4,21 +4,21 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApiClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.ContactResponseDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.FullPersonResponseDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.PrisonerProfileSummaryResponseDto
 
 @Service
 class PersonService(
   private val prisonApiClient: PrisonApiClient,
 ) {
-  fun getPerson(prisonerNumber: String): ResponseEntity<FullPersonResponseDto?> {
-    val response = prisonApiClient.getFullPerson(prisonerNumber)
+  fun getPerson(prisonerNumber: String): ResponseEntity<PrisonerProfileSummaryResponseDto?> {
+    val response = prisonApiClient.getPrisonerProfileSummary(prisonerNumber)
 
     if (!response.statusCode.is2xxSuccessful) {
       return ResponseEntity.status(response.statusCode).build()
     }
 
     val body = response.body ?: return ResponseEntity.status(response.statusCode).build()
-    val mappedResponse = FullPersonResponseDto(
+    val mappedResponse = PrisonerProfileSummaryResponseDto(
       addresses = body.addresses.map { it.toResponseDto(prisonerNumber) },
       pseudonyms = body.aliases.map { it.toResponseDto() },
       contacts = buildList {

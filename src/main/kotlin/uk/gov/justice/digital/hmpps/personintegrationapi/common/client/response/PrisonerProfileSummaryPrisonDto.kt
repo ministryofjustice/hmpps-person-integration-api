@@ -3,9 +3,12 @@ package uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.v3.oas.annotations.media.Schema
 
-@Schema(description = "Person - DTO for use in returning all person data for use in the Core Person Record proxy")
+@Schema(
+  description = "A summary of a prisoner's details used by the Prisoner Profile service. " +
+    "Mimics what is expected to be returned by the Core Person Record service.",
+)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class FullPersonPrisonDto(
+data class PrisonerProfileSummaryPrisonDto(
 
   @Schema(description = "List of aliases for the person")
   val aliases: List<CorePersonRecordAlias>,

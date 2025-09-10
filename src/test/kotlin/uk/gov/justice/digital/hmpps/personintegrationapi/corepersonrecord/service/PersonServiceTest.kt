@@ -19,11 +19,11 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.CorePersonRecordReferenceDataValue
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.DistinguishingMarkPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.EmailAddressPrisonDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.FullPersonPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecord
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecordPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PhoneNumberPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PhysicalAttributesPrisonDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PrisonerProfileSummaryPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.ReferenceDataCode
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.ReferenceDataValuePrisonDto
 import java.time.LocalDate
@@ -48,13 +48,13 @@ class PersonServiceTest {
 
     @BeforeEach
     fun setup() {
-      whenever(prisonApiClient.getFullPerson(PRISONER_NUMBER))
+      whenever(prisonApiClient.getPrisonerProfileSummary(PRISONER_NUMBER))
         .thenReturn(ResponseEntity.ok(FULL_PERSON_PRISON_DTO))
     }
 
     @Test
     fun `returns status code if response body is null`() {
-      whenever(prisonApiClient.getFullPerson(PRISONER_NUMBER))
+      whenever(prisonApiClient.getPrisonerProfileSummary(PRISONER_NUMBER))
         .thenReturn(ResponseEntity.status(HttpStatus.NOT_FOUND).build())
 
       val response = underTest.getPerson(PRISONER_NUMBER)
@@ -80,7 +80,7 @@ class PersonServiceTest {
 
     @Test
     fun `handles empty collections gracefully when some data is unavailable`() {
-      val dtoWithEmptyCollections = FullPersonPrisonDto(
+      val dtoWithEmptyCollections = PrisonerProfileSummaryPrisonDto(
         addresses = emptyList(),
         aliases = emptyList(),
         phones = emptyList(),
@@ -90,7 +90,7 @@ class PersonServiceTest {
         distinguishingMarks = emptyList(),
       )
 
-      whenever(prisonApiClient.getFullPerson(PRISONER_NUMBER))
+      whenever(prisonApiClient.getPrisonerProfileSummary(PRISONER_NUMBER))
         .thenReturn(ResponseEntity.ok(dtoWithEmptyCollections))
 
       val response = underTest.getPerson(PRISONER_NUMBER)
@@ -213,7 +213,7 @@ class PersonServiceTest {
       email = "test@example.com",
     )
 
-    val FULL_PERSON_PRISON_DTO = FullPersonPrisonDto(
+    val FULL_PERSON_PRISON_DTO = PrisonerProfileSummaryPrisonDto(
       addresses = listOf(ADDRESS_PRISON_DTO),
       aliases = listOf(ALIAS),
       phones = listOf(PHONE_1),

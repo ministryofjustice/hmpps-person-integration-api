@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePersonRecordRoleConstants
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.FullPersonResponseDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.PrisonerProfileSummaryResponseDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.service.PersonService
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
@@ -40,7 +40,7 @@ class PersonV2Resource(
       ApiResponse(
         responseCode = "200",
         description = "Prisoner data found",
-        content = [Content(array = ArraySchema(schema = Schema(implementation = FullPersonResponseDto::class)))],
+        content = [Content(array = ArraySchema(schema = Schema(implementation = PrisonerProfileSummaryResponseDto::class)))],
       ),
       ApiResponse(
         responseCode = "401",
@@ -67,5 +67,5 @@ class PersonV2Resource(
   @PreAuthorize("hasAnyRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}', '${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun getPersonById(
     @PathVariable personId: String,
-  ): ResponseEntity<FullPersonResponseDto?> = personService.getPerson(personId)
+  ): ResponseEntity<PrisonerProfileSummaryResponseDto?> = personService.getPerson(personId)
 }
