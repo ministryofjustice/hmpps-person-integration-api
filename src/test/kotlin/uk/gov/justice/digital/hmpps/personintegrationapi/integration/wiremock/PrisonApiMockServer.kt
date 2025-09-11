@@ -598,14 +598,14 @@ class PrisonApiMockServer : WireMockServer(8082) {
 
   fun stubFullPerson() {
     stubFor(
-      get(urlPathMatching("/api/offenders/$PRISONER_NUMBER/full-person")).willReturn(
+      get(urlPathMatching("/api/offenders/$PRISONER_NUMBER/profile-summary")).willReturn(
         aResponse().withHeader("Content-Type", "application/json")
           .withStatus(HttpStatus.OK.value())
           .withBody(FULL_PERSON_RESPONSE.trimIndent()),
       ),
     )
     stubFor(
-      get(urlPathMatching("/api/offenders/$PRISONER_NUMBER_NOT_FOUND/full-person")).willReturn(
+      get(urlPathMatching("/api/offenders/$PRISONER_NUMBER_NOT_FOUND/profile-summary")).willReturn(
         aResponse().withHeader("Content-Type", "application/json")
           .withStatus(HttpStatus.NOT_FOUND.value())
           .withBody(PRISON_API_NOT_FOUND_RESPONSE.trimIndent()),
