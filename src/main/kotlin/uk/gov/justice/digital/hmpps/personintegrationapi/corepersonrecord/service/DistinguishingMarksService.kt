@@ -10,7 +10,6 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.D
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.DistinguishingMarkPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.util.virusScan
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.DistinguishingMarkDto
-import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.DistinguishingMarkImageDetail
 
 @Service
 class DistinguishingMarksService(
@@ -23,7 +22,7 @@ class DistinguishingMarksService(
   ): ResponseEntity<List<DistinguishingMarkDto>> {
     val response = prisonApiClient.getDistinguishingMarks(personId)
     return if (response.statusCode.is2xxSuccessful) {
-      ResponseEntity.ok(response.body?.map { toDto(it) })
+      ResponseEntity.ok(response.body?.map { it.toResponseDto() })
     } else {
       ResponseEntity.status(response.statusCode).build()
     }
@@ -83,22 +82,8 @@ class DistinguishingMarksService(
   }
 
   private fun mappedResponse(response: ResponseEntity<DistinguishingMarkPrisonDto>): ResponseEntity<DistinguishingMarkDto> = if (response.statusCode.is2xxSuccessful) {
-    ResponseEntity.ok(response.body?.let { toDto(it) })
+    ResponseEntity.ok(response.body?.toResponseDto())
   } else {
     ResponseEntity.status(response.statusCode).build()
   }
-
-  private fun toDto(value: DistinguishingMarkPrisonDto): DistinguishingMarkDto = DistinguishingMarkDto(
-    id = value.id,
-    bookingId = value.bookingId,
-    offenderNo = value.offenderNo,
-    bodyPart = value.bodyPart?.toReferenceDataValue(),
-    markType = value.markType?.toReferenceDataValue(),
-    side = value.side?.toReferenceDataValue(),
-    partOrientation = value.partOrientation?.toReferenceDataValue(),
-    comment = value.comment,
-    createdAt = value.createdAt,
-    createdBy = value.createdBy,
-    photographUuids = value.photographUuids.map { DistinguishingMarkImageDetail(it.id, it.latest) },
-  )
 }

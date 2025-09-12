@@ -38,9 +38,16 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecordPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PhoneNumberPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PhysicalAttributesPrisonDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PrisonerProfileSummaryPrisonDto
 
 @HttpExchange("/api")
 interface PrisonApiClient {
+
+  @GetExchange("/offenders/{offenderNo}/profile-summary")
+  fun getPrisonerProfileSummary(
+    @PathVariable offenderNo: String,
+  ): ResponseEntity<PrisonerProfileSummaryPrisonDto>
+
   @PutExchange("/offenders/{offenderNo}/birth-place")
   fun updateBirthPlaceForWorkingName(
     @PathVariable offenderNo: String,
