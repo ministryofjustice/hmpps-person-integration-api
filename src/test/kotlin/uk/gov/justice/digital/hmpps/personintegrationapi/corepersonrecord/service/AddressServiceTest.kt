@@ -105,6 +105,31 @@ class AddressServiceTest {
       val response = underTest.getAddresses(PERSON_ID)
       assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_GATEWAY)
     }
+
+    @Test
+    fun `handles addresses with null address usage types`() {
+      stubAddressApi(
+        listOf(
+          PRISON_ADDRESS_1.copy(
+            addressUsages = listOf(
+              AddressUsage(
+                111,
+                null,
+                null,
+                true,
+              ),
+            ),
+          ),
+        ),
+      )
+
+      val response = underTest.getAddresses(PERSON_ID)
+      assertThat(response.statusCode.is2xxSuccessful).isTrue()
+
+      val responseBody = response.body!!.toList()
+      assertThat(responseBody).hasSize(1)
+      assertThat(responseBody[0].addressTypes).isEmpty()
+    }
   }
 
   @Nested

@@ -63,16 +63,18 @@ data class AddressPrisonDto(
     postCode = this.postalCode,
     fromDate = this.startDate,
     toDate = this.endDate,
-    addressTypes = this.addressUsages.map { usage ->
-      AddressTypeDto(
-        active = usage.activeFlag,
-        addressUsageType = ReferenceDataValue(
-          id = "ADDRESS_TYPE_${usage.addressUsage}",
-          code = usage.addressUsage,
-          description = usage.addressUsageDescription,
-        ),
-      )
-    },
+    addressTypes = this.addressUsages
+      .filter { it.addressUsage != null && it.addressUsageDescription != null }
+      .map { usage ->
+        AddressTypeDto(
+          active = usage.activeFlag,
+          addressUsageType = ReferenceDataValue(
+            id = "ADDRESS_TYPE_${usage.addressUsage}",
+            code = usage.addressUsage!!,
+            description = usage.addressUsageDescription!!,
+          ),
+        )
+      },
     primaryAddress = this.primary,
     postalAddress = this.mail,
     comment = this.comment,
@@ -96,7 +98,7 @@ data class Telephone(
 
 data class AddressUsage(
   val addressId: Long,
-  val addressUsage: String,
-  val addressUsageDescription: String,
+  val addressUsage: String?,
+  val addressUsageDescription: String?,
   val activeFlag: Boolean,
 )
