@@ -131,7 +131,11 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
         webTestClient.put()
           .uri("/v1/core-person-record/profile-image?prisonerNumber=$PRISONER_NUMBER")
           .contentType(MediaType.MULTIPART_FORM_DATA)
-          .body(BodyInserters.fromMultipartData(MULTIPART_BUILDER.build()))
+          .body(
+            BodyInserters
+              .fromMultipartData(MULTIPART_BUILDER.build())
+              .with("imageSource", "DPS_WEBCAM"),
+          )
           .exchange()
           .expectStatus().isUnauthorized
       }
@@ -142,7 +146,11 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
           .uri("/v1/core-person-record/profile-image?prisonerNumber=$PRISONER_NUMBER")
           .contentType(MediaType.MULTIPART_FORM_DATA)
           .headers(setAuthorisation(roles = listOf("ROLE_IS_WRONG")))
-          .body(BodyInserters.fromMultipartData(MULTIPART_BUILDER.build()))
+          .body(
+            BodyInserters
+              .fromMultipartData(MULTIPART_BUILDER.build())
+              .with("imageSource", "DPS_WEBCAM"),
+          )
           .exchange()
           .expectStatus().isForbidden
       }
@@ -157,7 +165,25 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
           .uri("/v1/core-person-record/profile-image?prisonerNumber=$PRISONER_NUMBER")
           .contentType(MediaType.MULTIPART_FORM_DATA)
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
-          .body(BodyInserters.fromMultipartData(MULTIPART_BUILDER.build()))
+          .body(
+            BodyInserters
+              .fromMultipartData(MULTIPART_BUILDER.build()),
+          )
+          .exchange()
+          .expectStatus().isNoContent
+      }
+
+      @Test
+      fun `can update core person record profile image with image source by prisoner number`() {
+        webTestClient.put()
+          .uri("/v1/core-person-record/profile-image?prisonerNumber=$PRISONER_NUMBER")
+          .contentType(MediaType.MULTIPART_FORM_DATA)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .body(
+            BodyInserters
+              .fromMultipartData(MULTIPART_BUILDER.build())
+              .with("imageSource", "DPS_WEBCAM"),
+          )
           .exchange()
           .expectStatus().isNoContent
       }
@@ -340,7 +366,8 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
 
       @Test
       fun `handles a 404 not found response from downstream api`() {
-        webTestClient.put().uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER_NOT_FOUND&militarySeq=1")
+        webTestClient.put()
+          .uri("/v1/core-person-record/military-records?prisonerNumber=$PRISONER_NUMBER_NOT_FOUND&militarySeq=1")
           .contentType(MediaType.APPLICATION_JSON)
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
           .bodyValue(UPDATE_MILITARY_RECORD)

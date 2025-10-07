@@ -149,14 +149,31 @@ class CorePersonRecordV2ResourceIntTest : IntegrationTestBase() {
 
     @Nested
     inner class HappyPath {
-
       @Test
       fun `can update core person record profile image by prisoner number`() {
         webTestClient.put()
           .uri("/v2/person/$PRISONER_NUMBER/profile-image")
           .contentType(MediaType.MULTIPART_FORM_DATA)
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
-          .body(BodyInserters.fromMultipartData(MULTIPART_BUILDER.build()))
+          .body(
+            BodyInserters
+              .fromMultipartData(MULTIPART_BUILDER.build()),
+          )
+          .exchange()
+          .expectStatus().isNoContent
+      }
+
+      @Test
+      fun `can update core person record profile image with image source by prisoner number`() {
+        webTestClient.put()
+          .uri("/v2/person/$PRISONER_NUMBER/profile-image")
+          .contentType(MediaType.MULTIPART_FORM_DATA)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .body(
+            BodyInserters
+              .fromMultipartData(MULTIPART_BUILDER.build())
+              .with("imageSource", "DPS_WEBCAM"),
+          )
           .exchange()
           .expectStatus().isNoContent
       }

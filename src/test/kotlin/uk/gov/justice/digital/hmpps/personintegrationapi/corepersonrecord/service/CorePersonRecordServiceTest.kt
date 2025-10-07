@@ -292,7 +292,7 @@ class CorePersonRecordServiceTest {
 
     @Test
     fun `can update the prisoners photo`() {
-      whenever(prisonApiClient.updateProfileImage(MULTIPART_FILE, prisonerNumber)).thenReturn(
+      whenever(prisonApiClient.updateProfileImage(MULTIPART_FILE, prisonerNumber, "GEN")).thenReturn(
         ResponseEntity.ok(
           ImageDetailPrisonDto(
             imageId = 1,
@@ -313,7 +313,7 @@ class CorePersonRecordServiceTest {
         ),
       )
 
-      val response = underTest.updateProfileImage(MULTIPART_FILE, prisonerNumber)
+      val response = underTest.updateProfileImage(MULTIPART_FILE, prisonerNumber, "GEN")
 
       assertThat(response.statusCode.value()).isEqualTo(204)
     }
@@ -321,7 +321,7 @@ class CorePersonRecordServiceTest {
     @ParameterizedTest(name = "{0}")
     @ValueSource(ints = [400, 401, 403, 404, 422, 500])
     fun `propagates non-2xx status codes from the Prison API`(status: Int) {
-      whenever(prisonApiClient.updateProfileImage(MULTIPART_FILE, prisonerNumber)).thenReturn(
+      whenever(prisonApiClient.updateProfileImage(MULTIPART_FILE, prisonerNumber, "GEN")).thenReturn(
         ResponseEntity.status(status).build(),
       )
 
@@ -331,7 +331,7 @@ class CorePersonRecordServiceTest {
         ),
       )
 
-      val response = underTest.updateProfileImage(MULTIPART_FILE, prisonerNumber)
+      val response = underTest.updateProfileImage(MULTIPART_FILE, prisonerNumber, "GEN")
       assertThat(response.statusCode.value()).isEqualTo(status)
     }
 
@@ -343,6 +343,7 @@ class CorePersonRecordServiceTest {
         underTest.updateProfileImage(
           MULTIPART_FILE,
           PRISONER_NUMBER,
+          "GEN",
         )
       }
     }

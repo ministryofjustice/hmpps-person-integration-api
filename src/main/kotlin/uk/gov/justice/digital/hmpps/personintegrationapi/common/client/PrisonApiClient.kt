@@ -125,7 +125,10 @@ interface PrisonApiClient {
     @PathVariable markId: Int,
   ): ResponseEntity<DistinguishingMarkPrisonDto>
 
-  @PostExchange("/person/{prisonerNumber}/distinguishing-mark", accept = [APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE])
+  @PostExchange(
+    "/person/{prisonerNumber}/distinguishing-mark",
+    accept = [APPLICATION_JSON_VALUE, MULTIPART_FORM_DATA_VALUE],
+  )
   fun createDistinguishingMark(
     @RequestPart(name = "file") file: MultipartFile?,
     @ModelAttribute request: DistinguishingMarkCreateRequest,
@@ -176,6 +179,7 @@ interface PrisonApiClient {
   fun updateProfileImage(
     @RequestPart(name = "file") file: MultipartFile,
     @PathVariable prisonerNumber: String,
+    @RequestPart imageSource: String,
   ): ResponseEntity<ImageDetailPrisonDto>
 
   @GetExchange("/offenders/{offenderNo}/phone-numbers")
