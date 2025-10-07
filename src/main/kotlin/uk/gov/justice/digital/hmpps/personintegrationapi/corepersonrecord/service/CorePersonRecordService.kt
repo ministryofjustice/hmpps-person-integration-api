@@ -101,11 +101,9 @@ class CorePersonRecordService(
     militaryRecordRequest: MilitaryRecordRequest,
   ): ResponseEntity<Void> = prisonApiClient.updateMilitaryRecord(prisonerNumber, militarySeq, militaryRecordRequest)
 
-  fun createMilitaryRecord(prisonerNumber: String, militaryRecordRequest: MilitaryRecordRequest): ResponseEntity<Void> =
-    prisonApiClient.createMilitaryRecord(prisonerNumber, militaryRecordRequest)
+  fun createMilitaryRecord(prisonerNumber: String, militaryRecordRequest: MilitaryRecordRequest): ResponseEntity<Void> = prisonApiClient.createMilitaryRecord(prisonerNumber, militaryRecordRequest)
 
-  fun updateNationality(prisonerNumber: String, updateNationality: UpdateNationality): ResponseEntity<Void> =
-    prisonApiClient.updateNationalityForWorkingName(prisonerNumber, updateNationality)
+  fun updateNationality(prisonerNumber: String, updateNationality: UpdateNationality): ResponseEntity<Void> = prisonApiClient.updateNationalityForWorkingName(prisonerNumber, updateNationality)
 
   fun getPhysicalAttributes(prisonerNumber: String): ResponseEntity<PhysicalAttributesDto> {
     val response = prisonApiClient.getPhysicalAttributes(prisonerNumber)

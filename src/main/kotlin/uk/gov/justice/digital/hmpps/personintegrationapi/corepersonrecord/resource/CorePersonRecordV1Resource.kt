@@ -155,8 +155,7 @@ class CorePersonRecordV1Resource(
     @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
     @RequestPart(name = "imageFile", required = true) profileImage: MultipartFile,
     @RequestPart imageSource: String?,
-  ): ResponseEntity<Void> =
-    corePersonRecordService.updateProfileImage(profileImage, prisonerNumber, imageSource ?: "GEN")
+  ): ResponseEntity<Void> = corePersonRecordService.updateProfileImage(profileImage, prisonerNumber, imageSource ?: "GEN")
 
   @GetMapping("reference-data/domain/{domain}/codes")
   @ResponseStatus(HttpStatus.OK)
@@ -288,8 +287,7 @@ class CorePersonRecordV1Resource(
     @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
     @RequestParam(required = true) militarySeq: Int,
     @RequestBody(required = true) @Valid militaryRecordRequest: MilitaryRecordRequest,
-  ): ResponseEntity<Void> =
-    corePersonRecordService.updateMilitaryRecord(prisonerNumber, militarySeq, militaryRecordRequest)
+  ): ResponseEntity<Void> = corePersonRecordService.updateMilitaryRecord(prisonerNumber, militarySeq, militaryRecordRequest)
 
   @PostMapping("/military-records")
   @ResponseStatus(HttpStatus.CREATED)

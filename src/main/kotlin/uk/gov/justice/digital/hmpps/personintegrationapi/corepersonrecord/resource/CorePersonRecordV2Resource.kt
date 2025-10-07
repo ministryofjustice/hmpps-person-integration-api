@@ -150,7 +150,7 @@ class CorePersonRecordV2Resource(
   fun putProfileImageByPersonId(
     @PathVariable personId: String,
     @RequestPart(name = "imageFile", required = true) profileImage: MultipartFile,
-    @RequestPart(required = false) imageSource: String?
+    @RequestPart(required = false) imageSource: String?,
   ): ResponseEntity<Void> = corePersonRecordService.updateProfileImage(profileImage, personId, imageSource ?: "GEN")
 
   @GetMapping("/person/{personId}/military-records")

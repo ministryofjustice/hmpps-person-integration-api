@@ -167,7 +167,7 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
           .body(
             BodyInserters
-              .fromMultipartData(MULTIPART_BUILDER.build())
+              .fromMultipartData(MULTIPART_BUILDER.build()),
           )
           .exchange()
           .expectStatus().isNoContent

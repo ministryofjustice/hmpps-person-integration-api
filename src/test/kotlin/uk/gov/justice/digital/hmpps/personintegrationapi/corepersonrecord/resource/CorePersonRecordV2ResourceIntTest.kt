@@ -149,8 +149,6 @@ class CorePersonRecordV2ResourceIntTest : IntegrationTestBase() {
 
     @Nested
     inner class HappyPath {
-
-
       @Test
       fun `can update core person record profile image by prisoner number`() {
         webTestClient.put()

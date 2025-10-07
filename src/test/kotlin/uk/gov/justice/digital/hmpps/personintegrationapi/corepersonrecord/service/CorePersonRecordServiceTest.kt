@@ -343,7 +343,7 @@ class CorePersonRecordServiceTest {
         underTest.updateProfileImage(
           MULTIPART_FILE,
           PRISONER_NUMBER,
-          "GEN"
+          "GEN",
         )
       }
     }
