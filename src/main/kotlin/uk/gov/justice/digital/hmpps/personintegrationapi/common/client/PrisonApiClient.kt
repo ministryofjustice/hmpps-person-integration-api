@@ -176,6 +176,7 @@ interface PrisonApiClient {
   fun updateProfileImage(
     @RequestPart(name = "file") file: MultipartFile,
     @PathVariable prisonerNumber: String,
+    @RequestPart imageSource: String
   ): ResponseEntity<ImageDetailPrisonDto>
 
   @GetExchange("/offenders/{offenderNo}/phone-numbers")

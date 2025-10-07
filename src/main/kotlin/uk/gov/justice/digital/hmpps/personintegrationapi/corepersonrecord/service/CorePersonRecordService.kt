@@ -101,9 +101,11 @@ class CorePersonRecordService(
     militaryRecordRequest: MilitaryRecordRequest,
   ): ResponseEntity<Void> = prisonApiClient.updateMilitaryRecord(prisonerNumber, militarySeq, militaryRecordRequest)
 
-  fun createMilitaryRecord(prisonerNumber: String, militaryRecordRequest: MilitaryRecordRequest): ResponseEntity<Void> = prisonApiClient.createMilitaryRecord(prisonerNumber, militaryRecordRequest)
+  fun createMilitaryRecord(prisonerNumber: String, militaryRecordRequest: MilitaryRecordRequest): ResponseEntity<Void> =
+    prisonApiClient.createMilitaryRecord(prisonerNumber, militaryRecordRequest)
 
-  fun updateNationality(prisonerNumber: String, updateNationality: UpdateNationality): ResponseEntity<Void> = prisonApiClient.updateNationalityForWorkingName(prisonerNumber, updateNationality)
+  fun updateNationality(prisonerNumber: String, updateNationality: UpdateNationality): ResponseEntity<Void> =
+    prisonApiClient.updateNationalityForWorkingName(prisonerNumber, updateNationality)
 
   fun getPhysicalAttributes(prisonerNumber: String): ResponseEntity<PhysicalAttributesDto> {
     val response = prisonApiClient.getPhysicalAttributes(prisonerNumber)
@@ -132,9 +134,13 @@ class CorePersonRecordService(
     physicalAttributesRequest: PhysicalAttributesRequest,
   ): ResponseEntity<Void> = prisonApiClient.updatePhysicalAttributes(prisonerNumber, physicalAttributesRequest)
 
-  fun updateProfileImage(file: MultipartFile, prisonerNumber: String): ResponseEntity<Void> {
+  fun updateProfileImage(
+    file: MultipartFile,
+    prisonerNumber: String,
+    imageSource: String,
+  ): ResponseEntity<Void> {
     virusScan(file, documentApiClient)
-    val response = prisonApiClient.updateProfileImage(file, prisonerNumber)
+    val response = prisonApiClient.updateProfileImage(file, prisonerNumber, imageSource)
     if (response.statusCode.isError) {
       return ResponseEntity.status(response.statusCode).build()
     }
@@ -216,7 +222,11 @@ class CorePersonRecordService(
     else -> value
   }
 
-  private fun CreateIdentifier.validate(prisonerNumber: String, existingIdentifiers: Map<String, List<String>>, activeTypes: List<String>) {
+  private fun CreateIdentifier.validate(
+    prisonerNumber: String,
+    existingIdentifiers: Map<String, List<String>>,
+    activeTypes: List<String>,
+  ) {
     if (!activeTypes.contains(this.identifierType)) {
       throw InvalidIdentifierTypeException(this.identifierType)
     }
