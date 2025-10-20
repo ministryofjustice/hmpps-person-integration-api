@@ -2,9 +2,13 @@ package uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.containing
+import com.github.tomakehurst.wiremock.client.WireMock.exactly
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
+import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
+import com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.http.HttpHeaders
 import org.junit.jupiter.api.extension.AfterAllCallback
@@ -61,6 +65,27 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
     )
   }
 
+  fun stubUsernameEnhancedGrantToken(username: String) {
+    stubFor(
+      post(urlEqualTo("/auth/oauth/token"))
+        .withRequestBody(containing("grant_type=client_credentials"))
+        .withRequestBody(containing("username=$username"))
+        .willReturn(
+          aResponse()
+            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withBody(
+              """
+                {
+                  "token_type": "bearer",
+                  "access_token": "ABCDE",
+                  "expires_in": ${LocalDateTime.now().plusHours(2).toEpochSecond(ZoneOffset.UTC)}
+                }
+              """.trimIndent(),
+            ),
+        ),
+    )
+  }
+
   fun stubHealthPing(status: Int) {
     stubFor(
       get("/auth/health/ping").willReturn(
@@ -70,5 +95,9 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
           .withStatus(status),
       ),
     )
+  }
+
+  fun assertNumberStubGrantTokenCalls(numberOfCalls: Int) {
+    verify(exactly(numberOfCalls), postRequestedFor(urlPathMatching("/auth/oauth/token")))
   }
 }

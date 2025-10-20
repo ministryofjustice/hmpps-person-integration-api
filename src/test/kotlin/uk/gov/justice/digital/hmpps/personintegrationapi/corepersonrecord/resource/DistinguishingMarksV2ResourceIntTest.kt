@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.resource
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -17,6 +18,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePe
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.DistinguishingMarkDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.DistinguishingMarkImageDetail
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.HmppsAuthApiExtension
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.IMAGE
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER_NOT_FOUND
@@ -466,6 +468,37 @@ class DistinguishingMarksV2ResourceIntTest : IntegrationTestBase() {
 
         assertThat(response).isEqualTo(MARK_1)
       }
+    }
+  }
+
+  @Nested
+  inner class PassUsernameInContextToApi {
+
+    @BeforeEach
+    fun setup() {
+      HmppsAuthApiExtension.hmppsAuth.resetAll()
+    }
+
+    @Test
+    fun `username is added to the oauth token and cached per user`() {
+      val listOfTestUsers = listOf("user1", "user2", "user3", "user4")
+      val numberOfRepeatRequestsPerUser = 2
+
+      for (i in 1..numberOfRepeatRequestsPerUser) {
+        for (user in listOfTestUsers) {
+          // The HMPPS Auth Token Endpoint stub will only match a request containing the provided
+          // username in the request body.
+          HmppsAuthApiExtension.hmppsAuth.stubUsernameEnhancedGrantToken(user)
+
+          webTestClient.get().uri("/v2/person/$PRISONER_NUMBER/distinguishing-mark/image/$IMAGE_ID")
+            .headers(setAuthorisation(user, roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE)))
+            .exchange()
+            .expectStatus().isOk
+        }
+      }
+
+      // There should be one request to the token endpoint for each unique user.
+      HmppsAuthApiExtension.hmppsAuth.assertNumberStubGrantTokenCalls(listOfTestUsers.size)
     }
   }
 
