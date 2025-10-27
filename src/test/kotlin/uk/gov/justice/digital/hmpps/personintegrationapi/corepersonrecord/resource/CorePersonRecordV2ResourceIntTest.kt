@@ -11,11 +11,14 @@ import org.springframework.mock.web.MockMultipartFile
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.MilitaryRecordRequest
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.PhysicalAttributesRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateNationality
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataValue
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.CorePersonRecordRoleConstants
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.CreateIdentifierRequestDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.UpdateIdentifierRequestDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.PhysicalAttributesDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.DUPLICATE_IDENTIFIER_RESPONSE
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.EXISTING_IDENTIFIER_NOT_FOUND_RESPONSE
@@ -119,7 +122,7 @@ class CorePersonRecordV2ResourceIntTest : IntegrationTestBase() {
     }
   }
 
-  @DisplayName("PUT v1/person/$PRISONER_NUMBER/profile-image")
+  @DisplayName("PUT v2/person/$PRISONER_NUMBER/profile-image")
   @Nested
   inner class PutProfileImageByPrisonerNumberTest {
     @Nested
@@ -180,7 +183,7 @@ class CorePersonRecordV2ResourceIntTest : IntegrationTestBase() {
     }
   }
 
-  @DisplayName("GET v1/person/$PRISONER_NUMBER/military-records")
+  @DisplayName("GET v2/person/$PRISONER_NUMBER/military-records")
   @Nested
   inner class GetMilitaryRecords {
 
@@ -265,7 +268,7 @@ class CorePersonRecordV2ResourceIntTest : IntegrationTestBase() {
     }
   }
 
-  @DisplayName("PUT v1/person/$PRISONER_NUMBER/military-records")
+  @DisplayName("PUT v2/person/$PRISONER_NUMBER/military-records")
   @Nested
   inner class UpdateMilitaryRecord {
 
@@ -321,7 +324,7 @@ class CorePersonRecordV2ResourceIntTest : IntegrationTestBase() {
     }
   }
 
-  @DisplayName("POST v1/person/$PRISONER_NUMBER/military-records")
+  @DisplayName("POST v2/person/$PRISONER_NUMBER/military-records")
   @Nested
   inner class CreateMilitaryRecord {
 
@@ -377,7 +380,7 @@ class CorePersonRecordV2ResourceIntTest : IntegrationTestBase() {
     }
   }
 
-  @DisplayName("PUT v1/person/$PRISONER_NUMBER/nationality")
+  @DisplayName("PUT v2/person/$PRISONER_NUMBER/nationality")
   @Nested
   inner class UpdatePrisonerNationality {
 
@@ -443,7 +446,7 @@ class CorePersonRecordV2ResourceIntTest : IntegrationTestBase() {
     }
   }
 
-  @DisplayName("PUT v1/person/$PRISONER_NUMBER/identifiers")
+  @DisplayName("PUT v2/person/$PRISONER_NUMBER/identifiers")
   @Nested
   inner class UpdateIdentifier {
 
@@ -542,7 +545,7 @@ class CorePersonRecordV2ResourceIntTest : IntegrationTestBase() {
     }
   }
 
-  @DisplayName("POST v1/person/$PRISONER_NUMBER/identifiers")
+  @DisplayName("POST v2/person/$PRISONER_NUMBER/identifiers")
   @Nested
   inner class AddIdentifiers {
 
@@ -634,6 +637,114 @@ class CorePersonRecordV2ResourceIntTest : IntegrationTestBase() {
           .contentType(MediaType.APPLICATION_JSON)
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
           .bodyValue(ADD_IDENTIFIERS)
+          .exchange()
+          .expectStatus().isNotFound
+          .expectBody().json(PRISON_API_NOT_FOUND_RESPONSE.trimIndent())
+      }
+    }
+  }
+
+  @DisplayName("GET v2/person/$PRISONER_NUMBER/physical-attributes")
+  @Nested
+  inner class GetPhysicalAttributes {
+
+    @Nested
+    inner class Security {
+      @Test
+      fun `access forbidden when no authority`() {
+        webTestClient.get().uri("/v2/person/$PRISONER_NUMBER/physical-attributes")
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `access forbidden with wrong role`() {
+        webTestClient.get().uri("/v2/person/$PRISONER_NUMBER/physical-attributes")
+          .headers(setAuthorisation(roles = listOf("ROLE_IS_WRONG")))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+    }
+
+    @Nested
+    inner class HappyPath {
+
+      @Test
+      fun `can get physical attributes for prisonerNumber`() {
+        val response =
+          webTestClient.get().uri("/v2/person/$PRISONER_NUMBER/physical-attributes")
+            .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE)))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(PhysicalAttributesDto::class.java)
+            .returnResult().responseBody
+
+        assertThat(response).isEqualTo(
+          PhysicalAttributesDto(
+            height = 180,
+            weight = 75,
+            hair = ReferenceDataValue("HAIR_BLK", "BLK", "Black"),
+            facialHair = ReferenceDataValue("FACIAL_HAIR_MST", "MST", "Moustache"),
+            face = ReferenceDataValue("FACE_OVL", "OVL", "Oval"),
+            build = ReferenceDataValue("BUILD_MED", "MED", "Medium"),
+            leftEyeColour = ReferenceDataValue("L_EYE_C_BRN", "BRN", "Brown"),
+            rightEyeColour = ReferenceDataValue("R_EYE_C_BRN", "BRN", "Brown"),
+            shoeSize = "9",
+          ),
+        )
+      }
+    }
+  }
+
+  @DisplayName("PUT v2/person/$PRISONER_NUMBER/physical-attributes")
+  @Nested
+  inner class UpdatePhysicalAttributes {
+
+    @Nested
+    inner class Security {
+      @Test
+      fun `access forbidden when no authority`() {
+        webTestClient.put().uri("/v2/person/$PRISONER_NUMBER/physical-attributes")
+          .contentType(MediaType.APPLICATION_JSON)
+          .bodyValue(UPDATE_PHYSICAL_ATTRIBUTES)
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `access forbidden with wrong role`() {
+        webTestClient.put().uri("/v2/person/$PRISONER_NUMBER/physical-attributes")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf("ROLE_IS_WRONG")))
+          .bodyValue(UPDATE_PHYSICAL_ATTRIBUTES)
+          .exchange()
+          .expectStatus().isForbidden
+      }
+    }
+
+    @Nested
+    inner class HappyPath {
+
+      @Test
+      fun `update physical attributes`() {
+        webTestClient.put().uri("/v2/person/$PRISONER_NUMBER/physical-attributes")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(UPDATE_PHYSICAL_ATTRIBUTES)
+          .exchange()
+          .expectStatus().isNoContent
+      }
+    }
+
+    @Nested
+    inner class NotFound {
+
+      @Test
+      fun `handles a 404 not found response from downstream api`() {
+        webTestClient.put().uri("/v2/person/$PRISONER_NUMBER_NOT_FOUND/physical-attributes")
+          .contentType(MediaType.APPLICATION_JSON)
+          .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
+          .bodyValue(UPDATE_PHYSICAL_ATTRIBUTES)
           .exchange()
           .expectStatus().isNotFound
           .expectBody().json(PRISON_API_NOT_FOUND_RESPONSE.trimIndent())
@@ -734,6 +845,18 @@ class CorePersonRecordV2ResourceIntTest : IntegrationTestBase() {
     )
 
     val UPDATE_NATIONALITY = UpdateNationality("BRIT", "French")
+
+    val UPDATE_PHYSICAL_ATTRIBUTES = PhysicalAttributesRequest(
+      height = 186,
+      weight = 94,
+      hairCode = "BRN",
+      facialHairCode = "CLEAN",
+      faceCode = "BULLET",
+      buildCode = "FRAIL",
+      leftEyeColourCode = "GRN",
+      rightEyeColourCode = "BLUE",
+      shoeSize = "12",
+    )
 
     val UPDATE_IDENTIFIER = UpdateIdentifierRequestDto("6697/56U", "Some comments")
     val UPDATE_IDENTIFIER_INVALID = UpdateIdentifierRequestDto("BAD", "Some comments")
