@@ -25,6 +25,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.PrisonApi
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.ReferenceDataClient
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.CreateIdentifier
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.MilitaryRecordRequest
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.PhysicalAttributesRequest
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthCountry
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateBirthPlace
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.UpdateIdentifier
@@ -34,13 +35,17 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.ImageDetailPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecord
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.MilitaryRecordPrisonDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.PhysicalAttributesPrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.ReferenceDataCode
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.ReferenceDataValuePrisonDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.VirusScanResult
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.response.VirusScanStatus
 import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataCodeDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.common.dto.ReferenceDataValue
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.CreateIdentifierRequestDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.UpdateIdentifierRequestDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.MilitaryRecordDto
+import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.PhysicalAttributesDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.BirthplaceUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.CountryOfBirthUpdateDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.v1.request.DateOfBirthUpdateDto
@@ -427,6 +432,81 @@ class CorePersonRecordServiceTest {
       )
 
       val response = underTest.addIdentifiers(PRISONER_NUMBER, incomingRequest)
+      assertThat(response.statusCode.value()).isEqualTo(status)
+    }
+  }
+
+  @Nested
+  inner class GetPhysicalAttributes {
+    private val physicalAttributesPrisonDto = PhysicalAttributesPrisonDto(
+      height = 180,
+      weight = 80,
+      hair = ReferenceDataValuePrisonDto("HAIR", "BLACK", "Black"),
+      facialHair = ReferenceDataValuePrisonDto("FACIAL_HAIR", "BEARDED", "Bearded"),
+      face = ReferenceDataValuePrisonDto("FACE", "BULLET", "Bullet"),
+      build = ReferenceDataValuePrisonDto("BUILD", "MEDIUM", "Medium"),
+      leftEyeColour = ReferenceDataValuePrisonDto("L_EYE_C", "BLUE", "Blue"),
+      rightEyeColour = ReferenceDataValuePrisonDto("R_EYE_C", "BLUE", "Blue"),
+      shoeSize = "10",
+    )
+
+    private val physicalAttributes = PhysicalAttributesDto(
+      height = 180,
+      weight = 80,
+      hair = ReferenceDataValue("HAIR_BLACK", "BLACK", "Black"),
+      facialHair = ReferenceDataValue("FACIAL_HAIR_BEARDED", "BEARDED", "Bearded"),
+      face = ReferenceDataValue("FACE_BULLET", "BULLET", "Long"),
+      build = ReferenceDataValue("BUILD_MEDIUM", "MEDIUM", "Medium"),
+      leftEyeColour = ReferenceDataValue("L_EYE_C_BLUE", "BLUE", "Blue"),
+      rightEyeColour = ReferenceDataValue("R_EYE_C_BLUE", "BLUE", "Blue"),
+      shoeSize = "10",
+    )
+
+    @Test
+    fun `can retrieve physical attributes`() {
+      whenever(prisonApiClient.getPhysicalAttributes(PRISONER_NUMBER)).thenReturn(
+        ResponseEntity.ok(physicalAttributesPrisonDto),
+      )
+
+      val response = underTest.getPhysicalAttributes(PRISONER_NUMBER)
+      assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+      assertThat(response.body).isEqualTo(physicalAttributes)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(ints = [400, 401, 403, 404, 422, 500])
+    fun `propagates non-2xx status codes`(status: Int) {
+      whenever(prisonApiClient.getPhysicalAttributes(PRISONER_NUMBER)).thenReturn(
+        ResponseEntity.status(status).build(),
+      )
+
+      val response = underTest.getPhysicalAttributes(PRISONER_NUMBER)
+      assertThat(response.statusCode.value()).isEqualTo(status)
+    }
+  }
+
+  @Nested
+  inner class UpdatePhysicalAttributes {
+    private val updateRequest = PhysicalAttributesRequest(height = 190)
+
+    @Test
+    fun `can update physical attributes`() {
+      whenever(prisonApiClient.updatePhysicalAttributes(PRISONER_NUMBER, updateRequest)).thenReturn(
+        ResponseEntity.noContent().build(),
+      )
+
+      val response = underTest.updatePhysicalAttributes(PRISONER_NUMBER, updateRequest)
+      assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(ints = [400, 401, 403, 404, 422, 500])
+    fun `propagates non-2xx status codes`(status: Int) {
+      whenever(prisonApiClient.updatePhysicalAttributes(PRISONER_NUMBER, updateRequest)).thenReturn(
+        ResponseEntity.status(status).build(),
+      )
+
+      val response = underTest.updatePhysicalAttributes(PRISONER_NUMBER, updateRequest)
       assertThat(response.statusCode.value()).isEqualTo(status)
     }
   }

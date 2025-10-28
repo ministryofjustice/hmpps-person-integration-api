@@ -539,32 +539,32 @@ internal const val PHYSICAL_ATTRIBUTES =
       "height": 180,
       "weight": 75,
       "hair": {
-        "domain": "hairType",
+        "domain": "HAIR",
         "code": "BLK",
         "description": "Black"
       },
       "facialHair": {
-        "domain": "facialHairType",
+        "domain": "FACIAL_HAIR",
         "code": "MST",
         "description": "Moustache"
       },
       "face": {
-        "domain": "faceShape",
+        "domain": "FACE",
         "code": "OVL",
         "description": "Oval"
       },
       "build": {
-        "domain": "buildType",
+        "domain": "BUILD",
         "code": "MED",
         "description": "Medium"
       },
       "leftEyeColour": {
-        "domain": "eyeColour",
+        "domain": "L_EYE_C",
         "code": "BRN",
         "description": "Brown"
       },
       "rightEyeColour": {
-        "domain": "eyeColour",
+        "domain": "R_EYE_C",
         "code": "BRN",
         "description": "Brown"
       },
@@ -597,20 +597,10 @@ class PrisonApiMockServer : WireMockServer(8082) {
   }
 
   fun stubFullPerson() {
-    stubFor(
-      get(urlPathMatching("/api/offenders/$PRISONER_NUMBER/profile-summary")).willReturn(
-        aResponse().withHeader("Content-Type", "application/json")
-          .withStatus(HttpStatus.OK.value())
-          .withBody(FULL_PERSON_RESPONSE.trimIndent()),
-      ),
-    )
-    stubFor(
-      get(urlPathMatching("/api/offenders/$PRISONER_NUMBER_NOT_FOUND/profile-summary")).willReturn(
-        aResponse().withHeader("Content-Type", "application/json")
-          .withStatus(HttpStatus.NOT_FOUND.value())
-          .withBody(PRISON_API_NOT_FOUND_RESPONSE.trimIndent()),
-      ),
-    )
+    val endpoint = "profile-summary"
+
+    stubOffenderGetEndpoint(endpoint, HttpStatus.OK, PRISONER_NUMBER, FULL_PERSON_RESPONSE.trimIndent())
+    stubOffenderGetEndpoint(endpoint, HttpStatus.NOT_FOUND, PRISONER_NUMBER_NOT_FOUND, PRISON_API_NOT_FOUND_RESPONSE.trimIndent())
   }
 
   fun stubUpdateBirthPlaceForWorkingName() {
@@ -856,37 +846,17 @@ class PrisonApiMockServer : WireMockServer(8082) {
   }
 
   fun stubGetAliases() {
-    stubFor(
-      get(urlPathMatching("/api/offenders/$PRISONER_NUMBER/aliases")).willReturn(
-        aResponse().withHeader("Content-Type", "application/json")
-          .withStatus(HttpStatus.OK.value())
-          .withBody("[${ALIAS_RESPONSE.trimIndent()}]"),
-      ),
-    )
-    stubFor(
-      get(urlPathMatching("/api/offenders/$PRISONER_NUMBER_NOT_FOUND/aliases")).willReturn(
-        aResponse().withHeader("Content-Type", "application/json")
-          .withStatus(HttpStatus.NOT_FOUND.value())
-          .withBody("[]"),
-      ),
-    )
+    val endpoint = "aliases"
+
+    stubOffenderGetEndpoint(endpoint, HttpStatus.OK, PRISONER_NUMBER, "[${ALIAS_RESPONSE.trimIndent()}]")
+    stubOffenderGetEndpoint(endpoint, HttpStatus.NOT_FOUND, PRISONER_NUMBER_NOT_FOUND, "[]")
   }
 
   fun stubCreateAlias() {
-    stubFor(
-      post(urlPathMatching("/api/offenders/$PRISONER_NUMBER/aliases")).willReturn(
-        aResponse().withHeader("Content-Type", "application/json")
-          .withStatus(HttpStatus.CREATED.value())
-          .withBody(ALIAS_RESPONSE.trimIndent()),
-      ),
-    )
-    stubFor(
-      post(urlPathMatching("/api/offenders/$PRISONER_NUMBER_NOT_FOUND/aliases")).willReturn(
-        aResponse().withHeader("Content-Type", "application/json")
-          .withStatus(HttpStatus.NOT_FOUND.value())
-          .withBody(PRISON_API_NOT_FOUND_RESPONSE.trimIndent()),
-      ),
-    )
+    val endpoint = "aliases"
+
+    stubOffenderPostEndpoint(endpoint, HttpStatus.CREATED, PRISONER_NUMBER, ALIAS_RESPONSE.trimIndent())
+    stubOffenderPostEndpoint(endpoint, HttpStatus.NOT_FOUND, PRISONER_NUMBER_NOT_FOUND, PRISON_API_NOT_FOUND_RESPONSE.trimIndent())
   }
 
   fun stubUpdateAlias() {
@@ -902,51 +872,6 @@ class PrisonApiMockServer : WireMockServer(8082) {
         aResponse().withHeader("Content-Type", "application/json")
           .withStatus(HttpStatus.NOT_FOUND.value())
           .withBody(PRISON_API_NOT_FOUND_RESPONSE.trimIndent()),
-      ),
-    )
-  }
-
-  private fun stubOffenderGetEndpoint(
-    endpoint: String,
-    status: HttpStatus,
-    prisonerNumber: String,
-    body: String? = null,
-  ) {
-    stubFor(
-      get(urlPathMatching("/api/offenders/$prisonerNumber/$endpoint")).willReturn(
-        aResponse().withHeader("Content-Type", "application/json")
-          .withStatus(status.value())
-          .withBody(body),
-      ),
-    )
-  }
-
-  private fun stubOffenderPutEndpoint(
-    endpoint: String,
-    status: HttpStatus,
-    prisonerNumber: String,
-    body: String? = null,
-  ) {
-    stubFor(
-      put(urlPathMatching("/api/offenders/$prisonerNumber/$endpoint")).willReturn(
-        aResponse().withHeader("Content-Type", "application/json")
-          .withStatus(status.value())
-          .withBody(body),
-      ),
-    )
-  }
-
-  private fun stubOffenderPostEndpoint(
-    endpoint: String,
-    status: HttpStatus,
-    prisonerNumber: String,
-    body: String? = null,
-  ) {
-    stubFor(
-      post(urlPathMatching("/api/offenders/$prisonerNumber/$endpoint")).willReturn(
-        aResponse().withHeader("Content-Type", "application/json")
-          .withStatus(status.value())
-          .withBody(body),
       ),
     )
   }
@@ -969,81 +894,24 @@ class PrisonApiMockServer : WireMockServer(8082) {
   }
 
   fun stubContactEndpoints() {
+    val phoneEndpoint = "phone-numbers"
+    val emailEndpoint = "email-addresses"
     // Phones
-    // GET
-    stubFor(
-      get(urlPathMatching("/api/offenders/$PRISONER_NUMBER/phone-numbers")).willReturn(
-        aResponse().withHeader("Content-Type", "application/json")
-          .withStatus(HttpStatus.OK.value())
-          .withBody(PHONE_NUMBERS.trimIndent()),
-      ),
-    )
-
-    // POST
-    stubFor(
-      post(urlPathMatching("/api/offenders/$PRISONER_NUMBER/phone-numbers")).willReturn(
-        aResponse().withHeader("Content-Type", "application/json")
-          .withStatus(HttpStatus.OK.value())
-          .withBody(PHONE_NUMBER.trimIndent()),
-      ),
-    )
-
-    // PUT
-    stubFor(
-      put(urlPathMatching("/api/offenders/$PRISONER_NUMBER/phone-numbers/$PHONE_NUMBER_ID")).willReturn(
-        aResponse().withHeader("Content-Type", "application/json")
-          .withStatus(HttpStatus.OK.value())
-          .withBody(PHONE_NUMBER.trimIndent()),
-      ),
-    )
+    stubOffenderGetEndpoint(phoneEndpoint, HttpStatus.OK, PRISONER_NUMBER, PHONE_NUMBERS.trimIndent())
+    stubOffenderPutEndpoint("$phoneEndpoint/$PHONE_NUMBER_ID", HttpStatus.OK, PRISONER_NUMBER, PHONE_NUMBER.trimIndent())
+    stubOffenderPostEndpoint(phoneEndpoint, HttpStatus.OK, PRISONER_NUMBER, PHONE_NUMBER.trimIndent())
 
     // Emails
-    // GET
-    stubFor(
-      get(urlPathMatching("/api/offenders/$PRISONER_NUMBER/email-addresses")).willReturn(
-        aResponse().withHeader("Content-Type", "application/json")
-          .withStatus(HttpStatus.OK.value())
-          .withBody(EMAIL_ADDRESSES.trimIndent()),
-      ),
-    )
-
-    // POST
-    stubFor(
-      post(urlPathMatching("/api/offenders/$PRISONER_NUMBER/email-addresses")).willReturn(
-        aResponse().withHeader("Content-Type", "application/json")
-          .withStatus(HttpStatus.OK.value())
-          .withBody(EMAIL_ADDRESS.trimIndent()),
-      ),
-    )
-
-    // PUT
-    stubFor(
-      put(urlPathMatching("/api/offenders/$PRISONER_NUMBER/email-addresses/$EMAIL_ADDRESS_ID")).willReturn(
-        aResponse().withHeader("Content-Type", "application/json")
-          .withStatus(HttpStatus.OK.value())
-          .withBody(EMAIL_ADDRESS.trimIndent()),
-      ),
-    )
+    stubOffenderGetEndpoint(emailEndpoint, HttpStatus.OK, PRISONER_NUMBER, EMAIL_ADDRESSES.trimIndent())
+    stubOffenderPutEndpoint("$emailEndpoint/$EMAIL_ADDRESS_ID", HttpStatus.OK, PRISONER_NUMBER, EMAIL_ADDRESS.trimIndent())
+    stubOffenderPostEndpoint(emailEndpoint, HttpStatus.OK, PRISONER_NUMBER, EMAIL_ADDRESS.trimIndent())
   }
 
   fun stubAddressesEndpoints() {
-    // GET
-    stubFor(
-      get(urlPathMatching("/api/offenders/$PRISONER_NUMBER/addresses")).willReturn(
-        aResponse().withHeader("Content-Type", "application/json")
-          .withStatus(HttpStatus.OK.value())
-          .withBody(ADDRESSES.trimIndent()),
-      ),
-    )
+    val endpoint = "addresses"
 
-    // POST
-    stubFor(
-      post(urlPathMatching("/api/offenders/$PRISONER_NUMBER/addresses")).willReturn(
-        aResponse().withHeader("Content-Type", "application/json")
-          .withStatus(HttpStatus.OK.value())
-          .withBody(ADDRESS.trimIndent()),
-      ),
-    )
+    stubOffenderGetEndpoint(endpoint, HttpStatus.OK, PRISONER_NUMBER, ADDRESSES.trimIndent())
+    stubOffenderPostEndpoint(endpoint, HttpStatus.OK, PRISONER_NUMBER, ADDRESS.trimIndent())
   }
 
   fun stubIdentifiersEndpoints() {
@@ -1095,6 +963,59 @@ class PrisonApiMockServer : WireMockServer(8082) {
       ),
     )
   }
+
+  fun stubPhysicalAttributesEndpoints() {
+    val endpoint = "core-person-record/physical-attributes"
+
+    stubOffenderGetEndpoint(endpoint, HttpStatus.OK, PRISONER_NUMBER, PHYSICAL_ATTRIBUTES.trimIndent())
+    stubOffenderPutEndpoint(endpoint, HttpStatus.NO_CONTENT, PRISONER_NUMBER)
+    stubOffenderPutEndpoint(endpoint, HttpStatus.NOT_FOUND, PRISONER_NUMBER_NOT_FOUND, PRISON_API_NOT_FOUND_RESPONSE)
+  }
+
+  private fun stubOffenderGetEndpoint(
+    endpoint: String,
+    status: HttpStatus,
+    prisonerNumber: String,
+    body: String? = null,
+  ) {
+    stubFor(
+      get(urlPathMatching("/api/offenders/$prisonerNumber/$endpoint")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(status.value())
+          .withBody(body),
+      ),
+    )
+  }
+
+  private fun stubOffenderPutEndpoint(
+    endpoint: String,
+    status: HttpStatus,
+    prisonerNumber: String,
+    body: String? = null,
+  ) {
+    stubFor(
+      put(urlPathMatching("/api/offenders/$prisonerNumber/$endpoint")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(status.value())
+          .withBody(body),
+      ),
+    )
+  }
+
+  private fun stubOffenderPostEndpoint(
+    endpoint: String,
+    status: HttpStatus,
+    prisonerNumber: String,
+    body: String? = null,
+  ) {
+    stubFor(
+      post(urlPathMatching("/api/offenders/$prisonerNumber/$endpoint")).willReturn(
+        aResponse().withHeader("Content-Type", "application/json")
+          .withStatus(status.value())
+          .withBody(body),
+      ),
+    )
+  }
 }
 
 class PrisonApiExtension :
@@ -1139,6 +1060,7 @@ class PrisonApiExtension :
     prisonApi.stubContactEndpoints()
     prisonApi.stubAddressesEndpoints()
     prisonApi.stubIdentifiersEndpoints()
+    prisonApi.stubPhysicalAttributesEndpoints()
 
     prisonApi.stubFullPerson()
   }
