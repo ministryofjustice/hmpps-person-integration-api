@@ -71,7 +71,6 @@ sonar-project.properties
 
 #Helm
 **/Chart.lock
-.java-version
 
 #Everything else:
 .DS_Store

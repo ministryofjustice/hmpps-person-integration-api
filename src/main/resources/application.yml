@@ -5,8 +5,10 @@ info.app:
 spring:
   application:
     name: hmpps-person-integration-api
-  codec:
-    max-in-memory-size: 10MB
+
+  http:
+    codecs:
+      max-in-memory-size: 10MB
 
   jackson:
     date-format: "yyyy-MM-dd'T'HH:mm:ssZ"
