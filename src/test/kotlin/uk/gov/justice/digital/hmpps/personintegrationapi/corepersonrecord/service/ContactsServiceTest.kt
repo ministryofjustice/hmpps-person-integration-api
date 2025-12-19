@@ -223,11 +223,11 @@ class ContactsServiceTest {
     }
 
     @Test
-    fun `Email - creates and returns an email when given an email type`() {
+    fun `Email - sanitises input and creates and returns an email when given an email type`() {
       stubEmail(ResponseEntity.ok(PRISON_EMAIL_ADDRESS_ONE))
 
       val response =
-        underTest.createContact(PERSON_ID, ContactRequestDto(contactType = "EMAIL", contactValue = "prisoner@home.com"))
+        underTest.createContact(PERSON_ID, ContactRequestDto(contactType = "EMAIL", contactValue = "  prisoner@home.com  "))
 
       verify(
         prisonApiClient,
@@ -338,13 +338,13 @@ class ContactsServiceTest {
     }
 
     @Test
-    fun `Updates and returns the new email address when given an email type`() {
+    fun `Sanitises input and updates and returns the new email address when given an email type`() {
       stubEmail(ResponseEntity.ok(PRISON_EMAIL_ADDRESS_ONE))
 
       val response = underTest.updateContact(
         PERSON_ID,
         EMAIL_ADDRESS_ID,
-        ContactRequestDto(contactType = "EMAIL", contactValue = "foo@bar.com"),
+        ContactRequestDto(contactType = "EMAIL", contactValue = "  foo@bar.com  "),
       )
 
       verify(
@@ -389,8 +389,12 @@ class ContactsServiceTest {
     @JvmStatic
     fun validationTestCases(): List<Arguments> = listOf(
       // Emails
-      Arguments.of("EMAIL", "1".repeat(241), null, false),
-      Arguments.of("EMAIL", "1".repeat(240), null, true),
+      Arguments.of("EMAIL", "@" + "1".repeat(240), null, false),
+      Arguments.of("EMAIL", "1".repeat(240), null, false),
+      Arguments.of("EMAIL", "@" + "1".repeat(239), null, true),
+      Arguments.of("EMAIL", "@" + "1".repeat(239), null, true),
+      Arguments.of("EMAIL", "   test@domain.com   ", null, true),
+      Arguments.of("EMAIL", "test@ domain.com", null, false),
 
       // Phones without extensions
       Arguments.of("MOB", "1".repeat(41), null, false),
