@@ -21,7 +21,7 @@ class OpenApiConfiguration(
   buildProperties: BuildProperties,
   @param:Value("\${hmpps-auth.url}") val oauthUrl: String,
 ) {
-  private val version: String = buildProperties.version
+  private val version: String = buildProperties.version ?: "unknown"
 
   @Bean
   fun customOpenAPI(): OpenAPI = OpenAPI()

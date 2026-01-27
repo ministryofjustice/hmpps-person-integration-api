@@ -10,7 +10,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.re
 class PersonService(
   private val prisonApiClient: PrisonApiClient,
 ) {
-  fun getPerson(prisonerNumber: String): ResponseEntity<PrisonerProfileSummaryResponseDto?> {
+  fun getPerson(prisonerNumber: String): ResponseEntity<PrisonerProfileSummaryResponseDto> {
     val response = prisonApiClient.getPrisonerProfileSummary(prisonerNumber)
 
     if (!response.statusCode.is2xxSuccessful) {
