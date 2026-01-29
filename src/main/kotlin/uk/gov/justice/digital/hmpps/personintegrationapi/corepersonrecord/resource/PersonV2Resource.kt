@@ -67,5 +67,5 @@ class PersonV2Resource(
   @PreAuthorize("hasAnyRole('${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_ROLE}', '${CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE}')")
   fun getPersonById(
     @PathVariable personId: String,
-  ): ResponseEntity<PrisonerProfileSummaryResponseDto?> = personService.getPerson(personId)
+  ): ResponseEntity<PrisonerProfileSummaryResponseDto> = personService.getPerson(personId)
 }
