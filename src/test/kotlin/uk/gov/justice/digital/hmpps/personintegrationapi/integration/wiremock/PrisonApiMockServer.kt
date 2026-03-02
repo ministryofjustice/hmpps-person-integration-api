@@ -45,6 +45,13 @@ internal const val PRISON_API_REFERENCE_CODES =
       "activeFlag": "Y",
       "listSeq": 99,
       "subCodes": []
+    },
+    {
+      "domain": "TEST",
+      "code": "THREE",
+      "description": "Code Three (no list seq)",
+      "activeFlag": "Y",
+      "subCodes": []
     }
   ]
   """
