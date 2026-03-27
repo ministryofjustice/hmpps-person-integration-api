@@ -22,7 +22,7 @@ data class ReferenceDataCodeDto(
       "0 is default order by description.",
     example = "3",
   )
-  val listSequence: Int,
+  val listSequence: Int? = 0,
 
   @Schema(
     description = "Indicates that the reference data code is active and can be used. " +
