@@ -45,6 +45,7 @@ class ReferenceDataV2ResourceIntTest : IntegrationTestBase() {
 
       assertThat(response).isEqualTo(
         listOf(
+          ReferenceDataCodeDto("TEST_THREE", "THREE", "Code Three (no list seq)", 0, true),
           ReferenceDataCodeDto("TEST_ONE", "ONE", "Code One", 99, true),
           ReferenceDataCodeDto("TEST_TWO", "TWO", "Code Two", 99, true),
         ),

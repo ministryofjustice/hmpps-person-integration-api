@@ -31,5 +31,5 @@ data class ReligionV1RequestDto(
     example = "false",
     defaultValue = "false",
   )
-  val isVerified: Boolean,
+  val isVerified: Boolean = false,
 )
