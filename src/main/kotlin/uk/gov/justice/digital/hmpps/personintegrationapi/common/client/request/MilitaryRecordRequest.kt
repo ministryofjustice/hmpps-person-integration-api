@@ -85,5 +85,3 @@ data class MilitaryRecordRequest(
 ) {
   fun withDefaults(): MilitaryRecordRequest = this.copy(selectiveServicesFlag = selectiveServicesFlag ?: false)
 }
-
-
