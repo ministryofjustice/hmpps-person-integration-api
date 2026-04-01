@@ -1,5 +1,9 @@
 package uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.resource
 
+import com.github.tomakehurst.wiremock.client.WireMock.containing
+import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
+import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
+import com.github.tomakehurst.wiremock.client.WireMock.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -354,13 +358,18 @@ class CorePersonRecordV2ResourceIntTest : IntegrationTestBase() {
     inner class HappyPath {
 
       @Test
-      fun `create military record`() {
+      fun `create military record and supply default values`() {
         webTestClient.post().uri("/v2/person/$PRISONER_NUMBER/military-records")
           .contentType(MediaType.APPLICATION_JSON)
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
           .bodyValue(CREATE_MILITARY_RECORD)
           .exchange()
           .expectStatus().isCreated
+
+        verify(
+          postRequestedFor(urlPathEqualTo("/v2/person/$PRISONER_NUMBER/military-records"))
+            .withRequestBody(containing("selectiveServicesFlag: false")),
+        )
       }
     }
 
@@ -841,7 +850,6 @@ class CorePersonRecordV2ResourceIntTest : IntegrationTestBase() {
     val CREATE_MILITARY_RECORD = MilitaryRecordRequest(
       startDate = LocalDate.parse("2021-01-01"),
       militaryBranchCode = "NAV",
-      selectiveServicesFlag = false,
     )
 
     val UPDATE_NATIONALITY = UpdateNationality("BRIT", "French")
