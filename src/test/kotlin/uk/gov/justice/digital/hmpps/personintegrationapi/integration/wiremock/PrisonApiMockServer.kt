@@ -722,7 +722,7 @@ class PrisonApiMockServer : WireMockServer(8082) {
   fun verifyCreateMilitaryRecord() {
     verify(
       postRequestedFor(urlEqualTo("/military-records"))
-        .withRequestBody(containing("selectiveServicesFlag: true"))
+        .withRequestBody(containing("selectiveServicesFlag: true")),
     )
   }
 
