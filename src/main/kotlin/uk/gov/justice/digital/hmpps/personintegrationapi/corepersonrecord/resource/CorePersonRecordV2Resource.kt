@@ -240,7 +240,7 @@ class CorePersonRecordV2Resource(
     @PathVariable personId: String,
     @RequestParam(required = true) militarySeq: Int,
     @RequestBody(required = true) @Valid militaryRecordRequest: MilitaryRecordRequest,
-  ): ResponseEntity<Void> = corePersonRecordService.updateMilitaryRecord(personId, militarySeq, militaryRecordRequest)
+  ): ResponseEntity<Void> = corePersonRecordService.updateMilitaryRecord(personId, militarySeq, militaryRecordRequest.withDefaults())
 
   @PostMapping("/person/{personId}/military-records")
   @ResponseStatus(HttpStatus.CREATED)
@@ -289,7 +289,7 @@ class CorePersonRecordV2Resource(
   fun postMilitaryRecord(
     @PathVariable personId: String,
     @RequestBody(required = true) @Valid militaryRecordRequest: MilitaryRecordRequest,
-  ): ResponseEntity<Void> = corePersonRecordService.createMilitaryRecord(personId, militaryRecordRequest)
+  ): ResponseEntity<Void> = corePersonRecordService.createMilitaryRecord(personId, militaryRecordRequest.withDefaults())
 
   @PutMapping("/person/{personId}/nationality")
   @ResponseStatus(HttpStatus.NO_CONTENT)
