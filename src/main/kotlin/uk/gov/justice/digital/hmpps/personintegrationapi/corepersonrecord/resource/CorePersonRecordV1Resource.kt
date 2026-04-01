@@ -336,7 +336,7 @@ class CorePersonRecordV1Resource(
   fun postMilitaryRecord(
     @RequestParam(required = true) @Valid @ValidPrisonerNumber prisonerNumber: String,
     @RequestBody(required = true) @Valid militaryRecordRequest: MilitaryRecordRequest,
-  ): ResponseEntity<Void> = corePersonRecordService.createMilitaryRecord(prisonerNumber, militaryRecordRequest)
+  ): ResponseEntity<Void> = corePersonRecordService.createMilitaryRecord(prisonerNumber, militaryRecordRequest.withDefaults())
 
   @PutMapping("/nationality")
   @ResponseStatus(HttpStatus.NO_CONTENT)

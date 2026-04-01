@@ -289,7 +289,7 @@ class CorePersonRecordV2Resource(
   fun postMilitaryRecord(
     @PathVariable personId: String,
     @RequestBody(required = true) @Valid militaryRecordRequest: MilitaryRecordRequest,
-  ): ResponseEntity<Void> = corePersonRecordService.createMilitaryRecord(personId, militaryRecordRequest)
+  ): ResponseEntity<Void> = corePersonRecordService.createMilitaryRecord(personId, militaryRecordRequest.withDefaults())
 
   @PutMapping("/person/{personId}/nationality")
   @ResponseStatus(HttpStatus.NO_CONTENT)

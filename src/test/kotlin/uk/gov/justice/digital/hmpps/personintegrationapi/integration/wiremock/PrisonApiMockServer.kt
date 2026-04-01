@@ -2,9 +2,12 @@ package uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
+import com.github.tomakehurst.wiremock.client.WireMock.containing
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
+import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.put
+import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching
 import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
@@ -713,6 +716,13 @@ class PrisonApiMockServer : WireMockServer(8082) {
       HttpStatus.NOT_FOUND,
       PRISONER_NUMBER_NOT_FOUND,
       PRISON_API_NOT_FOUND_RESPONSE.trimIndent(),
+    )
+  }
+
+  fun verifyDefaultsCreateMilitaryRecord() {
+    verify(
+      postRequestedFor(urlEqualTo("/api/offenders/$PRISONER_NUMBER/military-records"))
+        .withRequestBody(containing("\"selectiveServicesFlag\":false")),
     )
   }
 

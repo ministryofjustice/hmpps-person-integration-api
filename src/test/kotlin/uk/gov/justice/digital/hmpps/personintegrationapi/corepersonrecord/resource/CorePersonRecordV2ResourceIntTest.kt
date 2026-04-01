@@ -31,6 +31,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.OF
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER_NOT_FOUND
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISON_API_NOT_FOUND_RESPONSE
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PrisonApiExtension.Companion.prisonApi
 import java.time.LocalDate
 
 class CorePersonRecordV2ResourceIntTest : IntegrationTestBase() {
@@ -354,13 +355,15 @@ class CorePersonRecordV2ResourceIntTest : IntegrationTestBase() {
     inner class HappyPath {
 
       @Test
-      fun `create military record`() {
+      fun `create military record and supply default values`() {
         webTestClient.post().uri("/v2/person/$PRISONER_NUMBER/military-records")
           .contentType(MediaType.APPLICATION_JSON)
           .headers(setAuthorisation(roles = listOf(CorePersonRecordRoleConstants.CORE_PERSON_RECORD_READ_WRITE_ROLE)))
           .bodyValue(CREATE_MILITARY_RECORD)
           .exchange()
           .expectStatus().isCreated
+
+        prisonApi.verifyDefaultsCreateMilitaryRecord()
       }
     }
 
@@ -841,7 +844,6 @@ class CorePersonRecordV2ResourceIntTest : IntegrationTestBase() {
     val CREATE_MILITARY_RECORD = MilitaryRecordRequest(
       startDate = LocalDate.parse("2021-01-01"),
       militaryBranchCode = "NAV",
-      selectiveServicesFlag = false,
     )
 
     val UPDATE_NATIONALITY = UpdateNationality("BRIT", "French")

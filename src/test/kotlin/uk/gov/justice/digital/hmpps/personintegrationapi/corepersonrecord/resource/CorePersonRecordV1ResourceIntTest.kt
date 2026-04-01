@@ -29,6 +29,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.OF
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER_NOT_FOUND
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISON_API_NOT_FOUND_RESPONSE
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PrisonApiExtension.Companion.prisonApi
 import java.time.LocalDate
 
 class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
@@ -416,6 +417,8 @@ class CorePersonRecordV1ResourceIntTest : IntegrationTestBase() {
           .bodyValue(CREATE_MILITARY_RECORD)
           .exchange()
           .expectStatus().isCreated
+
+        prisonApi.verifyDefaultsCreateMilitaryRecord()
       }
     }
 

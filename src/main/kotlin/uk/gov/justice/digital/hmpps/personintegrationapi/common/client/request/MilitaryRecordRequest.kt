@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDate
 
 @Schema(description = "Military record request object. Used to create or update a military record.")
-class MilitaryRecordRequest(
+data class MilitaryRecordRequest(
   @Schema(
     description = "Code identifying the war zone where the service took place.",
     example = "AFG",
@@ -63,7 +63,7 @@ class MilitaryRecordRequest(
     description = "Flag indicating if the individual was registered for UK selective military service (National Service).",
     example = "false",
   )
-  val selectiveServicesFlag: Boolean,
+  val selectiveServicesFlag: Boolean? = null,
 
   @Schema(
     description = "Code identifying the individual's military rank in the UK forces.",
@@ -82,4 +82,6 @@ class MilitaryRecordRequest(
     example = "CM",
   )
   val disciplinaryActionCode: String? = null,
-)
+) {
+  fun withDefaults(): MilitaryRecordRequest = this.copy(selectiveServicesFlag = selectiveServicesFlag ?: false)
+}
