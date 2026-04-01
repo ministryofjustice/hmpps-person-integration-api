@@ -1,9 +1,5 @@
 package uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.resource
 
-import com.github.tomakehurst.wiremock.client.WireMock.containing
-import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
-import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
-import com.github.tomakehurst.wiremock.client.WireMock.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -35,6 +31,7 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.OF
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISONER_NUMBER_NOT_FOUND
 import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PRISON_API_NOT_FOUND_RESPONSE
+import uk.gov.justice.digital.hmpps.personintegrationapi.integration.wiremock.PrisonApiExtension.Companion.prisonApi
 import java.time.LocalDate
 
 class CorePersonRecordV2ResourceIntTest : IntegrationTestBase() {
@@ -366,10 +363,7 @@ class CorePersonRecordV2ResourceIntTest : IntegrationTestBase() {
           .exchange()
           .expectStatus().isCreated
 
-        verify(
-          postRequestedFor(urlPathEqualTo("/v2/person/$PRISONER_NUMBER/military-records"))
-            .withRequestBody(containing("selectiveServicesFlag: false")),
-        )
+        prisonApi.verifyCreateMilitaryRecord()
       }
     }
 
