@@ -363,7 +363,7 @@ class CorePersonRecordV2ResourceIntTest : IntegrationTestBase() {
           .exchange()
           .expectStatus().isCreated
 
-        prisonApi.verifyCreateMilitaryRecord()
+        prisonApi.verifyDefaultsCreateMilitaryRecord()
       }
     }
 

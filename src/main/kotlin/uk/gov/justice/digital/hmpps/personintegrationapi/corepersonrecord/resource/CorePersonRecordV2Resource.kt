@@ -240,7 +240,7 @@ class CorePersonRecordV2Resource(
     @PathVariable personId: String,
     @RequestParam(required = true) militarySeq: Int,
     @RequestBody(required = true) @Valid militaryRecordRequest: MilitaryRecordRequest,
-  ): ResponseEntity<Void> = corePersonRecordService.updateMilitaryRecord(personId, militarySeq, militaryRecordRequest.withDefaults())
+  ): ResponseEntity<Void> = corePersonRecordService.updateMilitaryRecord(personId, militarySeq, militaryRecordRequest)
 
   @PostMapping("/person/{personId}/military-records")
   @ResponseStatus(HttpStatus.CREATED)
