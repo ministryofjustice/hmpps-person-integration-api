@@ -6,5 +6,9 @@ prison-api:
 
 document-api:
   base_url: "http://localhost:8083"
-  
 
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
