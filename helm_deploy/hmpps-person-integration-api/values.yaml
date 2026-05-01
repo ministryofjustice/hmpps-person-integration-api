@@ -24,6 +24,7 @@ generic-service:
     hmpps-person-integration-api:
       SYSTEM_CLIENT_ID: "SYSTEM_CLIENT_ID"
       SYSTEM_CLIENT_SECRET: "SYSTEM_CLIENT_SECRET"
+      SENTRY_DSN: "SENTRY_DSN"
 
     hmpps-person-integration-api-application-insights:
       APPLICATIONINSIGHTS_CONNECTION_STRING: "APPLICATIONINSIGHTS_CONNECTION_STRING"
