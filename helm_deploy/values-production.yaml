@@ -6,6 +6,7 @@ generic-service:
     host: person-integration-api.hmpps.service.justice.gov.uk
 
   env:
+    SENTRY_ENVIRONMENT: prod
     HMPPS_AUTH_URL: "https://sign-in.hmpps.service.justice.gov.uk/auth"
     PRISON_API_BASE_URL: "https://prison-api.prison.service.justice.gov.uk"
     DOCUMENT_API_BASE_URL: "https://document-api.hmpps.service.justice.gov.uk"
