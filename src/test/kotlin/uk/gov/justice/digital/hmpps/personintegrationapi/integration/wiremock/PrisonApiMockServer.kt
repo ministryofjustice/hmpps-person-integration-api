@@ -9,6 +9,8 @@ import com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor
 import com.github.tomakehurst.wiremock.client.WireMock.put
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching
+import com.github.tomakehurst.wiremock.core.Options.ChunkedEncodingPolicy.NEVER
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
@@ -596,7 +598,13 @@ internal const val FULL_PERSON_RESPONSE =
     }
   """
 
-class PrisonApiMockServer : WireMockServer(8082) {
+class PrisonApiMockServer :
+  WireMockServer(
+    wireMockConfig()
+      .port(8082)
+      .useChunkedTransferEncoding(NEVER),
+  ) {
+
   fun stubHealthPing(status: Int) {
     stubFor(
       get("/health/ping").willReturn(
