@@ -17,7 +17,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webclient")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
   constraints {
-    implementation("org.webjars:swagger-ui:5.32.2")
+    implementation("org.webjars:swagger-ui:5.32.6")
   }
   implementation("io.sentry:sentry-spring-boot-4:8.43.0")
 
