@@ -19,27 +19,25 @@ dependencies {
   constraints {
     implementation("org.webjars:swagger-ui:5.32.2")
   }
-  implementation("io.sentry:sentry-spring-boot-4:8.43.0")
+  implementation("io.sentry:sentry-spring-boot-4:8.43.2")
 
   testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:2.5.0")
   testImplementation("org.springframework.boot:spring-boot-starter-webclient-test")
   testImplementation("org.springframework.boot:spring-boot-webtestclient")
   testImplementation("org.wiremock:wiremock-standalone:3.13.2")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.43") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.44") {
     exclude(group = "io.swagger.core.v3")
   }
 }
 
-java {
-  sourceCompatibility = JavaVersion.VERSION_24
-  targetCompatibility = JavaVersion.VERSION_24
+kotlin {
+  jvmToolchain(25)
 }
 
 tasks {
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     compilerOptions {
-      jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_24
-      freeCompilerArgs.add("-Xannotation-default-target=param-property")
+      jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_25
     }
   }
 }
