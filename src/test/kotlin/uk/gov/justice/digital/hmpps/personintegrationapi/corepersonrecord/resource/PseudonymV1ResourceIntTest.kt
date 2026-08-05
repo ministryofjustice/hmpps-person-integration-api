@@ -152,7 +152,6 @@ class PseudonymV1ResourceIntTest : IntegrationTestBase() {
       @DisplayName("Middle name 1")
       inner class MiddleName1 {
 
-
         @Test
         internal fun `first middle can not be greater than 35 characters`() {
           expectBadRequest(createRequest(middleName1 = "A".repeat(36)))
@@ -164,7 +163,6 @@ class PseudonymV1ResourceIntTest : IntegrationTestBase() {
       @Nested
       @DisplayName("Middle name 2")
       inner class MiddleName2 {
-
 
         @Test
         internal fun `second middle can not be greater than 35 characters`() {
