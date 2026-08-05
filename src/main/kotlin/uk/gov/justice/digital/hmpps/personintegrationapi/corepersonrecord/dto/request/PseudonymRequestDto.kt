@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
-import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 import java.time.LocalDate
 
@@ -21,23 +20,19 @@ data class PseudonymRequestDto(
   @Schema(description = "First name", example = "John", requiredMode = REQUIRED)
   @field:Size(max = 35)
   @field:NotBlank
-  @field:Pattern(regexp = "^[A-Z|a-z ,.'-]+$", message = "First name is not valid")
   val firstName: String,
 
   @Schema(description = "Middle name 1", example = "Middleone")
   @field:Size(max = 35)
-  @field:Pattern(regexp = "^[A-Z|a-z ,.'-]+$", message = "Middle name 1 is not valid")
   val middleName1: String? = null,
 
   @Schema(description = "Middle name 2", example = "Middletwo")
   @field:Size(max = 35)
-  @field:Pattern(regexp = "^[A-Z|a-z ,.'-]+$", message = "Middle name 2 is not valid")
   val middleName2: String? = null,
 
   @Schema(description = "Last name", example = "Smith", requiredMode = REQUIRED)
   @field:Size(max = 35)
   @field:NotBlank
-  @field:Pattern(regexp = "^[A-Z|a-z ,.'-]+$", message = "Last name is not valid")
   val lastName: String,
 
   @Schema(

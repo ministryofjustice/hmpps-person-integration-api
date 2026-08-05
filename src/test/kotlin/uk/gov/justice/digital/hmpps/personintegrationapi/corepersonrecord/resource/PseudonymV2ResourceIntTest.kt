@@ -113,12 +113,6 @@ class PseudonymV2ResourceIntTest : IntegrationTestBase() {
       @Nested
       @DisplayName("First name")
       inner class FirstName {
-        @Test
-        internal fun `first name must only contain valid characters`() {
-          expectBadRequest(createRequest(firstName = "@@@"))
-            .jsonPath("$.userMessage")
-            .isEqualTo("Field: firstName - First name is not valid")
-        }
 
         @Test
         internal fun `first name can not be greater than 35 characters`() {
@@ -138,12 +132,6 @@ class PseudonymV2ResourceIntTest : IntegrationTestBase() {
       @Nested
       @DisplayName("Last name")
       inner class LastName {
-        @Test
-        internal fun `last name must only contain valid characters`() {
-          expectBadRequest(createRequest(lastName = "###"))
-            .jsonPath("$.userMessage")
-            .isEqualTo("Field: lastName - Last name is not valid")
-        }
 
         @Test
         internal fun `last name can not be greater than 35 characters`() {
@@ -164,12 +152,6 @@ class PseudonymV2ResourceIntTest : IntegrationTestBase() {
       @DisplayName("Middle name 1")
       inner class MiddleName1 {
 
-        @Test
-        internal fun `first middle name must only contain valid characters`() {
-          expectBadRequest(createRequest(middleName1 = "@@@"))
-            .jsonPath("$.userMessage")
-            .isEqualTo("Field: middleName1 - Middle name 1 is not valid")
-        }
 
         @Test
         internal fun `first middle can not be greater than 35 characters`() {
@@ -183,12 +165,6 @@ class PseudonymV2ResourceIntTest : IntegrationTestBase() {
       @DisplayName("Middle name 2")
       inner class MiddleName2 {
 
-        @Test
-        internal fun `second middle name must only contain valid characters`() {
-          expectBadRequest(createRequest(middleName2 = "@@@"))
-            .jsonPath("$.userMessage")
-            .isEqualTo("Field: middleName2 - Middle name 2 is not valid")
-        }
 
         @Test
         internal fun `second middle can not be greater than 35 characters`() {
