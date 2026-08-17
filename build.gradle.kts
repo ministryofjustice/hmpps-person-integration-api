@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.4"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.5"
   kotlin("plugin.spring") version "2.4.10"
 }
 
@@ -19,7 +19,7 @@ dependencies {
   constraints {
     implementation("org.webjars:swagger-ui:5.32.2")
   }
-  implementation("io.sentry:sentry-spring-boot-4:8.52.0")
+  implementation("io.sentry:sentry-spring-boot-4:8.53.0")
 
   testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:3.0.0")
   testImplementation("org.springframework.boot:spring-boot-starter-webclient-test")
@@ -32,12 +32,8 @@ dependencies {
 
 kotlin {
   jvmToolchain(25)
-}
-
-tasks {
-  withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    compilerOptions {
-      jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_25
-    }
+  compilerOptions {
+    freeCompilerArgs.add("-Xcollection-literals")
+    jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_25)
   }
 }
