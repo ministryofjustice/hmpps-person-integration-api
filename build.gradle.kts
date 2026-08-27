@@ -19,7 +19,7 @@ dependencies {
   constraints {
     implementation("org.webjars:swagger-ui:5.32.11")
   }
-  implementation("io.sentry:sentry-spring-boot-4:8.53.0")
+  implementation("io.sentry:sentry-spring-boot-4:8.54.0")
 
   testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:3.0.1")
   testImplementation("org.springframework.boot:spring-boot-starter-webclient-test")
