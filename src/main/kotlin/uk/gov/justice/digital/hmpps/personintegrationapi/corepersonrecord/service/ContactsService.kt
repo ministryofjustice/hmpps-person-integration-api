@@ -9,6 +9,10 @@ import uk.gov.justice.digital.hmpps.personintegrationapi.common.client.request.C
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.request.ContactRequestDto
 import uk.gov.justice.digital.hmpps.personintegrationapi.corepersonrecord.dto.response.ContactResponseDto
 
+private const val EMAIL_MAX_LENGTH = 240
+private const val PHONE_MAX_LENGTH = 40
+private const val PHONE_EXTENSION_MAX_LENGTH = 7
+
 @Service
 class ContactsService(
   private val prisonApiClient: PrisonApiClient,
@@ -22,7 +26,7 @@ class ContactsService(
       val response = prisonApiClient.createEmailAddress(
         personId,
         CreateEmailAddress(
-          emailAddress = contactRequest.contactValue,
+          emailAddress = contactRequest.contactValue.trim(),
         ),
       )
       if (!response.statusCode.is2xxSuccessful) return ResponseEntity.status(response.statusCode).build()
@@ -102,7 +106,7 @@ class ContactsService(
         personId,
         contactId,
         CreateEmailAddress(
-          emailAddress = contactRequest.contactValue,
+          emailAddress = contactRequest.contactValue.trim(),
         ),
       )
 
@@ -142,16 +146,11 @@ class ContactsService(
   }
 
   private fun isValidContact(request: ContactRequestDto): Boolean = if (request.contactType == "EMAIL") {
-    request.contactValue.length <= 240
+    val email = request.contactValue.trim()
+    email.length <= EMAIL_MAX_LENGTH && email.contains("@") && !email.contains(" ")
   } else {
-    if (request.contactValue.length > 40) {
-      false
-    } else {
-      if (request.contactPhoneExtension.isNullOrEmpty()) {
-        true
-      } else {
-        request.contactPhoneExtension.length <= 7
-      }
-    }
+    request.contactValue.length <= PHONE_MAX_LENGTH && extensionIsValid(request.contactPhoneExtension)
   }
+
+  private fun extensionIsValid(extension: String?): Boolean = extension.isNullOrEmpty() || extension.length <= PHONE_EXTENSION_MAX_LENGTH
 }
